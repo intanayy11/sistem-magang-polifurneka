@@ -30,6 +30,7 @@ const KelolaUserPage = () => {
     password: '',
     role: 'peserta',
     nim_nis: '',
+    asal_instansi: '',
     no_hp: '',
     tanggal_mulai_magang: '',
     tanggal_selesai_magang: '',
@@ -67,6 +68,7 @@ const KelolaUserPage = () => {
       password: '',
       role: 'peserta',
       nim_nis: '',
+      asal_instansi: '',
       no_hp: '',
       tanggal_mulai_magang: '',
       tanggal_selesai_magang: '',
@@ -82,6 +84,7 @@ const KelolaUserPage = () => {
       password: '',
       role: user.role,
       nim_nis: user.nim_nis || '',
+      asal_instansi: user.asal_instansi || '',
       no_hp: user.no_hp || '',
       tanggal_mulai_magang: user.tanggal_mulai_magang || '',
       tanggal_selesai_magang: user.tanggal_selesai_magang || '',
@@ -245,6 +248,9 @@ const KelolaUserPage = () => {
                     <td className="px-5 py-3.5">
                       <div className="font-bold text-slate-900">{u.nama}</div>
                       <div className="text-[11px] text-slate-400 font-mono">{u.nim_nis || '-'}</div>
+                      {u.asal_instansi && (
+                        <div className="text-[10px] text-amber-700 bg-amber-50 rounded px-1.5 py-0.5 inline-block mt-0.5">{u.asal_instansi}</div>
+                      )}
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="text-slate-800 font-medium">{u.email}</div>
@@ -370,6 +376,17 @@ const KelolaUserPage = () => {
                   type="text"
                   value={userForm.nim_nis}
                   onChange={(e) => setUserForm({ ...userForm, nim_nis: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Asal Sekolah / Universitas / Instansi (Opsional)</label>
+                <input
+                  type="text"
+                  placeholder="Contoh: Universitas Jenderal Soedirman"
+                  value={userForm.asal_instansi}
+                  onChange={(e) => setUserForm({ ...userForm, asal_instansi: e.target.value })}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
                 />
               </div>

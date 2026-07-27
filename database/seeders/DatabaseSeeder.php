@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password123'),
             'role' => 'peserta',
             'nim_nis' => 'H1D022045',
+            'asal_instansi' => 'Universitas Jenderal Soedirman',
             'no_hp' => '085712345678',
             'tanggal_mulai_magang' => Carbon::now()->subMonth()->toDateString(),
             'tanggal_selesai_magang' => Carbon::now()->addMonths(2)->toDateString(),

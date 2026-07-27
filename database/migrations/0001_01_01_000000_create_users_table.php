@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['peserta', 'pembimbing', 'admin']);
             $table->string('nim_nis')->nullable();
+            $table->string('asal_instansi')->nullable();
             $table->string('no_hp')->nullable();
             $table->string('foto_profil')->nullable();
             $table->date('tanggal_mulai_magang')->nullable();

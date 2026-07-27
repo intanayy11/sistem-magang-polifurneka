@@ -4,125 +4,193 @@
     <meta charset="utf-8">
     <title>Rekap Presensi & Logbook Magang</title>
     <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; color: #333; line-height: 1.4; }
-        .header { text-align: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
-        .header h2 { margin: 0; font-size: 16px; color: #1e3a8a; text-transform: uppercase; }
-        .header h3 { margin: 3px 0 0 0; font-size: 13px; font-weight: normal; color: #475569; }
-        .header p { margin: 2px 0 0 0; font-size: 10px; color: #64748b; }
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 11px;
+            color: #000000;
+            line-height: 1.4;
+        }
         
-        .info-table { width: 100%; margin-bottom: 15px; border-collapse: collapse; }
-        .info-table td { padding: 4px 6px; }
-        .info-label { font-weight: bold; width: 140px; color: #334155; }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .header h2 {
+            margin: 0;
+            font-size: 15px;
+            color: #000000;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .header h3 {
+            margin: 3px 0 0 0;
+            font-size: 12px;
+            font-weight: bold;
+            color: #000000;
+            text-transform: uppercase;
+        }
         
-        .section-title { font-size: 13px; font-weight: bold; color: #1e3a8a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; margin-top: 15px; margin-bottom: 8px; }
+        .info-table {
+            width: 100%;
+            margin-bottom: 15px;
+            border-collapse: collapse;
+        }
+        .info-table td {
+            padding: 3px 4px;
+            vertical-align: top;
+        }
+        .info-label {
+            font-weight: bold;
+            width: 160px;
+            color: #000000;
+        }
         
-        table.data-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        table.data-table th { background-color: #1e3a8a; color: #ffffff; text-align: left; padding: 6px; font-size: 10px; }
-        table.data-table td { border-bottom: 1px solid #e2e8f0; padding: 5px 6px; vertical-align: top; }
-        table.data-table tr:nth-child(even) { background-color: #f8fafc; }
+        .section-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #000000;
+            border-bottom: 1px solid #000000;
+            padding-bottom: 3px;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
         
-        .badge { padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; display: inline-block; }
-        .badge-hadir { background-color: #dcfce7; color: #15803d; }
-        .badge-terlambat { background-color: #fef3c7; color: #b45309; }
-        .badge-pulangcepat { background-color: #ffedd5; color: #c2410c; }
+        table.data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        table.data-table th {
+            background-color: #ffffff;
+            color: #000000;
+            text-align: left;
+            padding: 5px 6px;
+            font-size: 10px;
+            border: 1px solid #000000;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        table.data-table td {
+            border: 1px solid #000000;
+            padding: 4px 6px;
+            vertical-align: top;
+            color: #000000;
+        }
         
-        .footer { margin-top: 30px; width: 100%; }
-        .signature-box { float: right; width: 220px; text-align: center; }
+        .footer {
+            margin-top: 30px;
+            width: 100%;
+        }
+        .signature-box {
+            float: right;
+            width: 220px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
+    @if(file_exists(public_path('images/kop.jpg')))
+    <div style="text-align: center; margin-bottom: 10px;">
+        <img src="{{ public_path('images/kop.jpg') }}" style="width: 100%; max-height: 100px; object-fit: contain;" alt="Kop Surat Polifurneka">
+    </div>
+    @else
     <div class="header">
         <h2>POLITEKNIK INDUSTRI FURNITUR DAN PENGOLAHAN KAYU KENDAL</h2>
         <h3>LAPORAN REKAP PRESENSI & LOGBOOK MAGANG</h3>
-        <p>Universitas Jenderal Soedirman - Jurusan Informatika</p>
     </div>
+    @endif
 
     <table class="info-table">
         <tr>
-            <td class="info-label">Nama Peserta</td>
+            <td class="info-label">Nama Peserta Magang</td>
             <td>: {{ $user->nama }}</td>
-            <td class="info-label">Pembimbing Lapangan</td>
-            <td>: {{ $plotting->pembimbing->nama ?? '-' }}</td>
         </tr>
         <tr>
             <td class="info-label">NIM / NIS</td>
             <td>: {{ $user->nim_nis ?? '-' }}</td>
-            <td class="info-label">Email / No HP</td>
-            <td>: {{ $user->email }} / {{ $user->no_hp ?? '-' }}</td>
+        </tr>
+        @if($user->asal_instansi)
+        <tr>
+            <td class="info-label">Asal Sekolah / Instansi</td>
+            <td>: {{ $user->asal_instansi }}</td>
+        </tr>
+        @endif
+        <tr>
+            <td class="info-label">Pembimbing Lapangan</td>
+            <td>: {{ $plotting->pembimbing->nama ?? '-' }}</td>
         </tr>
         <tr>
-            <td class="info-label">Tanggal Cetak</td>
-            <td>: {{ $generatedAt }}</td>
+            <td class="info-label">Email / No. HP</td>
+            <td>: {{ $user->email }} @if($user->no_hp) / {{ $user->no_hp }} @endif</td>
+        </tr>
+        <tr>
             <td class="info-label">Periode Magang</td>
-            <td>: {{ $user->tanggal_mulai_magang ? \Carbon\Carbon::parse($user->tanggal_mulai_magang)->format('d-m-Y') : '-' }} s/d {{ $user->tanggal_selesai_magang ? \Carbon\Carbon::parse($user->tanggal_selesai_magang)->format('d-m-Y') : 'Sekarang' }}</td>
+            <td>: {{ $user->tanggal_mulai_magang ? \Carbon\Carbon::parse($user->tanggal_mulai_magang)->translatedFormat('d F Y') : '-' }} s/d {{ $user->tanggal_selesai_magang ? \Carbon\Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y') : 'Sekarang' }}</td>
+        </tr>
+        <tr>
+            <td class="info-label">Tanggal Cetak Rekap</td>
+            <td>: {{ \Carbon\Carbon::parse($generatedAt)->translatedFormat('d F Y H:i') }} WIB</td>
         </tr>
     </table>
 
-    <div class="section-title">I. REKAPITULASI PRESENSI</div>
+    <div class="section-title">I. REKAPITULASI PRESENSI KEHADIRAN</div>
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 30px;">No</th>
-                <th style="width: 90px;">Tanggal</th>
-                <th style="width: 80px;">Jam Masuk</th>
-                <th style="width: 80px;">Jam Pulang</th>
-                <th>Status</th>
+                <th style="width: 30px; text-align: center;">No</th>
+                <th style="width: 100px;">Tanggal</th>
+                <th style="width: 90px;">Jam Masuk</th>
+                <th style="width: 90px;">Jam Pulang</th>
+                <th>Status Kehadiran</th>
             </tr>
         </thead>
         <tbody>
             @forelse($presensiList as $index => $item)
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
+                    <td style="text-align: center;">{{ $index + 1 }}</td>
+                    <td>{{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('d F Y') }}</td>
                     <td>{{ $item->jam_masuk ?? '-' }}</td>
                     <td>{{ $item->jam_pulang ?? '-' }}</td>
-                    <td>
-                        @if($item->status == 'Hadir')
-                            <span class="badge badge-hadir">Hadir</span>
-                        @elseif($item->status == 'Terlambat')
-                            <span class="badge badge-terlambat">Terlambat</span>
-                        @elseif($item->status == 'Pulang Cepat')
-                            <span class="badge badge-pulangcepat">Pulang Cepat</span>
-                        @else
-                            {{ $item->status }}
-                        @endif
-                    </td>
+                    <td><strong>{{ $item->status }}</strong></td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" style="text-align: center; color: #94a3b8;">Belum ada data presensi.</td>
+                    <td colspan="5" style="text-align: center;">Belum ada data presensi.</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
 
-    <div class="section-title">II. LOGBOOK KEGIATAN HARIAN (APPROVED)</div>
+    <div class="section-title">II. LOGBOOK KEGIATAN HARIAN (DISERAHKAN / APPROVED)</div>
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 30px;">No</th>
-                <th style="width: 80px;">Tanggal</th>
-                <th style="width: 150px;">Judul Kegiatan</th>
+                <th style="width: 30px; text-align: center;">No</th>
+                <th style="width: 100px;">Tanggal</th>
+                <th style="width: 160px;">Judul Kegiatan</th>
                 <th>Deskripsi Kegiatan & Kendala</th>
             </tr>
         </thead>
         <tbody>
             @forelse($logbookList as $index => $log)
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ \Carbon\Carbon::parse($log->tanggal)->format('d-m-Y') }}</td>
+                    <td style="text-align: center;">{{ $index + 1 }}</td>
+                    <td>{{ \Carbon\Carbon::parse($log->tanggal)->translatedFormat('d F Y') }}</td>
                     <td><strong>{{ $log->judul_kegiatan }}</strong></td>
                     <td>
                         {{ $log->deskripsi }}
                         @if($log->kendala)
-                            <br><em style="color: #64748b;">Kendala: {{ $log->kendala }}</em>
+                            <br><em>Kendala: {{ $log->kendala }}</em>
                         @endif
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" style="text-align: center; color: #94a3b8;">Belum ada logbook yang disetujui (Approve).</td>
+                    <td colspan="4" style="text-align: center;">Belum ada logbook yang disetujui (Approve).</td>
                 </tr>
             @endforelse
         </tbody>
@@ -130,9 +198,15 @@
 
     <div class="footer">
         <div class="signature-box">
-            <p>Kendal, {{ \Carbon\Carbon::now()->format('d F Y') }}</p>
+            @php
+                \Carbon\Carbon::setLocale('id');
+                $tglTtd = $user->tanggal_selesai_magang 
+                    ? \Carbon\Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y') 
+                    : \Carbon\Carbon::now()->translatedFormat('d F Y');
+            @endphp
+            <p>Kendal, {{ $tglTtd }}</p>
             <p>Pembimbing Lapangan,</p>
-            <br><br><br>
+            <br><br><br><br>
             <p><strong>( {{ $plotting->pembimbing->nama ?? '..........................' }} )</strong></p>
         </div>
     </div>

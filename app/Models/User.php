@@ -19,6 +19,7 @@ class User extends Authenticatable
         'password',
         'role',
         'nim_nis',
+        'asal_instansi',
         'no_hp',
         'foto_profil',
         'tanggal_mulai_magang',
