@@ -44,6 +44,8 @@ class AdminController extends Controller
             'role' => 'required|in:peserta,pembimbing,admin',
             'nim_nis' => 'nullable|string',
             'no_hp' => 'nullable|string',
+            'tanggal_mulai_magang' => 'nullable|date',
+            'tanggal_selesai_magang' => 'nullable|date|after_or_equal:tanggal_mulai_magang',
         ]);
 
         $user = User::create([
@@ -53,6 +55,8 @@ class AdminController extends Controller
             'role' => $request->role,
             'nim_nis' => $request->nim_nis,
             'no_hp' => $request->no_hp,
+            'tanggal_mulai_magang' => $request->tanggal_mulai_magang,
+            'tanggal_selesai_magang' => $request->tanggal_selesai_magang,
             'status_aktif' => true,
         ]);
 
@@ -73,6 +77,8 @@ class AdminController extends Controller
             'role' => 'required|in:peserta,pembimbing,admin',
             'nim_nis' => 'nullable|string',
             'no_hp' => 'nullable|string',
+            'tanggal_mulai_magang' => 'nullable|date',
+            'tanggal_selesai_magang' => 'nullable|date|after_or_equal:tanggal_mulai_magang',
         ]);
 
         $user->update([
@@ -81,6 +87,8 @@ class AdminController extends Controller
             'role' => $request->role,
             'nim_nis' => $request->nim_nis,
             'no_hp' => $request->no_hp,
+            'tanggal_mulai_magang' => $request->tanggal_mulai_magang,
+            'tanggal_selesai_magang' => $request->tanggal_selesai_magang,
         ]);
 
         return response()->json([
@@ -136,7 +144,11 @@ class AdminController extends Controller
 
     public function getOptionsList()
     {
-        $pesertaList = User::where('role', 'peserta')->where('status_aktif', true)->select('user_id', 'nama', 'nim_nis', 'email')->get();
+        $pesertaList = User::where('role', 'peserta')
+            ->where('status_aktif', true)
+            ->whereDoesntHave('plottingAsPeserta')
+            ->select('user_id', 'nama', 'nim_nis', 'email', 'tanggal_mulai_magang', 'tanggal_selesai_magang')
+            ->get();
         $pembimbingList = User::where('role', 'pembimbing')->where('status_aktif', true)->select('user_id', 'nama', 'email', 'no_hp')->get();
 
         return response()->json([
@@ -150,7 +162,7 @@ class AdminController extends Controller
 
     public function getPlotting()
     {
-        $plotting = PlottingBimbingan::with(['peserta:user_id,nama,nim_nis,email', 'pembimbing:user_id,nama,email'])
+        $plotting = PlottingBimbingan::with(['peserta:user_id,nama,nim_nis,email,tanggal_mulai_magang,tanggal_selesai_magang', 'pembimbing:user_id,nama,email'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -165,8 +177,6 @@ class AdminController extends Controller
         $request->validate([
             'peserta_id' => 'required|exists:users,user_id',
             'pembimbing_id' => 'required|exists:users,user_id',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
         ]);
 
         // Check if existing active plotting for this peserta exists
@@ -175,8 +185,6 @@ class AdminController extends Controller
         $plotting = PlottingBimbingan::create([
             'peserta_id' => $request->peserta_id,
             'pembimbing_id' => $request->pembimbing_id,
-            'tanggal_mulai' => $request->tanggal_mulai,
-            'tanggal_selesai' => $request->tanggal_selesai,
         ]);
 
         return response()->json([

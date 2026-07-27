@@ -31,6 +31,8 @@ const KelolaUserPage = () => {
     role: 'peserta',
     nim_nis: '',
     no_hp: '',
+    tanggal_mulai_magang: '',
+    tanggal_selesai_magang: '',
   });
 
   // Modal Reset Password
@@ -66,6 +68,8 @@ const KelolaUserPage = () => {
       role: 'peserta',
       nim_nis: '',
       no_hp: '',
+      tanggal_mulai_magang: '',
+      tanggal_selesai_magang: '',
     });
     setShowUserModal(true);
   };
@@ -79,6 +83,8 @@ const KelolaUserPage = () => {
       role: user.role,
       nim_nis: user.nim_nis || '',
       no_hp: user.no_hp || '',
+      tanggal_mulai_magang: user.tanggal_mulai_magang || '',
+      tanggal_selesai_magang: user.tanggal_selesai_magang || '',
     });
     setShowUserModal(true);
   };
@@ -377,6 +383,29 @@ const KelolaUserPage = () => {
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
                 />
               </div>
+
+              {userForm.role === 'peserta' && (
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Tgl Mulai Magang</label>
+                    <input
+                      type="date"
+                      value={userForm.tanggal_mulai_magang}
+                      onChange={(e) => setUserForm({ ...userForm, tanggal_mulai_magang: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Tgl Selesai Magang</label>
+                    <input
+                      type="date"
+                      value={userForm.tanggal_selesai_magang}
+                      onChange={(e) => setUserForm({ ...userForm, tanggal_selesai_magang: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">
                 <button

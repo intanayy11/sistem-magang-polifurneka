@@ -45,6 +45,8 @@ class DatabaseSeeder extends Seeder
             'role' => 'peserta',
             'nim_nis' => 'H1D022045',
             'no_hp' => '085712345678',
+            'tanggal_mulai_magang' => Carbon::now()->subMonth()->toDateString(),
+            'tanggal_selesai_magang' => Carbon::now()->addMonths(2)->toDateString(),
             'status_aktif' => true,
         ]);
 
@@ -52,8 +54,6 @@ class DatabaseSeeder extends Seeder
         PlottingBimbingan::create([
             'peserta_id' => $peserta->user_id,
             'pembimbing_id' => $pembimbing->user_id,
-            'tanggal_mulai' => Carbon::now()->subMonth()->toDateString(),
-            'tanggal_selesai' => Carbon::now()->addMonths(2)->toDateString(),
         ]);
     }
 }

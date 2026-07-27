@@ -12,8 +12,6 @@ return new class extends Migration
             $table->id('plotting_id');
             $table->foreignId('peserta_id')->constrained('users', 'user_id')->onDelete('cascade');
             $table->foreignId('pembimbing_id')->constrained('users', 'user_id')->onDelete('cascade');
-            $table->date('tanggal_mulai');
-            $table->date('tanggal_selesai')->nullable();
             $table->timestamps();
         });
     }

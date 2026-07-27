@@ -55,7 +55,7 @@
             <td class="info-label">Tanggal Cetak</td>
             <td>: {{ $generatedAt }}</td>
             <td class="info-label">Periode Magang</td>
-            <td>: {{ $plotting->tanggal_mulai ?? '-' }} s/d {{ $plotting->tanggal_selesai ?? 'Sekarang' }}</td>
+            <td>: {{ $user->tanggal_mulai_magang ? \Carbon\Carbon::parse($user->tanggal_mulai_magang)->format('d-m-Y') : '-' }} s/d {{ $user->tanggal_selesai_magang ? \Carbon\Carbon::parse($user->tanggal_selesai_magang)->format('d-m-Y') : 'Sekarang' }}</td>
         </tr>
     </table>
 

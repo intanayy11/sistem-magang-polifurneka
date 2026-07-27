@@ -15,8 +15,6 @@ class PlottingBimbingan extends Model
     protected $fillable = [
         'peserta_id',
         'pembimbing_id',
-        'tanggal_mulai',
-        'tanggal_selesai',
     ];
 
     public function peserta()

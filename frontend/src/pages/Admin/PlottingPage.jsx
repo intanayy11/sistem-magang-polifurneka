@@ -15,8 +15,6 @@ const PlottingPage = () => {
   const [form, setForm] = useState({
     peserta_id: '',
     pembimbing_id: '',
-    tanggal_mulai: new Date().toISOString().split('T')[0],
-    tanggal_selesai: '',
   });
 
   const fetchData = async () => {
@@ -97,7 +95,7 @@ const PlottingPage = () => {
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">Plotting Bimbingan Magang</h2>
           <p className="text-slate-500 text-xs mt-0.5">
-            Petakan peserta magang dengan pembimbing lapangan serta atur periode waktu bimbingan.
+            Petakan peserta magang dengan pembimbing lapangan.
           </p>
         </div>
         <button
@@ -132,7 +130,7 @@ const PlottingPage = () => {
                 <th className="px-5 py-3.5">No</th>
                 <th className="px-5 py-3.5">Peserta Magang</th>
                 <th className="px-5 py-3.5">Pembimbing Lapangan</th>
-                <th className="px-5 py-3.5">Periode Magang</th>
+                <th className="px-5 py-3.5">Periode Magang Peserta</th>
                 <th className="px-5 py-3.5 text-right">Aksi</th>
               </tr>
             </thead>
@@ -156,7 +154,7 @@ const PlottingPage = () => {
                       <div className="text-[11px] text-slate-400">{item.pembimbing?.email || '-'}</div>
                     </td>
                     <td className="px-5 py-3.5 font-mono text-slate-700">
-                      {item.tanggal_mulai} s/d {item.tanggal_selesai || 'Sekarang'}
+                      {item.peserta?.tanggal_mulai_magang || '-'} s/d {item.peserta?.tanggal_selesai_magang || 'Sekarang'}
                     </td>
                     <td className="px-5 py-3.5 text-right">
                       <button
@@ -193,13 +191,18 @@ const PlottingPage = () => {
                   required
                   value={form.peserta_id}
                   onChange={(e) => setForm({ ...form, peserta_id: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                  disabled={pesertaOptions.length === 0}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 disabled:opacity-60"
                 >
-                  {pesertaOptions.map((p) => (
-                    <option key={p.user_id} value={p.user_id}>
-                      {p.nama} ({p.nim_nis || p.email})
-                    </option>
-                  ))}
+                  {pesertaOptions.length === 0 ? (
+                    <option value="">-- Semua peserta magang sudah di-plotting --</option>
+                  ) : (
+                    pesertaOptions.map((p) => (
+                      <option key={p.user_id} value={p.user_id}>
+                        {p.nama} ({p.nim_nis || p.email})
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
 
@@ -217,28 +220,6 @@ const PlottingPage = () => {
                     </option>
                   ))}
                 </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Tanggal Mulai</label>
-                  <input
-                    type="date"
-                    required
-                    value={form.tanggal_mulai}
-                    onChange={(e) => setForm({ ...form, tanggal_mulai: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Tanggal Selesai (Opsional)</label>
-                  <input
-                    type="date"
-                    value={form.tanggal_selesai}
-                    onChange={(e) => setForm({ ...form, tanggal_selesai: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
-                  />
-                </div>
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">

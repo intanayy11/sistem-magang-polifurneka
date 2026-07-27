@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('nim_nis')->nullable();
             $table->string('no_hp')->nullable();
             $table->string('foto_profil')->nullable();
+            $table->date('tanggal_mulai_magang')->nullable();
+            $table->date('tanggal_selesai_magang')->nullable();
             $table->boolean('status_aktif')->default(true);
             $table->timestamps();
         });

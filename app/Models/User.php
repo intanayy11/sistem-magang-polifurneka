@@ -21,6 +21,8 @@ class User extends Authenticatable
         'nim_nis',
         'no_hp',
         'foto_profil',
+        'tanggal_mulai_magang',
+        'tanggal_selesai_magang',
         'status_aktif',
     ];
 
