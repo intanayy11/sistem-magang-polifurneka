@@ -13,7 +13,8 @@ import {
   Menu,
   X,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  MapPin
 } from 'lucide-react';
 
 const Layout = () => {
@@ -54,10 +55,11 @@ const Layout = () => {
     }
     if (user?.role === 'pembimbing') {
       return [
-        { to: '/pembimbing/dashboard',       label: 'Dashboard',             icon: LayoutDashboard },
-        { to: '/pembimbing/review-logbook',  label: 'Review Logbook',        icon: BookOpen },
-        { to: '/pembimbing/verifikasi-izin', label: 'Verifikasi Izin',       icon: FileCheck },
-        { to: '/pembimbing/kelola-tugas',    label: 'Kelola & Review Tugas', icon: CheckSquare },
+        { to: '/pembimbing/dashboard',         label: 'Dashboard',              icon: LayoutDashboard },
+        { to: '/pembimbing/review-logbook',    label: 'Review Logbook',         icon: BookOpen },
+        { to: '/pembimbing/verifikasi-izin',   label: 'Verifikasi Izin',        icon: FileCheck },
+        { to: '/pembimbing/kelola-tugas',      label: 'Kelola & Review Tugas',  icon: CheckSquare },
+        { to: '/pembimbing/monitor-presensi',  label: 'Monitor Presensi & GPS', icon: MapPin },
       ];
     }
     if (user?.role === 'admin') {
@@ -169,7 +171,7 @@ const Layout = () => {
 
         {/* ── Sidebar Navigation ── */}
         <aside
-          className={`fixed lg:static inset-y-0 left-0 w-64 bg-white border-r border-slate-200 z-20 transform transition-transform duration-200 ease-in-out flex flex-col justify-between ${
+          className={`fixed lg:static top-[68px] lg:top-0 bottom-0 left-0 w-64 bg-white border-r border-slate-200 z-20 transform transition-transform duration-200 ease-in-out flex flex-col justify-between ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >

@@ -18,6 +18,7 @@ import PembimbingDashboard from './pages/Pembimbing/PembimbingDashboard';
 import ReviewLogbookPage from './pages/Pembimbing/ReviewLogbookPage';
 import VerifikasiIzinPage from './pages/Pembimbing/VerifikasiIzinPage';
 import KelolaTugasPage from './pages/Pembimbing/KelolaTugasPage';
+import MonitorPresensiPage from './pages/Pembimbing/MonitorPresensiPage';
 
 // Admin Pages
 import AdminDashboard from './pages/Admin/AdminDashboard';
@@ -59,6 +60,7 @@ function App() {
               <Route path="/pembimbing/review-logbook" element={<ReviewLogbookPage />} />
               <Route path="/pembimbing/verifikasi-izin" element={<VerifikasiIzinPage />} />
               <Route path="/pembimbing/kelola-tugas" element={<KelolaTugasPage />} />
+              <Route path="/pembimbing/monitor-presensi" element={<MonitorPresensiPage />} />
             </Route>
           </Route>
 

@@ -17,6 +17,10 @@ class Presensi extends Model
         'tanggal',
         'jam_masuk',
         'jam_pulang',
+        'latitude_masuk',
+        'longitude_masuk',
+        'latitude_pulang',
+        'longitude_pulang',
         'status',
     ];
 

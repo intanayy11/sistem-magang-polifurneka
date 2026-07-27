@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import StatusBadge from '../../components/StatusBadge';
-import { Clock, Calendar, AlertCircle } from 'lucide-react';
+import MapModal from '../../components/MapModal';
+import { Clock, Calendar, AlertCircle, MapPin, Loader2 } from 'lucide-react';
 
 const PresensiPage = () => {
   const [today, setToday] = useState(null);
@@ -9,6 +10,10 @@ const PresensiPage = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [alert, setAlert] = useState(null);
+  const [locationStatus, setLocationStatus] = useState('');
+
+  // Map Modal
+  const [mapModal, setMapModal] = useState({ open: false, lat: null, lng: null, title: '', timestamp: '' });
 
   const fetchPresensi = async () => {
     try {
@@ -28,12 +33,34 @@ const PresensiPage = () => {
     fetchPresensi();
   }, []);
 
+  const getCoordinates = () => {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve({ latitude: null, longitude: null });
+        return;
+      }
+      setLocationStatus('Mendapatkan lokasi GPS Anda...');
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocationStatus('');
+          resolve({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+        },
+        () => {
+          setLocationStatus('');
+          resolve({ latitude: null, longitude: null });
+        },
+        { timeout: 8000, enableHighAccuracy: true }
+      );
+    });
+  };
+
   const handleCheckIn = async () => {
     setActionLoading(true);
     setAlert(null);
+    const { latitude, longitude } = await getCoordinates();
     try {
-      const res = await api.post('/presensi/check-in');
-      setAlert({ type: 'success', message: res.data.message });
+      const res = await api.post('/presensi/check-in', { latitude, longitude });
+      setAlert({ type: 'success', message: res.data.message + (latitude ? ` 📍 Lokasi GPS berhasil dicatat.` : ' (Lokasi tidak tersedia)') });
       fetchPresensi();
     } catch (err) {
       setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal melakukan check-in' });
@@ -45,9 +72,10 @@ const PresensiPage = () => {
   const handleCheckOut = async () => {
     setActionLoading(true);
     setAlert(null);
+    const { latitude, longitude } = await getCoordinates();
     try {
-      const res = await api.post('/presensi/check-out');
-      setAlert({ type: 'success', message: res.data.message });
+      const res = await api.post('/presensi/check-out', { latitude, longitude });
+      setAlert({ type: 'success', message: res.data.message + (latitude ? ` 📍 Lokasi GPS berhasil dicatat.` : ' (Lokasi tidak tersedia)') });
       fetchPresensi();
     } catch (err) {
       setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal melakukan check-out' });
@@ -75,9 +103,16 @@ const PresensiPage = () => {
       <div>
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">Presensi Harian Magang</h2>
         <p className="text-slate-500 text-xs mt-0.5">
-          Lakukan check-in pada jam masuk dan check-out saat jam pulang instansi.
+          Lakukan check-in pada jam masuk dan check-out saat jam pulang. Lokasi GPS Anda akan dicatat otomatis.
         </p>
       </div>
+
+      {locationStatus && (
+        <div className="p-4 rounded-xl text-xs flex items-center gap-2.5 bg-blue-50 text-blue-800 border border-blue-200">
+          <Loader2 size={16} className="animate-spin shrink-0" />
+          <span>{locationStatus}</span>
+        </div>
+      )}
 
       {alert && (
         <div className={`p-4 rounded-xl text-xs flex items-center gap-2.5 ${
@@ -90,7 +125,7 @@ const PresensiPage = () => {
 
       {/* Check In / Check Out Action Card */}
       <div className="card-clean p-6">
-        <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-100">
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
           <div>
             <h3 className="font-bold text-slate-900 text-base">Aksi Presensi Hari Ini</h3>
             {!isWeekend && (
@@ -102,6 +137,15 @@ const PresensiPage = () => {
           <span className="text-xs font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 border border-slate-200/60">
             <Calendar size={14} className="text-amber-600" />
             {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </span>
+        </div>
+
+        {/* GPS Info Banner */}
+        <div className="mb-5 flex items-center gap-2.5 text-[11px] text-emerald-800 bg-emerald-50 rounded-xl px-4 py-2.5 border border-emerald-200/60">
+          <MapPin size={14} className="text-emerald-600 shrink-0" />
+          <span>
+            <strong>Presensi berbasis GPS aktif.</strong> Lokasi Anda akan dicatat otomatis saat check-in & check-out. 
+            Pastikan izin akses lokasi diberikan di browser.
           </span>
         </div>
 
@@ -122,6 +166,15 @@ const PresensiPage = () => {
                 <p className="text-xs text-slate-600 mt-1">
                   {today ? `Status: ${today.status}` : 'Belum melakukan check-in hari ini.'}
                 </p>
+                {/* Location link for check-in */}
+                {today?.latitude_masuk && (
+                  <button
+                    onClick={() => setMapModal({ open: true, lat: today.latitude_masuk, lng: today.longitude_masuk, title: 'Lokasi Check-In', timestamp: `Jam Masuk: ${today.jam_masuk}` })}
+                    className="mt-2 inline-flex items-center gap-1 text-[11px] text-amber-700 font-semibold bg-amber-100 px-2 py-1 rounded-lg hover:bg-amber-200 transition-colors"
+                  >
+                    <MapPin size={11} /> Lihat Peta Lokasi Check-In
+                  </button>
+                )}
               </div>
               <div className="mt-4">
                 <button
@@ -129,12 +182,12 @@ const PresensiPage = () => {
                   disabled={!!today || actionLoading}
                   className="w-full btn-poli-primary disabled:bg-slate-200 disabled:text-slate-400 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  <Clock size={15} />
+                  {actionLoading ? <Loader2 size={15} className="animate-spin" /> : <Clock size={15} />}
                   <span>{today ? 'Sudah Check-In' : 'Check-In Sekarang'}</span>
                 </button>
               </div>
             </div>
-  
+
             {/* Check Out Box */}
             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
               <div>
@@ -145,6 +198,15 @@ const PresensiPage = () => {
                 <p className="text-xs text-slate-600 mt-1">
                   {today?.jam_pulang ? 'Check-out tercatat.' : 'Belum melakukan check-out.'}
                 </p>
+                {/* Location link for check-out */}
+                {today?.latitude_pulang && (
+                  <button
+                    onClick={() => setMapModal({ open: true, lat: today.latitude_pulang, lng: today.longitude_pulang, title: 'Lokasi Check-Out', timestamp: `Jam Pulang: ${today.jam_pulang}` })}
+                    className="mt-2 inline-flex items-center gap-1 text-[11px] text-slate-700 font-semibold bg-slate-200 px-2 py-1 rounded-lg hover:bg-slate-300 transition-colors"
+                  >
+                    <MapPin size={11} /> Lihat Peta Lokasi Check-Out
+                  </button>
+                )}
               </div>
               <div className="mt-4">
                 <button
@@ -152,7 +214,7 @@ const PresensiPage = () => {
                   disabled={!today || !!today?.jam_pulang || actionLoading}
                   className="w-full bg-slate-900 hover:bg-slate-800 text-white disabled:bg-slate-200 disabled:text-slate-400 font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  <Clock size={15} className="text-amber-400" />
+                  {actionLoading ? <Loader2 size={15} className="animate-spin" /> : <Clock size={15} className="text-amber-400" />}
                   <span>{today?.jam_pulang ? 'Sudah Check-Out' : 'Check-Out Sekarang'}</span>
                 </button>
               </div>
@@ -177,12 +239,13 @@ const PresensiPage = () => {
                 <th className="px-5 py-3.5">Jam Masuk</th>
                 <th className="px-5 py-3.5">Jam Pulang</th>
                 <th className="px-5 py-3.5">Status</th>
+                <th className="px-5 py-3.5 text-center">Lokasi GPS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {riwayat.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-5 py-8 text-center text-slate-400 text-xs">
+                  <td colSpan="6" className="px-5 py-8 text-center text-slate-400 text-xs">
                     Belum ada riwayat presensi.
                   </td>
                 </tr>
@@ -198,6 +261,34 @@ const PresensiPage = () => {
                     <td className="px-5 py-3.5">
                       <StatusBadge status={item.status} />
                     </td>
+                    <td className="px-5 py-3.5 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        {item.latitude_masuk ? (
+                          <button
+                            onClick={() => setMapModal({ open: true, lat: item.latitude_masuk, lng: item.longitude_masuk, title: 'Lokasi Check-In', timestamp: `${new Date(item.tanggal).toLocaleDateString('id-ID')} | ${item.jam_masuk}` })}
+                            className="inline-flex items-center gap-1 text-[11px] bg-amber-100 text-amber-800 font-semibold px-2 py-1 rounded-lg hover:bg-amber-200 transition-colors"
+                            title="Lihat peta check-in"
+                          >
+                            <MapPin size={11} />
+                            <span>In</span>
+                          </button>
+                        ) : (
+                          <span className="text-slate-300 text-[11px]">-</span>
+                        )}
+                        {item.latitude_pulang ? (
+                          <button
+                            onClick={() => setMapModal({ open: true, lat: item.latitude_pulang, lng: item.longitude_pulang, title: 'Lokasi Check-Out', timestamp: `${new Date(item.tanggal).toLocaleDateString('id-ID')} | ${item.jam_pulang}` })}
+                            className="inline-flex items-center gap-1 text-[11px] bg-slate-200 text-slate-700 font-semibold px-2 py-1 rounded-lg hover:bg-slate-300 transition-colors"
+                            title="Lihat peta check-out"
+                          >
+                            <MapPin size={11} />
+                            <span>Out</span>
+                          </button>
+                        ) : (
+                          item.latitude_masuk ? <span className="text-slate-300 text-[11px]">-</span> : null
+                        )}
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}
@@ -205,6 +296,16 @@ const PresensiPage = () => {
           </table>
         </div>
       </div>
+
+      {/* Map Modal */}
+      <MapModal
+        isOpen={mapModal.open}
+        onClose={() => setMapModal({ ...mapModal, open: false })}
+        latitude={mapModal.lat}
+        longitude={mapModal.lng}
+        title={mapModal.title}
+        timestamp={mapModal.timestamp}
+      />
     </div>
   );
 };

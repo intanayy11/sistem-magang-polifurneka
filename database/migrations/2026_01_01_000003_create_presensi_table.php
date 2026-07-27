@@ -14,6 +14,10 @@ return new class extends Migration
             $table->date('tanggal');
             $table->time('jam_masuk')->nullable();
             $table->time('jam_pulang')->nullable();
+            $table->decimal('latitude_masuk', 10, 7)->nullable();
+            $table->decimal('longitude_masuk', 10, 7)->nullable();
+            $table->decimal('latitude_pulang', 10, 7)->nullable();
+            $table->decimal('longitude_pulang', 10, 7)->nullable();
             $table->enum('status', ['Hadir', 'Terlambat', 'Pulang Cepat', 'Alpha'])->nullable();
             $table->unique(['peserta_id', 'tanggal']);
             $table->timestamps();

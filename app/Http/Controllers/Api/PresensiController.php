@@ -35,6 +35,11 @@ class PresensiController extends Controller
             ], 400);
         }
 
+        $request->validate([
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+        ]);
+
         $now = Carbon::now();
         $jamMasuk = $now->toTimeString();
         $status = PresensiService::hitungStatusCheckIn($jamMasuk, $now);
@@ -43,6 +48,8 @@ class PresensiController extends Controller
             'peserta_id' => $user->user_id,
             'tanggal' => $today,
             'jam_masuk' => $jamMasuk,
+            'latitude_masuk' => $request->latitude,
+            'longitude_masuk' => $request->longitude,
             'status' => $status,
         ]);
 
@@ -57,6 +64,11 @@ class PresensiController extends Controller
     {
         $user = $request->user();
         $today = Carbon::today()->toDateString();
+
+        $request->validate([
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+        ]);
 
         $presensi = Presensi::where('peserta_id', $user->user_id)
             ->where('tanggal', $today)
@@ -82,6 +94,8 @@ class PresensiController extends Controller
 
         $presensi->update([
             'jam_pulang' => $jamPulang,
+            'latitude_pulang' => $request->latitude,
+            'longitude_pulang' => $request->longitude,
             'status' => $status,
         ]);
 
