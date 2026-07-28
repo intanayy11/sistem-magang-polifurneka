@@ -10,6 +10,7 @@ import {
   Link as LinkIcon
 } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
+import AlertBanner from '../../components/AlertBanner';
 
 const KelolaTugasPage = () => {
   const [tugasList, setTugasList] = useState([]);
@@ -163,14 +164,7 @@ const KelolaTugasPage = () => {
         </button>
       </div>
 
-      {alert && (
-        <div className={`p-4 rounded-xl text-xs flex items-center gap-2.5 ${
-          alert.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
-        }`}>
-          <AlertCircle size={16} />
-          <span>{alert.message}</span>
-        </div>
-      )}
+      <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
       {/* Task List Table */}
       <div className="card-clean overflow-hidden">

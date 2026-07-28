@@ -11,6 +11,7 @@ import {
   AlertCircle,
   X
 } from 'lucide-react';
+import AlertBanner from '../../components/AlertBanner';
 import useScrollLock from '../../hooks/useScrollLock';
 
 const KelolaUserPage = () => {
@@ -182,14 +183,7 @@ const KelolaUserPage = () => {
         </button>
       </div>
 
-      {alert && (
-        <div className={`p-4 rounded-xl text-xs flex items-center gap-2.5 ${
-          alert.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
-        }`}>
-          <AlertCircle size={16} />
-          <span>{alert.message}</span>
-        </div>
-      )}
+      <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
       {/* Filter and Search Bar */}
       <div className="card-clean p-4 flex flex-col md:flex-row gap-4 justify-between items-center">

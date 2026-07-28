@@ -139,10 +139,10 @@ const AdminDashboard = () => {
           </div>
           <button
             onClick={() => navigate('/admin/plotting')}
-            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-2xs"
+            className="w-full btn-poli-primary py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-2xs"
           >
             <span>Kelola Plotting Bimbingan</span>
-            <ArrowRight size={15} className="text-amber-400" />
+            <ArrowRight size={15} />
           </button>
         </div>
       </div>

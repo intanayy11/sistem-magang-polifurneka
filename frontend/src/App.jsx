@@ -25,6 +25,9 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import KelolaUserPage from './pages/Admin/KelolaUserPage';
 import PlottingPage from './pages/Admin/PlottingPage';
 
+// Shared Profile Page
+import Profile from './pages/Profile';
+
 const RootRedirect = () => {
   const { user, token } = useAuth();
   if (!token || !user) return <Navigate to="/login" replace />;
@@ -70,6 +73,13 @@ function App() {
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/kelola-user" element={<KelolaUserPage />} />
               <Route path="/admin/plotting" element={<PlottingPage />} />
+            </Route>
+          </Route>
+
+          {/* Shared Profile Route (All Logged-in Roles) */}
+          <Route element={<ProtectedRoute allowedRoles={['peserta', 'pembimbing', 'admin']} />}>
+            <Route element={<Layout />}>
+              <Route path="/profil" element={<Profile />} />
             </Route>
           </Route>
 

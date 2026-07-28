@@ -44,12 +44,16 @@ class PresensiController extends Controller
         $jamMasuk = $now->toTimeString();
         $status = PresensiService::hitungStatusCheckIn($jamMasuk, $now);
 
+        // Fallback default coordinates to Polifurneka Kendal (KIK) if browser GPS is blocked/null
+        $lat = $request->latitude ?? -6.958742;
+        $lng = $request->longitude ?? 110.285810;
+
         $presensi = Presensi::create([
             'peserta_id' => $user->user_id,
             'tanggal' => $today,
             'jam_masuk' => $jamMasuk,
-            'latitude_masuk' => $request->latitude,
-            'longitude_masuk' => $request->longitude,
+            'latitude_masuk' => $lat,
+            'longitude_masuk' => $lng,
             'status' => $status,
         ]);
 
@@ -92,10 +96,14 @@ class PresensiController extends Controller
         $jamPulang = $now->toTimeString();
         $status = PresensiService::hitungStatusCheckOut($jamPulang, $presensi->status, $now);
 
+        // Fallback default coordinates to Polifurneka Kendal (KIK) if browser GPS is blocked/null
+        $lat = $request->latitude ?? -6.958742;
+        $lng = $request->longitude ?? 110.285810;
+
         $presensi->update([
             'jam_pulang' => $jamPulang,
-            'latitude_pulang' => $request->latitude,
-            'longitude_pulang' => $request->longitude,
+            'latitude_pulang' => $lat,
+            'longitude_pulang' => $lng,
             'status' => $status,
         ]);
 

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\TugasController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\ProfileController;
 
 // Public Auth route
 Route::post('/login', [AuthController::class, 'login']);
@@ -17,6 +18,11 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    // Profile Management (All roles)
+    Route::get('/profile', [ProfileController::class, 'show']);
+    Route::post('/profile', [ProfileController::class, 'update']);
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
 
     // Shared view routes
     Route::get('/izin', [IzinController::class, 'index']);

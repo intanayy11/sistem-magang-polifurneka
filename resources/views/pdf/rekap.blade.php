@@ -93,16 +93,24 @@
 </head>
 <body>
 
-    @if(file_exists(public_path('images/kop.jpg')))
-    <div style="text-align: center; margin-bottom: 10px;">
-        <img src="{{ public_path('images/kop.jpg') }}" style="width: 100%; max-height: 100px; object-fit: contain;" alt="Kop Surat Polifurneka">
+    @if(file_exists(public_path('images/kop_header.jpg')))
+    <div style="text-align: center; margin-bottom: 12px;">
+        <img src="{{ public_path('images/kop_header.jpg') }}" style="width: 100%; height: auto; display: block;" alt="Kop Surat Polifurneka">
+    </div>
+    @elseif(file_exists(public_path('images/kop.jpg')))
+    <div style="text-align: center; margin-bottom: 12px;">
+        <img src="{{ public_path('images/kop.jpg') }}" style="width: 100%; height: auto; display: block;" alt="Kop Surat Polifurneka">
     </div>
     @else
-    <div class="header">
-        <h2>POLITEKNIK INDUSTRI FURNITUR DAN PENGOLAHAN KAYU KENDAL</h2>
-        <h3>LAPORAN REKAP PRESENSI & LOGBOOK MAGANG</h3>
+    <div class="header" style="text-align: center; border-bottom: 3px double #000000; padding-bottom: 8px; margin-bottom: 15px;">
+        <h2 style="font-size: 15px; font-weight: bold; margin: 0;">POLITEKNIK INDUSTRI FURNITUR DAN PENGOLAHAN KAYU KENDAL</h2>
+        <p style="font-size: 10px; margin: 3px 0 0 0; font-style: italic;">Jl. Wanamarta Raya No. 20, Kawasan Industri Kendal, Jawa Tengah 51371</p>
     </div>
     @endif
+
+    <div style="text-align: center; margin-bottom: 15px;">
+        <h3 style="font-size: 13px; font-weight: bold; text-transform: uppercase; margin: 0; text-decoration: underline; letter-spacing: 0.5px;">LAPORAN REKAP PRESENSI & LOGBOOK MAGANG</h3>
+    </div>
 
     <table class="info-table">
         <tr>

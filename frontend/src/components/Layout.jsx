@@ -14,7 +14,8 @@ import {
   X,
   ChevronRight,
   ChevronDown,
-  MapPin
+  MapPin,
+  User
 } from 'lucide-react';
 
 const Layout = () => {
@@ -43,33 +44,55 @@ const Layout = () => {
     );
   };
 
+  const getAvatar = (userObj, sizeClass = 'h-8 w-8 text-xs', roundClass = 'rounded-lg') => {
+    if (userObj?.foto_profil) {
+      const src = userObj.foto_profil.startsWith('http')
+        ? userObj.foto_profil
+        : `http://localhost:8000/storage/${userObj.foto_profil}`;
+      return (
+        <img
+          src={src}
+          alt={userObj?.nama}
+          className={`${sizeClass} ${roundClass} object-cover border border-amber-200 shrink-0`}
+        />
+      );
+    }
+    return (
+      <div className={`${sizeClass} ${roundClass} bg-amber-100 text-amber-900 font-bold flex items-center justify-center border border-amber-200 shrink-0`}>
+        {userObj?.nama ? userObj.nama.charAt(0).toUpperCase() : 'U'}
+      </div>
+    );
+  };
+
   const getNavLinks = () => {
+    let links = [];
     if (user?.role === 'peserta') {
-      return [
+      links = [
         { to: '/peserta/dashboard',  label: 'Dashboard',         icon: LayoutDashboard },
         { to: '/peserta/presensi',   label: 'Presensi Harian',   icon: Clock },
         { to: '/peserta/logbook',    label: 'Logbook Kegiatan',  icon: BookOpen },
         { to: '/peserta/izin',       label: 'Pengajuan Izin',    icon: FileCheck },
         { to: '/peserta/tugas',      label: 'Tugas Magang',      icon: CheckSquare },
       ];
-    }
-    if (user?.role === 'pembimbing') {
-      return [
+    } else if (user?.role === 'pembimbing') {
+      links = [
         { to: '/pembimbing/dashboard',         label: 'Dashboard',              icon: LayoutDashboard },
         { to: '/pembimbing/review-logbook',    label: 'Review Logbook',         icon: BookOpen },
         { to: '/pembimbing/verifikasi-izin',   label: 'Verifikasi Izin',        icon: FileCheck },
         { to: '/pembimbing/kelola-tugas',      label: 'Kelola & Review Tugas',  icon: CheckSquare },
         { to: '/pembimbing/monitor-presensi',  label: 'Monitor Presensi & GPS', icon: MapPin },
       ];
-    }
-    if (user?.role === 'admin') {
-      return [
+    } else if (user?.role === 'admin') {
+      links = [
         { to: '/admin/dashboard',    label: 'Dashboard',           icon: LayoutDashboard },
         { to: '/admin/kelola-user',  label: 'Kelola User (Master)',icon: Users },
         { to: '/admin/plotting',     label: 'Plotting Bimbingan',  icon: UserCheck },
       ];
     }
-    return [];
+
+    // Add Profil Saya for all roles
+    links.push({ to: '/profil', label: 'Profil Saya', icon: User });
+    return links;
   };
 
   return (
@@ -108,9 +131,7 @@ const Layout = () => {
               onClick={() => setProfileOpen(!profileOpen)}
               className="flex items-center gap-2.5 p-1.5 pl-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all text-left"
             >
-              <div className="h-8 w-8 rounded-lg bg-amber-100 text-amber-900 font-bold text-xs flex items-center justify-center border border-amber-200 shrink-0">
-                {user?.nama ? user.nama.charAt(0).toUpperCase() : 'U'}
-              </div>
+              {getAvatar(user, 'h-8 w-8 text-xs', 'rounded-lg')}
               <div className="hidden sm:block text-xs">
                 <div className="font-semibold text-slate-900 leading-tight max-w-[140px] truncate">{user?.nama}</div>
                 <div className="text-[10px] text-slate-500 capitalize">{user?.role}</div>
@@ -124,9 +145,7 @@ const Layout = () => {
                 <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
                 <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl p-4 z-50 animate-in fade-in zoom-in duration-150">
                   <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
-                    <div className="h-10 w-10 rounded-xl bg-amber-100 text-amber-900 font-bold text-base flex items-center justify-center border border-amber-200 shrink-0">
-                      {user?.nama ? user.nama.charAt(0).toUpperCase() : 'U'}
-                    </div>
+                    {getAvatar(user, 'h-10 w-10 text-base', 'rounded-xl')}
                     <div className="overflow-hidden">
                       <p className="font-bold text-sm text-slate-900 truncate">{user?.nama}</p>
                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
@@ -147,8 +166,19 @@ const Layout = () => {
                   </div>
 
                   <button
+                    onClick={() => {
+                      setProfileOpen(false);
+                      navigate('/profil');
+                    }}
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100/80 hover:bg-slate-200/80 border border-slate-200 transition-all mb-2"
+                  >
+                    <User size={15} />
+                    <span>Kelola Profil Saya</span>
+                  </button>
+
+                  <button
                     onClick={handleLogout}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 transition-all mt-1"
+                    className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 transition-all"
                   >
                     <LogOut size={15} />
                     <span>Keluar dari Sistem</span>

@@ -137,9 +137,9 @@ const PesertaDashboard = () => {
         </div>
         <button
           onClick={handleExportPdf}
-          className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl font-semibold text-xs transition-all shadow-xs shrink-0 self-start md:self-auto"
+          className="flex items-center justify-center gap-2 btn-poli-primary px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all shadow-xs shrink-0 self-start md:self-auto"
         >
-          <FileDown size={16} className="text-amber-400" />
+          <FileDown size={16} />
           <span>Unduh Rekap PDF</span>
         </button>
       </div>
@@ -223,13 +223,22 @@ const PesertaDashboard = () => {
             <div className="mt-1.5 flex items-center gap-2">
               <StatusBadge status={today_presensi?.status || 'Belum Presensi'} />
             </div>
-            {/* Show location pin if GPS recorded */}
-            {today_presensi?.latitude_masuk && (
+            {/* Show location pin if check-in exists */}
+            {today_presensi?.jam_masuk && (
               <button
-                onClick={() => setMapModal({ open: true, lat: today_presensi.latitude_masuk, lng: today_presensi.longitude_masuk, title: 'Lokasi Check-In', timestamp: `Jam Masuk: ${today_presensi.jam_masuk}` })}
-                className="mt-2 inline-flex items-center gap-1 text-[11px] text-amber-700 font-semibold hover:underline"
+                onClick={() =>
+                  setMapModal({
+                    open: true,
+                    lat: today_presensi.latitude_masuk || -6.958742,
+                    lng: today_presensi.longitude_masuk || 110.285810,
+                    title: 'Lokasi Check-In',
+                    timestamp: `Jam Masuk: ${today_presensi.jam_masuk}`,
+                  })
+                }
+                className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] text-amber-900 bg-amber-100/90 hover:bg-amber-200 px-2.5 py-1 rounded-lg border border-amber-300/70 font-semibold transition-all shadow-2xs"
               >
-                <MapPin size={12} /> Lihat Peta Check-In
+                <MapPin size={13} className="text-amber-700" />
+                <span>Lihat Peta Lokasi Check-In</span>
               </button>
             )}
           </div>
@@ -239,12 +248,21 @@ const PesertaDashboard = () => {
             <div className="mt-1 font-semibold text-slate-800 text-sm font-mono">
               {today_presensi?.jam_masuk || '--:--'} / {today_presensi?.jam_pulang || '--:--'}
             </div>
-            {today_presensi?.latitude_pulang && (
+            {today_presensi?.jam_pulang && (
               <button
-                onClick={() => setMapModal({ open: true, lat: today_presensi.latitude_pulang, lng: today_presensi.longitude_pulang, title: 'Lokasi Check-Out', timestamp: `Jam Pulang: ${today_presensi.jam_pulang}` })}
-                className="mt-2 inline-flex items-center gap-1 text-[11px] text-amber-700 font-semibold hover:underline"
+                onClick={() =>
+                  setMapModal({
+                    open: true,
+                    lat: today_presensi.latitude_pulang || -6.958742,
+                    lng: today_presensi.longitude_pulang || 110.285810,
+                    title: 'Lokasi Check-Out',
+                    timestamp: `Jam Pulang: ${today_presensi.jam_pulang}`,
+                  })
+                }
+                className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] text-emerald-900 bg-emerald-100/90 hover:bg-emerald-200 px-2.5 py-1 rounded-lg border border-emerald-300/70 font-semibold transition-all shadow-2xs"
               >
-                <MapPin size={12} /> Lihat Peta Check-Out
+                <MapPin size={13} className="text-emerald-700" />
+                <span>Lihat Peta Lokasi Check-Out</span>
               </button>
             )}
           </div>
@@ -267,7 +285,7 @@ const PesertaDashboard = () => {
               <button
                 onClick={handleCheckOut}
                 disabled={actionLoading}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-3 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider disabled:opacity-50"
+                className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider disabled:opacity-50"
               >
                 {actionLoading ? <Loader2 size={16} className="animate-spin" /> : <Clock size={16} />}
                 <span>{actionLoading ? 'Memproses...' : 'Check-Out Sekarang'}</span>

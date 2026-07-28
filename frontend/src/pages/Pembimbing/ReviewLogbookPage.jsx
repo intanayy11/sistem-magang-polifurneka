@@ -3,6 +3,7 @@ import api from '../../api/axios';
 import StatusBadge from '../../components/StatusBadge';
 import { BookOpen, Image as ImageIcon, AlertCircle, X } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
+import AlertBanner from '../../components/AlertBanner';
 
 const ReviewLogbookPage = () => {
   const [logbooks, setLogbooks] = useState([]);
@@ -106,14 +107,7 @@ const ReviewLogbookPage = () => {
         </div>
       </div>
 
-      {alert && (
-        <div className={`p-4 rounded-xl text-xs flex items-center gap-2.5 ${
-          alert.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'
-        }`}>
-          <AlertCircle size={16} />
-          <span>{alert.message}</span>
-        </div>
-      )}
+      <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
       {/* Logbook List Table */}
       <div className="card-clean overflow-hidden">
