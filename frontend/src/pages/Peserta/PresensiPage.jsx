@@ -224,9 +224,9 @@ const PresensiPage = () => {
                 <button
                   onClick={handleCheckOut}
                   disabled={!today || !!today?.jam_pulang || actionLoading}
-                  className="w-full bg-emerald-700 hover:bg-emerald-800 text-white disabled:bg-slate-200 disabled:text-slate-400 font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xs"
+                  className="w-full bg-[#2A180D] hover:bg-[#1C1008] text-amber-400 disabled:bg-slate-200 disabled:text-slate-400 font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xs border border-amber-900/40"
                 >
-                  {actionLoading ? <Loader2 size={15} className="animate-spin" /> : <Clock size={15} className="text-emerald-200" />}
+                  {actionLoading ? <Loader2 size={15} className="animate-spin" /> : <Clock size={15} className="text-amber-400" />}
                   <span>{today?.jam_pulang ? 'Sudah Check-Out' : 'Check-Out Sekarang'}</span>
                 </button>
               </div>

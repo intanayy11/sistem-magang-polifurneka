@@ -103,8 +103,13 @@
     </div>
     @else
     <div class="header" style="text-align: center; border-bottom: 3px double #000000; padding-bottom: 8px; margin-bottom: 15px;">
-        <h2 style="font-size: 15px; font-weight: bold; margin: 0;">POLITEKNIK INDUSTRI FURNITUR DAN PENGOLAHAN KAYU KENDAL</h2>
-        <p style="font-size: 10px; margin: 3px 0 0 0; font-style: italic;">Jl. Wanamarta Raya No. 20, Kawasan Industri Kendal, Jawa Tengah 51371</p>
+        @if(file_exists(public_path('images/logo-polifurneka.png')))
+        <img src="{{ public_path('images/logo-polifurneka.png') }}" style="height: 48px; width: auto; vertical-align: middle; margin-right: 10px;" alt="Logo Polifurneka">
+        @endif
+        <div style="display: inline-block; vertical-align: middle;">
+            <h2 style="font-size: 14px; font-weight: bold; margin: 0;">POLITEKNIK INDUSTRI FURNITUR DAN PENGOLAHAN KAYU KENDAL</h2>
+            <p style="font-size: 10px; margin: 3px 0 0 0; font-style: italic;">Jl. Wanamarta Raya No. 20, Kawasan Industri Kendal, Jawa Tengah 51371</p>
+        </div>
     </div>
     @endif
 

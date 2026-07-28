@@ -285,7 +285,7 @@ const PesertaDashboard = () => {
               <button
                 onClick={handleCheckOut}
                 disabled={actionLoading}
-                className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider disabled:opacity-50"
+                className="w-full bg-[#2A180D] hover:bg-[#1C1008] text-amber-400 font-bold py-3 rounded-xl shadow-xs transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wider disabled:opacity-50 border border-amber-900/40"
               >
                 {actionLoading ? <Loader2 size={16} className="animate-spin" /> : <Clock size={16} />}
                 <span>{actionLoading ? 'Memproses...' : 'Check-Out Sekarang'}</span>

@@ -18,6 +18,8 @@ import {
   User
 } from 'lucide-react';
 
+import logoImg from '../assets/logo-polifurneka.png';
+
 const Layout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -116,9 +118,7 @@ const Layout = () => {
 
             <div className="flex items-center gap-3">
               {/* Brand Badge Logo */}
-              <div className="h-10 w-10 rounded-xl bg-[#E8A800] flex items-center justify-center font-bold text-slate-950 text-xl shadow-xs shrink-0">
-                P
-              </div>
+              <img src={logoImg} alt="Logo Polifurneka" className="h-10 w-auto object-contain shrink-0 drop-shadow-2xs" />
               <h1 className="font-bold text-slate-900 text-base md:text-lg tracking-tight">
                 Sistem Magang Polifurneka Kendal
               </h1>
