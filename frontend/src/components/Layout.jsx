@@ -207,7 +207,7 @@ const Layout = () => {
 
           {/* Sidebar Footer */}
           <div className="p-4 border-t border-slate-100 text-center bg-slate-50/50">
-            <p className="text-xs text-slate-500 font-mono">KP Magang Polifurneka</p>
+            <p className="text-xs text-slate-500 font-mono">Sistem Magang Polifurneka</p>
             <p className="text-[10px] text-slate-400 mt-0.5">poltek-furnitur.ac.id</p>
           </div>
         </aside>

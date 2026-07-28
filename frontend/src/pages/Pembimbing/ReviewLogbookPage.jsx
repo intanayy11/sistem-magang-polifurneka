@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import StatusBadge from '../../components/StatusBadge';
 import { BookOpen, Image as ImageIcon, AlertCircle, X } from 'lucide-react';
+import useScrollLock from '../../hooks/useScrollLock';
 
 const ReviewLogbookPage = () => {
   const [logbooks, setLogbooks] = useState([]);
@@ -11,6 +12,8 @@ const ReviewLogbookPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
+
+  useScrollLock(showModal);
 
   const [reviewData, setReviewData] = useState({
     status: 'Approve',

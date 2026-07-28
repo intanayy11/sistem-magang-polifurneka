@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import StatusBadge from '../../components/StatusBadge';
 import { Plus, BookOpen, Image as ImageIcon, AlertCircle, X } from 'lucide-react';
+import useScrollLock from '../../hooks/useScrollLock';
 
 const LogbookPage = () => {
   const [logbooks, setLogbooks] = useState([]);
@@ -9,6 +10,8 @@ const LogbookPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
+
+  useScrollLock(showModal);
 
   const [form, setForm] = useState({
     tanggal: new Date().toISOString().split('T')[0],

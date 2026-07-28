@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { LogIn, KeyRound, Mail, AlertCircle, GraduationCap, Building } from 'lucide-react';
+import { LogIn, KeyRound, Mail, AlertCircle, Building } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,7 +16,6 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setSubmitting(true);
-
     try {
       const user = await login(email, password);
       if (user.role === 'peserta') navigate('/peserta/dashboard');
@@ -29,15 +28,10 @@ const Login = () => {
     }
   };
 
-  const fillDemo = (demoEmail, demoPassword) => {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-  };
-
   return (
     <div className="min-h-screen bg-[#F8F9FB] flex flex-col justify-between p-4 font-inter text-slate-800 relative overflow-hidden">
 
-      {/* Decorative subtle light background accents */}
+      {/* Decorative background accents */}
       <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-amber-100/50 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-yellow-100/40 blur-3xl pointer-events-none" />
 
@@ -58,7 +52,7 @@ const Login = () => {
       {/* Main Login Form Card */}
       <div className="w-full max-w-md mx-auto z-10 my-6">
         <div className="bg-white border border-slate-200/90 rounded-[20px] p-6 md:p-8 shadow-sm">
-          
+
           <div className="mb-6">
             <h2 className="text-lg font-bold text-slate-900">Selamat Datang</h2>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -127,42 +121,12 @@ const Login = () => {
             </button>
           </form>
 
-          {/* Quick Demo Accounts */}
-          <div className="mt-6 pt-5 border-t border-slate-100">
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider text-center mb-2.5">
-              Akses Cepat Demo Login
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => fillDemo('peserta@polifurneka.ac.id', 'password123')}
-                className="bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-900 border border-slate-200 hover:border-amber-300 p-2 rounded-xl text-xs font-medium transition-all text-center"
-              >
-                Peserta
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemo('pembimbing@polifurneka.ac.id', 'password123')}
-                className="bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-900 border border-slate-200 hover:border-amber-300 p-2 rounded-xl text-xs font-medium transition-all text-center"
-              >
-                Pembimbing
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemo('admin@polifurneka.ac.id', 'password123')}
-                className="bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-900 border border-slate-200 hover:border-amber-300 p-2 rounded-xl text-xs font-medium transition-all text-center"
-              >
-                Admin
-              </button>
-            </div>
-          </div>
-
         </div>
       </div>
 
-      {/* Footer info */}
+      {/* Footer */}
       <footer className="text-center py-3 text-xs text-slate-400 z-10">
-        <p>© {new Date().getFullYear()} Polifurneka Kendal · Kerja Praktik Informatika Unsoed</p>
+        <p>© {new Date().getFullYear()} Sistem Magang · Politeknik Industri Furnitur dan Pengolahan Kayu Kendal</p>
       </footer>
     </div>
   );

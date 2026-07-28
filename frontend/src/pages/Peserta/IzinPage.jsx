@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import StatusBadge from '../../components/StatusBadge';
 import { Plus, FileText, AlertCircle, X } from 'lucide-react';
+import useScrollLock from '../../hooks/useScrollLock';
 
 const IzinPage = () => {
   const [izinList, setIzinList] = useState([]);
@@ -9,6 +10,8 @@ const IzinPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
+
+  useScrollLock(showModal);
 
   const [form, setForm] = useState({
     jenis: 'Izin',

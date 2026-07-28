@@ -11,6 +11,7 @@ import {
   AlertCircle,
   X
 } from 'lucide-react';
+import useScrollLock from '../../hooks/useScrollLock';
 
 const KelolaUserPage = () => {
   const [users, setUsers] = useState([]);
@@ -40,6 +41,9 @@ const KelolaUserPage = () => {
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetTargetUser, setResetTargetUser] = useState(null);
   const [newPassword, setNewPassword] = useState('');
+
+  // Lock body scroll when any modal is open
+  useScrollLock(showUserModal || showResetModal);
 
   const fetchUsers = async () => {
     try {

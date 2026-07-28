@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import StatusBadge from '../../components/StatusBadge';
 import { FileText, AlertCircle, X } from 'lucide-react';
+import useScrollLock from '../../hooks/useScrollLock';
 
 const VerifikasiIzinPage = () => {
   const [izinList, setIzinList] = useState([]);
@@ -10,6 +11,8 @@ const VerifikasiIzinPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
+
+  useScrollLock(showModal);
 
   const [verifikasiStatus, setVerifikasiStatus] = useState('Disetujui');
 

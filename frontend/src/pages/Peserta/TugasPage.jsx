@@ -12,6 +12,7 @@ import {
   History,
   ExternalLink
 } from 'lucide-react';
+import useScrollLock from '../../hooks/useScrollLock';
 
 const TugasPage = () => {
   const [tugasList, setTugasList] = useState([]);
@@ -20,6 +21,8 @@ const TugasPage = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
+
+  useScrollLock(showDetailModal);
 
   // Form submit state
   const [submitType, setSubmitType] = useState('file'); // 'file' or 'link'

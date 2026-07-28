@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { X, MapPin } from 'lucide-react';
+import useScrollLock from '../hooks/useScrollLock';
 
 // Fix Leaflet marker icon issue in React
 delete L.Icon.Default.prototype._getIconUrl;
@@ -13,6 +14,7 @@ L.Icon.Default.mergeOptions({
 });
 
 const MapModal = ({ isOpen, onClose, latitude, longitude, title, timestamp }) => {
+  useScrollLock(isOpen);
   if (!isOpen || !latitude || !longitude) return null;
 
   const lat = parseFloat(latitude);

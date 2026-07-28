@@ -9,6 +9,7 @@ import {
   History,
   Link as LinkIcon
 } from 'lucide-react';
+import useScrollLock from '../../hooks/useScrollLock';
 
 const KelolaTugasPage = () => {
   const [tugasList, setTugasList] = useState([]);
@@ -35,6 +36,8 @@ const KelolaTugasPage = () => {
     status: 'Selesai',
     catatan_revisi: '',
   });
+
+  useScrollLock(showCreateModal || showReviewModal);
 
   const fetchData = async () => {
     try {

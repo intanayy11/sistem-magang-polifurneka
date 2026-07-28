@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import { Plus, Trash2, AlertCircle, X } from 'lucide-react';
+import useScrollLock from '../../hooks/useScrollLock';
 
 const PlottingPage = () => {
   const [plottingList, setPlottingList] = useState([]);
@@ -16,6 +17,8 @@ const PlottingPage = () => {
     peserta_id: '',
     pembimbing_id: '',
   });
+
+  useScrollLock(showModal);
 
   const fetchData = async () => {
     try {
