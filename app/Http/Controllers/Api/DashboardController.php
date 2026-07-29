@@ -39,6 +39,8 @@ class DashboardController extends Controller
         // 4. Status presensi hari ini
         $today = Carbon::today()->toDateString();
         $todayPresensi = Presensi::where('peserta_id', $user->user_id)->where('tanggal', $today)->first();
+        $sudahPresensiHariIni = $todayPresensi !== null;
+        $jamSekarang = Carbon::now()->format('H:i');
 
         return response()->json([
             'status' => 'success',
@@ -49,6 +51,8 @@ class DashboardController extends Controller
                 'logbook_pending_count' => $logbookPendingCount,
                 'tugas_stats' => $tugasStats,
                 'today_presensi' => $todayPresensi,
+                'sudah_presensi_hari_ini' => $sudahPresensiHariIni,
+                'jam_sekarang' => $jamSekarang,
             ]
         ]);
     }

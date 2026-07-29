@@ -82,3 +82,27 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
 }
+
+/* Daily Check-in Reminder Banner */
+.reminder-banner {
+  background-color: #FFFBEB;
+  border: 1px solid #FCD34D;
+  border-left: 5px solid #F59E0B;
+  border-radius: 16px;
+  padding: 16px 20px;
+  color: #78350F;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.08);
+  transition: all 0.2s ease-in-out;
+}
+
+@media (min-width: 640px) {
+  .reminder-banner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+

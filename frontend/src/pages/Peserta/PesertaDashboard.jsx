@@ -120,10 +120,56 @@ const PesertaDashboard = () => {
     );
   }
 
-  const { persentase_kehadiran, total_presensi, logbook_pending_count, tugas_stats, today_presensi } = data;
+  const {
+    persentase_kehadiran,
+    total_presensi,
+    logbook_pending_count,
+    tugas_stats,
+    today_presensi,
+    sudah_presensi_hari_ini,
+    jam_sekarang
+  } = data;
+
+  // Working day check (Monday=1 to Friday=5)
+  const currentDay = new Date().getDay();
+  const isWorkDay = currentDay >= 1 && currentDay <= 5;
+  const showReminderBanner = sudah_presensi_hari_ini === false && isWorkDay;
 
   return (
     <div className="space-y-6">
+
+      {/* Reminder Banner (Tampil paling atas saat hari kerja dan belum presensi) */}
+      {showReminderBanner && (
+        <div className="reminder-banner animate-in fade-in slide-in-from-top duration-300">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-900 shrink-0 mt-0.5">
+              <AlertCircle size={22} className="text-amber-700" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-sm text-amber-950 tracking-tight">
+                Kamu belum presensi hari ini!
+              </h3>
+              <p className="text-xs text-amber-900/90 mt-0.5 leading-relaxed font-medium">
+                Segera lakukan check-in kehadiran magang agar terhitung hadir.
+                {jam_sekarang && (
+                  <span className="ml-1.5 font-mono text-[11px] font-semibold text-amber-950 bg-amber-200/60 px-2 py-0.5 rounded-md">
+                    Jam Server: {jam_sekarang} WIB
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleCheckIn}
+            disabled={actionLoading}
+            className="btn-poli-primary px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all shadow-xs shrink-0 flex items-center justify-center gap-2 font-bold disabled:opacity-50"
+          >
+            {actionLoading ? <Loader2 size={15} className="animate-spin" /> : <Clock size={15} />}
+            <span>{actionLoading ? 'Memproses...' : 'Check-In Sekarang'}</span>
+          </button>
+        </div>
+      )}
+
       {/* Header Banner */}
       <div className="bg-white rounded-[18px] p-6 md:p-7 border border-slate-200 shadow-2xs relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="absolute top-0 left-0 bottom-0 w-2 bg-[#E8A800]" />
