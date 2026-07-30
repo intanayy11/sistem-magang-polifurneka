@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import StatusBadge from '../../components/StatusBadge';
+import DovetailDivider from '../../components/DovetailDivider';
 import { Plus, FileText, AlertCircle, X } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
@@ -99,6 +100,8 @@ const IzinPage = () => {
           <span>Buat Pengajuan Izin</span>
         </button>
       </div>
+
+      <DovetailDivider className="my-2" />
 
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 

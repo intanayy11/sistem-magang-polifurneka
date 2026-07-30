@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import StatusBadge from '../../components/StatusBadge';
+import DovetailDivider from '../../components/DovetailDivider';
 import {
   CheckSquare,
   FileText,
@@ -10,7 +11,10 @@ import {
   AlertCircle,
   X,
   History,
-  ExternalLink
+  ExternalLink,
+  Info,
+  CheckCircle2,
+  Clock
 } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
@@ -105,64 +109,125 @@ const TugasPage = () => {
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#E8A800] border-t-transparent"></div>
       </div>
     );
   }
 
+  // Summary counts
+  const countBelum = tugasList.filter(t => t.status === 'Belum Dikerjakan').length;
+  const countReview = tugasList.filter(t => t.status === 'Menunggu Review').length;
+  const countRevisi = tugasList.filter(t => t.status === 'Perlu Revisi').length;
+  const countSelesai = tugasList.filter(t => t.status === 'Selesai').length;
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div>
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Tugas Magang Saya</h2>
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Tugas & Evaluasi Magang</h2>
         <p className="text-slate-500 text-xs mt-0.5">
-          Lihat daftar tugas yang diberikan oleh pembimbing, unggah hasil kerja, dan pantau riwayat revisi.
+          Kumpulkan hasil pengerjaan tugas dari pembimbing lapangan dan pantau status revisinya.
         </p>
       </div>
 
+      <DovetailDivider className="my-2" />
+
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
-      {/* Task Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {tugasList.length === 0 ? (
-          <div className="col-span-full card-clean p-12 text-center">
-            <CheckSquare size={44} className="mx-auto text-slate-300 mb-3" />
-            <p className="text-slate-600 font-medium text-sm">Belum ada tugas yang ditugaskan kepada Anda.</p>
-          </div>
-        ) : (
-          tugasList.map((tugas) => (
-            <div key={tugas.tugas_id} className="card-clean p-5 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="text-[11px] font-semibold text-slate-500 flex items-center gap-1">
-                    <Calendar size={13} className="text-amber-600" />
-                    Deadline: {new Date(tugas.deadline).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
-                  </span>
-                  <StatusBadge status={tugas.status} />
-                </div>
+      {/* ── 2-COLUMN SPLIT LAYOUT ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-                <h3 className="font-bold text-slate-900 text-sm mb-1.5 line-clamp-1">{tugas.judul}</h3>
-                <p className="text-slate-600 text-xs mb-3 line-clamp-3 leading-relaxed">{tugas.deskripsi || 'Tidak ada deskripsi.'}</p>
+        {/* ── LEFT COLUMN (35% / 4-span) : Status Summary Widget ── */}
+        <div className="lg:col-span-4 space-y-6">
 
-                <div className="text-xs text-slate-500 mb-4">
-                  Pembimbing: <span className="font-semibold text-slate-700">{tugas.pembimbing?.nama || '-'}</span>
-                </div>
+          <div className="card-bento space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <CheckSquare size={16} className="text-amber-600" />
+                <span>Status Tugas</span>
+              </h3>
+              <span className="text-xs font-bold text-slate-700 font-mono">Total: {tugasList.length}</span>
+            </div>
+
+            <div className="space-y-2.5">
+              <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-700">Belum Dikerjakan</span>
+                <span className="text-sm font-extrabold text-amber-900">{countBelum}</span>
               </div>
-
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">
-                  {tugas.pengumpulan?.length || 0} Pengumpulan
-                </span>
-                <button
-                  onClick={() => handleOpenDetail(tugas.tugas_id)}
-                  className="btn-poli-primary px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1 shadow-2xs"
-                >
-                  <FileText size={14} />
-                  <span>Detail & Kumpulkan</span>
-                </button>
+              <div className="p-3 rounded-2xl bg-blue-50/70 border border-blue-200/80 flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-700">Menunggu Review</span>
+                <span className="text-sm font-extrabold text-blue-900">{countReview}</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-rose-50/70 border border-rose-200/80 flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-700 font-medium">Perlu Revisi</span>
+                <span className="text-sm font-extrabold text-rose-900">{countRevisi}</span>
+              </div>
+              <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-700">Selesai</span>
+                <span className="text-sm font-extrabold text-emerald-900">{countSelesai}</span>
               </div>
             </div>
-          ))
-        )}
+          </div>
+
+          <div className="card-bento bg-slate-50 border border-slate-200/80 p-4 space-y-2">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800">
+              <Info size={15} className="text-amber-600" />
+              <span>Petunjuk Pengumpulan</span>
+            </div>
+            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
+              Pastikan Anda mengunggah berkas sesuai deadline yang ditentukan oleh pembimbing lapangan. Anda dapat mengunggah ulang revisi jika diminta.
+            </p>
+          </div>
+
+        </div>
+
+        {/* ── RIGHT COLUMN (65% / 8-span) : Grid of Task Cards ── */}
+        <div className="lg:col-span-8">
+          {tugasList.length === 0 ? (
+            <div className="card-bento p-12 text-center">
+              <CheckSquare size={40} className="mx-auto text-slate-300 mb-3" />
+              <p className="text-slate-700 font-bold text-sm">Belum Ada Tugas</p>
+              <p className="text-xs text-slate-400 mt-1">Belum ada tugas yang diberikan oleh pembimbing Anda.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {tugasList.map((tugas) => (
+                <div key={tugas.tugas_id} className="card-bento p-5 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
+                        <Calendar size={13} className="text-amber-600" />
+                        Deadline: {new Date(tugas.deadline).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
+                      </span>
+                      <StatusBadge status={tugas.status} />
+                    </div>
+
+                    <h3 className="font-bold text-slate-900 text-sm mb-1.5 line-clamp-1">{tugas.judul}</h3>
+                    <p className="text-slate-600 text-xs mb-3 line-clamp-2 leading-relaxed">{tugas.deskripsi || 'Tidak ada deskripsi.'}</p>
+
+                    <div className="text-[11px] text-slate-500 mb-4">
+                      Pembimbing: <span className="font-semibold text-slate-800">{tugas.pembimbing?.nama || '-'}</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[11px] text-slate-400 font-medium">
+                      {tugas.pengumpulan?.length || 0} Pengumpulan
+                    </span>
+                    <button
+                      onClick={() => handleOpenDetail(tugas.tugas_id)}
+                      className="btn-poli-primary px-3 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1 shadow-xs font-bold"
+                    >
+                      <FileText size={14} />
+                      <span>Detail & Kumpulkan</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
       </div>
 
       {/* Detail & Submission Modal */}
@@ -192,10 +257,10 @@ const TugasPage = () => {
               {selectedTugas.file_lampiran && (
                 <div className="pt-2">
                   <a
-                    href={`/${selectedTugas.file_lampiran}`}
+                    href={`http://localhost:8000/storage/${selectedTugas.file_lampiran}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs text-amber-800 font-semibold hover:underline bg-amber-100/60 px-2.5 py-1 rounded-lg border border-amber-200/60"
+                    className="inline-flex items-center gap-1.5 text-xs text-amber-900 font-bold hover:underline bg-amber-100/80 px-2.5 py-1 rounded-lg border border-amber-200/80"
                   >
                     <ExternalLink size={14} />
                     <span>Download File Lampiran Pembimbing</span>
@@ -206,10 +271,10 @@ const TugasPage = () => {
 
             {/* Form Upload / Submit */}
             {selectedTugas.status !== 'Selesai' && (
-              <div className="bg-amber-50/40 p-4 md:p-5 rounded-2xl border border-amber-200/60 space-y-3">
+              <div className="bg-amber-50/60 p-4 md:p-5 rounded-2xl border border-amber-200/80 space-y-3">
                 <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
                   <Upload size={15} className="text-amber-600" />
-                  Kumpulkan / Unggah Ulang Hasil Kerja
+                  Kumpulkan / Unggah Hasil Kerja
                 </h4>
 
                 <div className="flex gap-4 border-b border-amber-200/60 pb-2">
@@ -217,7 +282,7 @@ const TugasPage = () => {
                     type="button"
                     onClick={() => setSubmitType('file')}
                     className={`text-xs font-bold pb-1 flex items-center gap-1.5 ${
-                      submitType === 'file' ? 'text-amber-800 border-b-2 border-amber-600' : 'text-slate-500'
+                      submitType === 'file' ? 'text-amber-900 border-b-2 border-amber-600' : 'text-slate-500'
                     }`}
                   >
                     <Upload size={13} />
@@ -227,7 +292,7 @@ const TugasPage = () => {
                     type="button"
                     onClick={() => setSubmitType('link')}
                     className={`text-xs font-bold pb-1 flex items-center gap-1.5 ${
-                      submitType === 'link' ? 'text-amber-800 border-b-2 border-amber-600' : 'text-slate-500'
+                      submitType === 'link' ? 'text-amber-900 border-b-2 border-amber-600' : 'text-slate-500'
                     }`}
                   >
                     <LinkIcon size={13} />
@@ -260,7 +325,7 @@ const TugasPage = () => {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full btn-poli-primary py-2.5 rounded-xl text-xs uppercase tracking-wider disabled:opacity-50"
+                    className="w-full btn-poli-primary py-2.5 rounded-xl text-xs uppercase tracking-wider font-extrabold disabled:opacity-50"
                   >
                     {submitting ? 'Mengirim Hasil Kerja...' : 'Kirim Pengumpulan Tugas'}
                   </button>
@@ -293,12 +358,12 @@ const TugasPage = () => {
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-slate-700">Hasil:</span>
                         {p.file_hasil.startsWith('http') ? (
-                          <a href={p.file_hasil} target="_blank" rel="noreferrer" className="text-amber-800 hover:underline flex items-center gap-1 font-medium">
+                          <a href={p.file_hasil} target="_blank" rel="noreferrer" className="text-amber-900 hover:underline flex items-center gap-1 font-bold">
                             <LinkIcon size={12} />
                             <span>{p.file_hasil}</span>
                           </a>
                         ) : (
-                          <a href={`/${p.file_hasil}`} target="_blank" rel="noreferrer" className="text-amber-800 hover:underline flex items-center gap-1 font-medium">
+                          <a href={`http://localhost:8000/storage/${p.file_hasil}`} target="_blank" rel="noreferrer" className="text-amber-900 hover:underline flex items-center gap-1 font-bold">
                             <FileText size={12} />
                             <span>Unduh File Submission</span>
                           </a>
@@ -306,7 +371,7 @@ const TugasPage = () => {
                       </div>
 
                       {p.catatan_revisi && (
-                        <div className="p-2.5 rounded-lg bg-orange-50 border border-orange-200 text-orange-900 mt-2">
+                        <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 mt-2">
                           <span className="font-bold block mb-0.5">Catatan Revisi Pembimbing:</span>
                           {p.catatan_revisi}
                         </div>

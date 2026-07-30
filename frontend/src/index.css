@@ -2,20 +2,21 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand Tokens */
-  --poli-yellow:       #E8A800;
-  --poli-yellow-hover: #D49800;
-  --poli-yellow-light: #FEF9E7;
-  --poli-yellow-border:#F9E29C;
+  /* Brand Tokens - Polifurneka Timber Walnut & Oak Amber */
+  --walnut:            #1C120C;
+  --walnut-surface:    #261A13;
+  --walnut-muted:      #3D2A1F;
 
-  --poli-dark:         #1A1D20;
-  --poli-forest:       #1E3E2B;
-  
-  --bg-app:            #F8F9FB;
+  --oak-amber:         #E8A800;
+  --oak-amber-hover:   #D49800;
+  --oak-amber-soft:    #FFFBEB;
+  --oak-amber-border:  #FCD34D;
+
+  --bg-app:            #F8F6F2;
   --bg-surface:        #FFFFFF;
-  --border-subtle:     #EAECF0;
-  --border-medium:     #D0D5DD;
-  
+  --border-subtle:     #EFECE6;
+  --border-medium:     #E2DDD5;
+
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color-scheme: light;
 }
@@ -33,7 +34,7 @@ h1, h2, h3, h4, h5, h6 {
   color: #111827;
 }
 
-/* Custom Tailwind Helper Classes */
+/* Custom Helper Classes */
 @layer utilities {
   .font-poppins {
     font-family: 'Poppins', 'Inter', sans-serif;
@@ -46,25 +47,46 @@ h1, h2, h3, h4, h5, h6 {
   .btn-poli-primary {
     background-color: #E8A800;
     color: #111827;
-    font-weight: 600;
+    font-weight: 700;
     transition: all 0.2s ease-in-out;
   }
   .btn-poli-primary:hover {
     background-color: #D49800;
-    box-shadow: 0 4px 12px rgba(232, 168, 0, 0.25);
+    box-shadow: 0 4px 14px rgba(232, 168, 0, 0.3);
   }
 
-  /* Soft Cards */
+  /* Bento Cards */
+  .card-bento {
+    background-color: #FFFFFF;
+    border: 1px solid #EFECE6;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(74, 55, 40, 0.06);
+    padding: 24px;
+    transition: all 0.2s ease-in-out;
+  }
+  .card-bento:hover {
+    box-shadow: 0 8px 28px rgba(74, 55, 40, 0.09);
+  }
+
   .card-clean {
     background-color: #FFFFFF;
-    border: 1px solid #EAECF0;
-    border-radius: 18px;
-    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04), 0 1px 2px rgba(16, 24, 40, 0.02);
+    border: 1px solid #EFECE6;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(74, 55, 40, 0.06);
     transition: all 0.2s ease-in-out;
   }
   .card-clean:hover {
-    box-shadow: 0 4px 16px rgba(16, 24, 40, 0.06);
+    box-shadow: 0 8px 28px rgba(74, 55, 40, 0.09);
   }
+}
+
+/* Wood Grain Background Overlay */
+.bg-wood-grain {
+  background-color: #1C120C;
+  background-image: radial-gradient(rgba(232, 168, 0, 0.12) 1px, transparent 1px),
+                    radial-gradient(rgba(232, 168, 0, 0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
 }
 
 /* Smooth custom scrollbar */
@@ -88,13 +110,13 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #FFFBEB;
   border: 1px solid #FCD34D;
   border-left: 5px solid #F59E0B;
-  border-radius: 16px;
-  padding: 16px 20px;
+  border-radius: 18px;
+  padding: 18px 22px;
   color: #78350F;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.08);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.1);
   transition: all 0.2s ease-in-out;
 }
 
@@ -105,4 +127,3 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: space-between;
   }
 }
-

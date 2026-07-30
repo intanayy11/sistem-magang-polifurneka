@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import AlertBanner from '../components/AlertBanner';
+import DovetailDivider from '../components/DovetailDivider';
 import {
   User,
   Phone,
@@ -170,6 +171,8 @@ const Profile = () => {
           Kelola data kontak pribadi, foto profil, serta perbarui kata sandi akun Anda.
         </p>
       </div>
+
+      <DovetailDivider className="my-2" />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Avatar & Account Badge */}

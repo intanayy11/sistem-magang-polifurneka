@@ -199,16 +199,16 @@ const Layout = () => {
           />
         )}
 
-        {/* ── Sidebar Navigation ── */}
+        {/* ── Sidebar Navigation (Clean White Surface) ── */}
         <aside
-          className={`fixed lg:static top-[68px] lg:top-0 bottom-0 left-0 w-64 bg-white border-r border-slate-200 z-20 transform transition-transform duration-200 ease-in-out flex flex-col justify-between ${
+          className={`fixed lg:static top-[68px] lg:top-0 bottom-0 left-0 w-64 bg-white text-slate-800 border-r border-slate-200/90 z-20 transform transition-transform duration-200 ease-in-out flex flex-col justify-between ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >
           <div className="p-4 mt-1">
-            {/* Nav Menu Links - Directly shown without account card */}
-            <nav className="space-y-1">
-              <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">
+            {/* Nav Menu Links */}
+            <nav className="space-y-1.5">
+              <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">
                 Menu Utama
               </p>
               {getNavLinks().map((link) => {
@@ -219,16 +219,20 @@ const Layout = () => {
                     to={link.to}
                     onClick={() => setSidebarOpen(false)}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
                         isActive
-                          ? 'bg-[#FEF9E7] text-slate-900 font-semibold border-l-4 border-[#E8A800] shadow-2xs'
+                          ? 'bg-[#E8A800] text-slate-950 font-extrabold shadow-xs'
                           : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                       }`
                     }
                   >
-                    <Icon size={18} className="shrink-0 text-slate-600" />
-                    <span className="flex-1">{link.label}</span>
-                    <ChevronRight size={14} className="opacity-40" />
+                    {({ isActive }) => (
+                      <>
+                        <Icon size={18} className={`shrink-0 ${isActive ? 'text-slate-950' : 'text-amber-600/80'}`} />
+                        <span className="flex-1">{link.label}</span>
+                        <ChevronRight size={14} className={isActive ? 'text-slate-950 opacity-80' : 'opacity-30'} />
+                      </>
+                    )}
                   </NavLink>
                 );
               })}
@@ -236,8 +240,8 @@ const Layout = () => {
           </div>
 
           {/* Sidebar Footer */}
-          <div className="p-4 border-t border-slate-100 text-center bg-slate-50/50">
-            <p className="text-xs text-slate-500 font-mono">Sistem Magang Polifurneka</p>
+          <div className="p-4 border-t border-slate-100 text-center bg-slate-50/70">
+            <p className="text-xs text-slate-600 font-mono font-medium">Sistem Magang Polifurneka</p>
             <p className="text-[10px] text-slate-400 mt-0.5">poltek-furnitur.ac.id</p>
           </div>
         </aside>

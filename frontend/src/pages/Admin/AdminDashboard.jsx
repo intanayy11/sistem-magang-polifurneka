@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { Users, UserCheck, ArrowRight, UserPlus, Link2 } from 'lucide-react';
+import DovetailDivider from '../../components/DovetailDivider';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -50,6 +51,8 @@ const AdminDashboard = () => {
           </p>
         </div>
       </div>
+
+      <DovetailDivider className="my-2" />
 
       {/* Summary Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

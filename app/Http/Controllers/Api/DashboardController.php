@@ -37,6 +37,7 @@ class DashboardController extends Controller
         ];
 
         // 4. Status presensi hari ini
+        // 4. Status presensi hari ini
         $today = Carbon::today()->toDateString();
         $todayPresensi = Presensi::where('peserta_id', $user->user_id)->where('tanggal', $today)->first();
         $sudahPresensiHariIni = $todayPresensi !== null;
