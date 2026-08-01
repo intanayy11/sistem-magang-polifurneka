@@ -49,7 +49,7 @@ const MonitorPresensiPage = () => {
     fetchPeserta();
   }, []);
 
-  const totalHadir = riwayat.filter(r => r.status === 'Hadir' || r.status === 'Terlambat').length;
+  const totalHadir = riwayat.filter(r => r.status === 'Hadir' || r.status === 'Terlambat' || r.status === 'Pulang Cepat').length;
   const totalAlpha = riwayat.filter(r => r.status === 'Alpha').length;
 
   return (

@@ -5,6 +5,7 @@ import DovetailDivider from '../../components/DovetailDivider';
 import { Plus, BookOpen, Image as ImageIcon, AlertCircle, X, CheckCircle2, Clock, Info } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
+import { nearestWorkdayOnOrBefore, isWeekend, todayLocalISO } from '../../utils/dateHelpers';
 
 const LogbookPage = () => {
   const [logbooks, setLogbooks] = useState([]);
@@ -12,11 +13,12 @@ const LogbookPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
+  const [dateNote, setDateNote] = useState('');
 
   useScrollLock(showModal);
 
   const [form, setForm] = useState({
-    tanggal: new Date().toISOString().split('T')[0],
+    tanggal: nearestWorkdayOnOrBefore(todayLocalISO()),
     judul_kegiatan: '',
     deskripsi: '',
     kendala: '',
@@ -42,8 +44,15 @@ const LogbookPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
     setAlert(null);
+
+    // Frontend guard: reject weekend dates before even calling API
+    if (isWeekend(form.tanggal)) {
+      setAlert({ type: 'error', message: 'Tidak ada aktivitas magang pada akhir pekan. Pilih tanggal hari kerja (Senin–Jumat).' });
+      return;
+    }
+
+    setSubmitting(true);
 
     const formData = new FormData();
     formData.append('tanggal', form.tanggal);
@@ -60,7 +69,7 @@ const LogbookPage = () => {
         setAlert({ type: 'success', message: 'Logbook harian berhasil ditambahkan.' });
         setShowModal(false);
         setForm({
-          tanggal: new Date().toISOString().split('T')[0],
+          tanggal: nearestWorkdayOnOrBefore(todayLocalISO()),
           judul_kegiatan: '',
           deskripsi: '',
           kendala: '',
@@ -227,9 +236,27 @@ const LogbookPage = () => {
                   type="date"
                   required
                   value={form.tanggal}
-                  onChange={(e) => setForm({ ...form, tanggal: e.target.value })}
+                  max={todayLocalISO()}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (isWeekend(val)) {
+                      // Auto-shift to nearest workday before the selected date
+                      const shifted = nearestWorkdayOnOrBefore(val);
+                      setForm({ ...form, tanggal: shifted });
+                      setDateNote('Pilih tanggal logbook sesuai hari kerja (Senin–Jumat).');
+                    } else {
+                      setForm({ ...form, tanggal: val });
+                      setDateNote('');
+                    }
+                  }}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
                 />
+                {dateNote && (
+                  <p className="text-[11px] text-amber-700 font-semibold mt-1.5 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 flex items-start gap-1.5">
+                    <span className="shrink-0 mt-0.5">⚠</span>
+                    <span>{dateNote}</span>
+                  </p>
+                )}
               </div>
 
               <div>

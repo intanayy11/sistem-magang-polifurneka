@@ -67,7 +67,15 @@ class PresensiController extends Controller
     public function checkOut(Request $request)
     {
         $user = $request->user();
-        $today = Carbon::today()->toDateString();
+        $todayCarbon = Carbon::today();
+        $today = $todayCarbon->toDateString();
+
+        if ($todayCarbon->isWeekend()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Hari ini adalah hari libur (Sabtu/Minggu). Tidak ada jadwal presensi.',
+            ], 400);
+        }
 
         $request->validate([
             'latitude' => 'nullable|numeric',

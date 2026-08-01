@@ -47,6 +47,15 @@ class LogbookController extends Controller
             'foto_bukti' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
         ]);
 
+        // Server-side: reject weekend dates regardless of how the request was sent
+        $tanggal = \Carbon\Carbon::parse($request->tanggal);
+        if ($tanggal->isWeekend()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Tidak ada aktivitas magang pada akhir pekan, silakan pilih tanggal hari kerja (Senin–Jumat).',
+            ], 422);
+        }
+
         $fotoPath = null;
         if ($request->hasFile('foto_bukti')) {
             $path = $request->file('foto_bukti')->store('logbook', 'public');

@@ -5,6 +5,7 @@ import MapModal from '../../components/MapModal';
 import DovetailDivider from '../../components/DovetailDivider';
 import { Clock, Calendar, AlertCircle, MapPin, Loader2, Info } from 'lucide-react';
 import AlertBanner from '../../components/AlertBanner';
+import { isTodayWeekend } from '../../utils/dateHelpers';
 
 const PresensiPage = () => {
   const [today, setToday] = useState(null);
@@ -94,9 +95,8 @@ const PresensiPage = () => {
     );
   }
 
-  const currentDay = new Date().getDay();
-  const isWeekend = currentDay === 0 || currentDay === 6;
-  const isFriday = currentDay === 5;
+  const isWeekend = isTodayWeekend();
+  const isFriday = new Date().getDay() === 5;
   const jamMasuk = '07:30 WIB';
   const jamPulang = isFriday ? '16:30 WIB' : '16:00 WIB';
 

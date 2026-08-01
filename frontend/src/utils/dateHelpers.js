@@ -1,0 +1,58 @@
+/**
+ * Centralized date utility helpers for the Polifurneka internship system.
+ * All weekday/weekend logic must go through these functions — do not
+ * duplicate the logic inline in individual components.
+ */
+
+/**
+ * Returns true if the given date falls on Saturday (6) or Sunday (0).
+ * @param {Date|string} date – a Date object or ISO date string (YYYY-MM-DD)
+ */
+export function isWeekend(date) {
+  const d = typeof date === 'string' ? new Date(date + 'T00:00:00') : date;
+  const day = d.getDay();
+  return day === 0 || day === 6;
+}
+
+/**
+ * Returns true if the given date is a weekday (Monday–Friday).
+ * @param {Date|string} date
+ */
+export function isWorkday(date) {
+  return !isWeekend(date);
+}
+
+/**
+ * Returns today's date as YYYY-MM-DD string using local time (not UTC).
+ */
+export function todayLocalISO() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+/**
+ * Returns true if today (local time) is a weekend.
+ */
+export function isTodayWeekend() {
+  return isWeekend(new Date());
+}
+
+/**
+ * Given a YYYY-MM-DD string, returns the most recent Monday on-or-before it.
+ * Useful for setting a safe default workday date.
+ * @param {string} isoDate
+ * @returns {string} YYYY-MM-DD
+ */
+export function nearestWorkdayOnOrBefore(isoDate) {
+  const d = new Date(isoDate + 'T00:00:00');
+  while (isWeekend(d)) {
+    d.setDate(d.getDate() - 1);
+  }
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}

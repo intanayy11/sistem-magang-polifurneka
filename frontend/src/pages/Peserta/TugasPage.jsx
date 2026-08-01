@@ -8,16 +8,20 @@ import {
   Upload,
   Link as LinkIcon,
   Calendar,
-  AlertCircle,
   X,
   History,
   ExternalLink,
-  Info,
-  CheckCircle2,
-  Clock
 } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
+
+const STATUS_FILTERS = [
+  { label: 'Semua', value: 'Semua' },
+  { label: 'Belum Dikerjakan', value: 'Belum Dikerjakan' },
+  { label: 'Menunggu Review', value: 'Menunggu Review' },
+  { label: 'Perlu Revisi', value: 'Perlu Revisi' },
+  { label: 'Selesai', value: 'Selesai' },
+];
 
 const TugasPage = () => {
   const [tugasList, setTugasList] = useState([]);
@@ -26,20 +30,18 @@ const TugasPage = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('Semua');
 
   useScrollLock(showDetailModal);
 
-  // Form submit state
-  const [submitType, setSubmitType] = useState('file'); // 'file' or 'link'
+  const [submitType, setSubmitType] = useState('file');
   const [fileHasil, setFileHasil] = useState(null);
   const [linkHasil, setLinkHasil] = useState('');
 
   const fetchTugas = async () => {
     try {
       const res = await api.get('/tugas');
-      if (res.data.status === 'success') {
-        setTugasList(res.data.data);
-      }
+      if (res.data.status === 'success') setTugasList(res.data.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -47,9 +49,7 @@ const TugasPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchTugas();
-  }, []);
+  useEffect(() => { fetchTugas(); }, []);
 
   const handleOpenDetail = async (id) => {
     try {
@@ -61,32 +61,21 @@ const TugasPage = () => {
         setFileHasil(null);
         setLinkHasil('');
       }
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   const handleSubmitTugas = async (e) => {
     e.preventDefault();
     if (!selectedTugas) return;
-
     setSubmitting(true);
     setAlert(null);
 
     const formData = new FormData();
     if (submitType === 'file') {
-      if (!fileHasil) {
-        setAlert({ type: 'error', message: 'Harap pilih file hasil kerja.' });
-        setSubmitting(false);
-        return;
-      }
+      if (!fileHasil) { setAlert({ type: 'error', message: 'Harap pilih file hasil kerja.' }); setSubmitting(false); return; }
       formData.append('file_hasil', fileHasil);
     } else {
-      if (!linkHasil) {
-        setAlert({ type: 'error', message: 'Harap masukkan link URL hasil kerja.' });
-        setSubmitting(false);
-        return;
-      }
+      if (!linkHasil) { setAlert({ type: 'error', message: 'Harap masukkan link URL.' }); setSubmitting(false); return; }
       formData.append('link_hasil', linkHasil);
     }
 
@@ -114,121 +103,96 @@ const TugasPage = () => {
     );
   }
 
-  // Summary counts
-  const countBelum = tugasList.filter(t => t.status === 'Belum Dikerjakan').length;
-  const countReview = tugasList.filter(t => t.status === 'Menunggu Review').length;
-  const countRevisi = tugasList.filter(t => t.status === 'Perlu Revisi').length;
-  const countSelesai = tugasList.filter(t => t.status === 'Selesai').length;
+  const filteredList = activeFilter === 'Semua'
+    ? tugasList
+    : tugasList.filter(t => t.status === activeFilter);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Tugas & Evaluasi Magang</h2>
-        <p className="text-slate-500 text-xs mt-0.5">
-          Kumpulkan hasil pengerjaan tugas dari pembimbing lapangan dan pantau status revisinya.
-        </p>
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Tugas Magang</h2>
+        <p className="text-slate-500 text-xs mt-0.5">Kumpulkan hasil pengerjaan dan pantau status revisi dari pembimbing.</p>
       </div>
 
       <DovetailDivider className="my-2" />
 
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
-      {/* ── 2-COLUMN SPLIT LAYOUT ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-
-        {/* ── LEFT COLUMN (35% / 4-span) : Status Summary Widget ── */}
-        <div className="lg:col-span-4 space-y-6">
-
-          <div className="card-bento space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <CheckSquare size={16} className="text-amber-600" />
-                <span>Status Tugas</span>
-              </h3>
-              <span className="text-xs font-bold text-slate-700 font-mono">Total: {tugasList.length}</span>
-            </div>
-
-            <div className="space-y-2.5">
-              <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-700">Belum Dikerjakan</span>
-                <span className="text-sm font-extrabold text-amber-900">{countBelum}</span>
-              </div>
-              <div className="p-3 rounded-2xl bg-blue-50/70 border border-blue-200/80 flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-700">Menunggu Review</span>
-                <span className="text-sm font-extrabold text-blue-900">{countReview}</span>
-              </div>
-              <div className="p-3 rounded-2xl bg-rose-50/70 border border-rose-200/80 flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-700 font-medium">Perlu Revisi</span>
-                <span className="text-sm font-extrabold text-rose-900">{countRevisi}</span>
-              </div>
-              <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-700">Selesai</span>
-                <span className="text-sm font-extrabold text-emerald-900">{countSelesai}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="card-bento bg-slate-50 border border-slate-200/80 p-4 space-y-2">
-            <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800">
-              <Info size={15} className="text-amber-600" />
-              <span>Petunjuk Pengumpulan</span>
-            </div>
-            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
-              Pastikan Anda mengunggah berkas sesuai deadline yang ditentukan oleh pembimbing lapangan. Anda dapat mengunggah ulang revisi jika diminta.
-            </p>
-          </div>
-
-        </div>
-
-        {/* ── RIGHT COLUMN (65% / 8-span) : Grid of Task Cards ── */}
-        <div className="lg:col-span-8">
-          {tugasList.length === 0 ? (
-            <div className="card-bento p-12 text-center">
-              <CheckSquare size={40} className="mx-auto text-slate-300 mb-3" />
-              <p className="text-slate-700 font-bold text-sm">Belum Ada Tugas</p>
-              <p className="text-xs text-slate-400 mt-1">Belum ada tugas yang diberikan oleh pembimbing Anda.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {tugasList.map((tugas) => (
-                <div key={tugas.tugas_id} className="card-bento p-5 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-3">
-                      <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
-                        <Calendar size={13} className="text-amber-600" />
-                        Deadline: {new Date(tugas.deadline).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
-                      </span>
-                      <StatusBadge status={tugas.status} />
-                    </div>
-
-                    <h3 className="font-bold text-slate-900 text-sm mb-1.5 line-clamp-1">{tugas.judul}</h3>
-                    <p className="text-slate-600 text-xs mb-3 line-clamp-2 leading-relaxed">{tugas.deskripsi || 'Tidak ada deskripsi.'}</p>
-
-                    <div className="text-[11px] text-slate-500 mb-4">
-                      Pembimbing: <span className="font-semibold text-slate-800">{tugas.pembimbing?.nama || '-'}</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-[11px] text-slate-400 font-medium">
-                      {tugas.pengumpulan?.length || 0} Pengumpulan
-                    </span>
-                    <button
-                      onClick={() => handleOpenDetail(tugas.tugas_id)}
-                      className="btn-poli-primary px-3 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1 shadow-xs font-bold"
-                    >
-                      <FileText size={14} />
-                      <span>Detail & Kumpulkan</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
+      {/* Filter Tabs */}
+      <div className="flex flex-wrap gap-2">
+        {STATUS_FILTERS.map((f) => {
+          const count = f.value === 'Semua'
+            ? tugasList.length
+            : tugasList.filter(t => t.status === f.value).length;
+          const isActive = activeFilter === f.value;
+          return (
+            <button
+              key={f.value}
+              onClick={() => setActiveFilter(f.value)}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                isActive
+                  ? 'bg-[#E8A800] text-white border-[#E8A800] shadow-sm'
+                  : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300 hover:text-amber-900'
+              }`}
+            >
+              {f.label}
+              <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${
+                isActive ? 'bg-white/30 text-white' : 'bg-slate-100 text-slate-500'
+              }`}>
+                {count}
+              </span>
+            </button>
+          );
+        })}
       </div>
+
+      {/* Task Grid — Full Width */}
+      {filteredList.length === 0 ? (
+        <div className="card-bento p-12 text-center">
+          <CheckSquare size={40} className="mx-auto text-slate-300 mb-3" />
+          <p className="text-slate-700 font-bold text-sm">
+            {activeFilter === 'Semua' ? 'Belum Ada Tugas' : `Tidak ada tugas dengan status "${activeFilter}"`}
+          </p>
+          <p className="text-xs text-slate-400 mt-1">
+            {activeFilter === 'Semua' ? 'Belum ada tugas yang diberikan oleh pembimbing Anda.' : 'Coba pilih filter lain.'}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filteredList.map((tugas) => (
+            <div key={tugas.tugas_id} className="card-bento p-5 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
+                    <Calendar size={13} className="text-amber-600" />
+                    {new Date(tugas.deadline).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </span>
+                  <StatusBadge status={tugas.status} />
+                </div>
+
+                <h3 className="font-bold text-slate-900 text-sm mb-1.5 line-clamp-1">{tugas.judul}</h3>
+                <p className="text-slate-500 text-xs mb-3 line-clamp-2 leading-relaxed">{tugas.deskripsi || 'Tidak ada deskripsi.'}</p>
+
+                <p className="text-[11px] text-slate-400">
+                  Pembimbing: <span className="font-semibold text-slate-700">{tugas.pembimbing?.nama || '-'}</span>
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between mt-4">
+                <span className="text-[11px] text-slate-400">{tugas.pengumpulan?.length || 0} pengumpulan</span>
+                <button
+                  onClick={() => handleOpenDetail(tugas.tugas_id)}
+                  className="btn-poli-primary px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 font-bold"
+                >
+                  <FileText size={13} />
+                  Detail
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Detail & Submission Modal */}
       {showDetailModal && selectedTugas && (
@@ -238,7 +202,7 @@ const TugasPage = () => {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <StatusBadge status={selectedTugas.status} />
-                  <span className="text-xs text-slate-400 font-mono">ID Tugas: #{selectedTugas.tugas_id}</span>
+                  <span className="text-xs text-slate-400 font-mono">#{selectedTugas.tugas_id}</span>
                 </div>
                 <h3 className="font-bold text-slate-900 text-lg">{selectedTugas.judul}</h3>
               </div>
@@ -263,71 +227,58 @@ const TugasPage = () => {
                     className="inline-flex items-center gap-1.5 text-xs text-amber-900 font-bold hover:underline bg-amber-100/80 px-2.5 py-1 rounded-lg border border-amber-200/80"
                   >
                     <ExternalLink size={14} />
-                    <span>Download File Lampiran Pembimbing</span>
+                    Download File Lampiran
                   </a>
                 </div>
               )}
             </div>
 
-            {/* Form Upload / Submit */}
+            {/* Submit Form */}
             {selectedTugas.status !== 'Selesai' && (
-              <div className="bg-amber-50/60 p-4 md:p-5 rounded-2xl border border-amber-200/80 space-y-3">
+              <div className="bg-amber-50/60 p-4 rounded-2xl border border-amber-200/80 space-y-3">
                 <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
                   <Upload size={15} className="text-amber-600" />
-                  Kumpulkan / Unggah Hasil Kerja
+                  Kumpulkan Hasil Kerja
                 </h4>
 
                 <div className="flex gap-4 border-b border-amber-200/60 pb-2">
-                  <button
-                    type="button"
-                    onClick={() => setSubmitType('file')}
-                    className={`text-xs font-bold pb-1 flex items-center gap-1.5 ${
-                      submitType === 'file' ? 'text-amber-900 border-b-2 border-amber-600' : 'text-slate-500'
-                    }`}
-                  >
-                    <Upload size={13} />
-                    Unggah Berkas File
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSubmitType('link')}
-                    className={`text-xs font-bold pb-1 flex items-center gap-1.5 ${
-                      submitType === 'link' ? 'text-amber-900 border-b-2 border-amber-600' : 'text-slate-500'
-                    }`}
-                  >
-                    <LinkIcon size={13} />
-                    Tautan Link (Drive/GitHub)
-                  </button>
+                  {['file', 'link'].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setSubmitType(type)}
+                      className={`text-xs font-bold pb-1 flex items-center gap-1.5 ${
+                        submitType === type ? 'text-amber-900 border-b-2 border-amber-600' : 'text-slate-500'
+                      }`}
+                    >
+                      {type === 'file' ? <Upload size={13} /> : <LinkIcon size={13} />}
+                      {type === 'file' ? 'Unggah File' : 'Link URL'}
+                    </button>
+                  ))}
                 </div>
 
                 <form onSubmit={handleSubmitTugas} className="space-y-3">
                   {submitType === 'file' ? (
-                    <div>
-                      <input
-                        type="file"
-                        onChange={(e) => setFileHasil(e.target.files[0])}
-                        className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200"
-                      />
-                      <p className="text-[11px] text-slate-500 mt-1">Format: PDF, ZIP, RAR, DOCX, XLSX, JPG, PNG (Maks 5MB)</p>
-                    </div>
+                    <input
+                      type="file"
+                      onChange={(e) => setFileHasil(e.target.files[0])}
+                      className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200"
+                    />
                   ) : (
-                    <div>
-                      <input
-                        type="url"
-                        placeholder="https://drive.google.com/... atau https://github.com/..."
-                        value={linkHasil}
-                        onChange={(e) => setLinkHasil(e.target.value)}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
-                      />
-                    </div>
+                    <input
+                      type="url"
+                      placeholder="https://drive.google.com/..."
+                      value={linkHasil}
+                      onChange={(e) => setLinkHasil(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                    />
                   )}
-
                   <button
                     type="submit"
                     disabled={submitting}
                     className="w-full btn-poli-primary py-2.5 rounded-xl text-xs uppercase tracking-wider font-extrabold disabled:opacity-50"
                   >
-                    {submitting ? 'Mengirim Hasil Kerja...' : 'Kirim Pengumpulan Tugas'}
+                    {submitting ? 'Mengirim...' : 'Kirim Pengumpulan'}
                   </button>
                 </form>
               </div>
@@ -337,42 +288,34 @@ const TugasPage = () => {
             <div className="space-y-3">
               <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
                 <History size={15} className="text-slate-500" />
-                Riwayat Pengumpulan (Semua Versi)
+                Riwayat Pengumpulan
               </h4>
 
-              {selectedTugas.pengumpulan?.length === 0 ? (
+              {!selectedTugas.pengumpulan?.length ? (
                 <p className="text-xs text-slate-400 italic">Belum pernah dikumpulkan.</p>
               ) : (
                 <div className="space-y-2.5">
-                  {selectedTugas.pengumpulan?.map((p) => (
+                  {selectedTugas.pengumpulan.map((p) => (
                     <div key={p.pengumpulan_id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded text-[11px]">
-                          Versi #{p.versi_ke}
-                        </span>
-                        <span className="text-slate-400 font-mono text-[11px]">
-                          {new Date(p.tanggal_submit).toLocaleString('id-ID')}
-                        </span>
+                        <span className="font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded text-[11px]">Versi #{p.versi_ke}</span>
+                        <span className="text-slate-400 font-mono text-[11px]">{new Date(p.tanggal_submit).toLocaleString('id-ID')}</span>
                       </div>
-
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-slate-700">Hasil:</span>
-                        {p.file_hasil.startsWith('http') ? (
+                        {p.file_hasil?.startsWith('http') ? (
                           <a href={p.file_hasil} target="_blank" rel="noreferrer" className="text-amber-900 hover:underline flex items-center gap-1 font-bold">
-                            <LinkIcon size={12} />
-                            <span>{p.file_hasil}</span>
+                            <LinkIcon size={12} /><span className="truncate max-w-[200px]">{p.file_hasil}</span>
                           </a>
                         ) : (
                           <a href={`http://localhost:8000/storage/${p.file_hasil}`} target="_blank" rel="noreferrer" className="text-amber-900 hover:underline flex items-center gap-1 font-bold">
-                            <FileText size={12} />
-                            <span>Unduh File Submission</span>
+                            <FileText size={12} />Unduh File
                           </a>
                         )}
                       </div>
-
                       {p.catatan_revisi && (
-                        <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 mt-2">
-                          <span className="font-bold block mb-0.5">Catatan Revisi Pembimbing:</span>
+                        <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 mt-1">
+                          <span className="font-bold block mb-0.5">Catatan Revisi:</span>
                           {p.catatan_revisi}
                         </div>
                       )}
