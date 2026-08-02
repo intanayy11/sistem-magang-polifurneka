@@ -80,7 +80,7 @@ const PesertaDashboard = () => {
       setMessage(res.data.message);
       fetchDashboard();
     } catch (err) {
-      setMessage(err.response?.data?.message || 'Gagal check-in.');
+      setMessage(err.response?.data?.message || 'Gagal presensi masuk.');
     } finally {
       setActionLoading(false);
     }
@@ -95,7 +95,7 @@ const PesertaDashboard = () => {
       setMessage(res.data.message);
       fetchDashboard();
     } catch (err) {
-      setMessage(err.response?.data?.message || 'Gagal check-out.');
+      setMessage(err.response?.data?.message || 'Gagal presensi pulang.');
     } finally {
       setActionLoading(false);
     }
@@ -209,7 +209,7 @@ const PesertaDashboard = () => {
               </div>
             </div>
 
-            {/* INTEGRATED CHECK-IN / CHECK-OUT BANNER WIDGET */}
+            {/* INTEGRATED PRESENSI MASUK / PULANG BANNER WIDGET */}
             <div className="relative z-10 mt-6 pt-4 border-t border-amber-200/60">
               {isWeekend ? (
                 <div className="flex items-center gap-2 text-xs text-amber-800 font-semibold">
@@ -224,7 +224,7 @@ const PesertaDashboard = () => {
                       <span>Belum Presensi Hari Ini</span>
                     </div>
                     <p className="text-xs text-slate-700 mt-0.5 font-medium">
-                      Segera check-in. {jam_sekarang && <span className="text-amber-900 font-mono font-bold">Jam Server: {jam_sekarang} WIB</span>}
+                      Segera presensi masuk. {jam_sekarang && <span className="text-amber-900 font-mono font-bold">Jam Server: {jam_sekarang} WIB</span>}
                     </p>
                   </div>
                   <button
@@ -233,7 +233,7 @@ const PesertaDashboard = () => {
                     className="w-full sm:w-auto btn-poli-primary px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-xs flex items-center justify-center gap-2 font-extrabold shrink-0"
                   >
                     {actionLoading ? <Loader2 size={16} className="animate-spin" /> : <Clock size={16} />}
-                    <span>{actionLoading ? 'Memproses...' : 'Check-In Sekarang'}</span>
+                    <span>{actionLoading ? 'Memproses...' : 'Presensi Masuk Sekarang'}</span>
                   </button>
                 </div>
               ) : !today_presensi.jam_pulang ? (
@@ -241,10 +241,10 @@ const PesertaDashboard = () => {
                   <div>
                     <div className="flex items-center gap-2 text-emerald-900 text-xs font-extrabold uppercase tracking-wider">
                       <CheckCircle2 size={15} className="text-emerald-600" />
-                      <span>Sudah Check-In ({today_presensi.jam_masuk})</span>
+                      <span>Sudah Presensi Masuk ({today_presensi.jam_masuk})</span>
                     </div>
                     <p className="text-xs text-slate-700 mt-0.5 font-medium">
-                      Jangan lupa check-out setelah selesai jam magang.
+                      Jangan lupa presensi pulang setelah selesai jam magang.
                     </p>
                   </div>
                   <button
@@ -253,7 +253,7 @@ const PesertaDashboard = () => {
                     className="w-full sm:w-auto btn-poli-primary px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-xs flex items-center justify-center gap-2 font-extrabold shrink-0"
                   >
                     {actionLoading ? <Loader2 size={16} className="animate-spin" /> : <Clock size={16} />}
-                    <span>{actionLoading ? 'Memproses...' : 'Check-Out Sekarang'}</span>
+                    <span>{actionLoading ? 'Memproses...' : 'Presensi Pulang Sekarang'}</span>
                   </button>
                 </div>
               ) : (

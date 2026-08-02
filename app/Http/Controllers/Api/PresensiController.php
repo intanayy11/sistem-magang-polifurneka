@@ -31,7 +31,7 @@ class PresensiController extends Controller
         if ($existing) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda sudah melakukan check-in presensi untuk hari ini.'
+                'message' => 'Anda sudah melakukan presensi masuk untuk hari ini.'
             ], 400);
         }
 
@@ -59,7 +59,7 @@ class PresensiController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Check-in berhasil (' . $status . ').',
+            'message' => 'Presensi masuk berhasil (' . $status . ').',
             'data' => $presensi
         ]);
     }
@@ -89,14 +89,14 @@ class PresensiController extends Controller
         if (! $presensi) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda belum melakukan check-in hari ini.'
+                'message' => 'Anda belum melakukan presensi masuk hari ini.'
             ], 400);
         }
 
         if ($presensi->jam_pulang) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Anda sudah melakukan check-out hari ini.'
+                'message' => 'Anda sudah melakukan presensi pulang hari ini.'
             ], 400);
         }
 
@@ -117,7 +117,7 @@ class PresensiController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Check-out berhasil.',
+            'message' => 'Presensi pulang berhasil.',
             'data' => $presensi
         ]);
     }

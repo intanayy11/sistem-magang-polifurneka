@@ -44,9 +44,52 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col-reverse lg:flex-row bg-slate-100 font-inter text-slate-800 relative overflow-hidden">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-slate-100 font-inter text-slate-800 relative overflow-hidden">
       
-      {/* ── Left Panel: FLOATING CARD CONTAINER FOR LOGIN FORM ── */}
+      {/* ── Left Panel: HERO BUILDING IMAGE & BRANDING (55% Width on Desktop) ── */}
+      <div className="w-full lg:w-[55%] min-h-[380px] lg:min-h-screen relative flex flex-col justify-between p-6 sm:p-10 lg:p-16 text-white overflow-hidden shrink-0">
+        
+        {/* Background Building Image */}
+        <div
+          className="absolute inset-0 bg-cover bg-[position:45%_center] transition-transform duration-700 hover:scale-105"
+          style={{ backgroundImage: `url(${buildingImg})` }}
+        />
+
+        {/* Original Clean Overlay: Light sky on top, dark on bottom */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#120B07]/90 via-slate-950/20 to-white/30 backdrop-blur-[0.5px]" />
+
+        {/* Subtle Decorative Lighting Accents */}
+        <div className="absolute -top-10 -left-10 w-48 h-48 rounded-full bg-[#E8A800]/5 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 -right-10 w-48 h-48 rounded-full bg-amber-500/5 blur-3xl pointer-events-none" />
+
+        {/* Top Branding Header (Dark text over bright sky) */}
+        <div className="relative z-10 flex items-center gap-3.5">
+          <img src={logoImg} alt="Logo Polifurneka" className="h-14 w-auto object-contain shrink-0 drop-shadow-sm" />
+          <div>
+            <h2 className="font-extrabold text-lg md:text-xl text-slate-900 leading-tight tracking-tight drop-shadow-2xs">
+              Sistem Monitoring Magang
+            </h2>
+            <p className="text-xs text-amber-900 font-bold tracking-wide">
+              Politeknik Industri Furnitur dan Pengolahan Kayu
+            </p>
+          </div>
+        </div>
+
+        {/* Bottom Hero Footer */}
+        <div className="relative z-10 text-xs text-slate-300/90 space-y-0.5">
+          <p className="text-[11px] text-slate-300 leading-tight">
+            Jl. Wanamarta Raya No. 20 - Kawasan Industri Kendal, Kendal - Jawa Tengah 51371
+          </p>
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 text-[11px] text-amber-300/90 font-mono pt-0.5">
+            <span>humas@poltek-furnitur.ac.id</span>
+            <span className="opacity-50">•</span>
+            <span>+62 294 3692732</span>
+          </div>
+        </div>
+
+      </div>
+
+      {/* ── Right Panel: FLOATING CARD CONTAINER FOR LOGIN FORM (45% Width on Desktop) ── */}
       <div className="w-full lg:w-[45%] min-h-screen flex items-center justify-center p-6 md:p-10 lg:p-14 bg-slate-100 relative z-10 shrink-0">
         
         {/* Floating Card Container */}
@@ -144,49 +187,6 @@ const Login = () => {
             </p>
           </div>
 
-        </div>
-
-      </div>
-
-      {/* ── Right Panel: HERO BUILDING IMAGE & ORIGINAL BRANDING ── */}
-      <div className="w-full lg:w-[55%] min-h-[380px] lg:min-h-screen relative flex flex-col justify-between p-6 sm:p-10 lg:p-16 text-white overflow-hidden shrink-0">
-        
-        {/* Background Building Image */}
-        <div
-          className="absolute inset-0 bg-cover bg-[position:45%_center] transition-transform duration-700 hover:scale-105"
-          style={{ backgroundImage: `url(${buildingImg})` }}
-        />
-
-        {/* Original Clean Overlay: Light sky on top, dark on bottom */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#120B07]/90 via-slate-950/20 to-white/30 backdrop-blur-[0.5px]" />
-
-        {/* Decorative Amber Gold Lighting Accents */}
-        <div className="absolute -top-20 -left-20 w-80 h-80 rounded-full bg-[#E8A800]/15 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-amber-500/15 blur-3xl pointer-events-none" />
-
-        {/* Top Branding Header (Dark text over bright sky) */}
-        <div className="relative z-10 flex items-center gap-3.5">
-          <img src={logoImg} alt="Logo Polifurneka" className="h-14 w-auto object-contain shrink-0 drop-shadow-sm" />
-          <div>
-            <h2 className="font-extrabold text-lg md:text-xl text-slate-900 leading-tight tracking-tight drop-shadow-2xs">
-              Sistem Monitoring Magang
-            </h2>
-            <p className="text-xs text-amber-900 font-bold tracking-wide">
-              Politeknik Industri Furnitur dan Pengolahan Kayu
-            </p>
-          </div>
-        </div>
-
-        {/* Bottom Hero Footer */}
-        <div className="relative z-10 text-xs text-slate-300/90 space-y-0.5">
-          <p className="text-[11px] text-slate-300 leading-tight">
-            Jl. Wanamarta Raya No. 20 - Kawasan Industri Kendal, Kendal - Jawa Tengah 51371
-          </p>
-          <div className="flex flex-wrap items-center gap-2 md:gap-3 text-[11px] text-amber-300/90 font-mono pt-0.5">
-            <span>humas@poltek-furnitur.ac.id</span>
-            <span className="opacity-50">•</span>
-            <span>+62 294 3692732</span>
-          </div>
         </div>
 
       </div>

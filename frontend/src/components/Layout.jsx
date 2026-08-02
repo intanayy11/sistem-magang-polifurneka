@@ -46,7 +46,7 @@ const Layout = () => {
     );
   };
 
-  const getAvatar = (userObj, sizeClass = 'h-8 w-8 text-xs', roundClass = 'rounded-lg') => {
+  const getAvatar = (userObj, sizeClass = 'h-8 w-8 text-xs', roundClass = 'rounded-full') => {
     if (userObj?.foto_profil) {
       const src = userObj.foto_profil.startsWith('http')
         ? userObj.foto_profil
@@ -131,7 +131,7 @@ const Layout = () => {
               onClick={() => setProfileOpen(!profileOpen)}
               className="flex items-center gap-2.5 p-1.5 pl-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all text-left"
             >
-              {getAvatar(user, 'h-8 w-8 text-xs', 'rounded-lg')}
+              {getAvatar(user, 'h-8 w-8 text-xs', 'rounded-full')}
               <div className="hidden sm:block text-xs">
                 <div className="font-semibold text-slate-900 leading-tight max-w-[140px] truncate">{user?.nama}</div>
                 <div className="text-[10px] text-slate-500 capitalize">{user?.role}</div>
@@ -144,25 +144,12 @@ const Layout = () => {
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
                 <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl p-4 z-50 animate-in fade-in zoom-in duration-150">
-                  <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
-                    {getAvatar(user, 'h-10 w-10 text-base', 'rounded-xl')}
+                  <div className="flex items-center gap-3 pb-3 border-b border-slate-100 mb-3">
+                    {getAvatar(user, 'h-10 w-10 text-base', 'rounded-full')}
                     <div className="overflow-hidden">
                       <p className="font-bold text-sm text-slate-900 truncate">{user?.nama}</p>
                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
                     </div>
-                  </div>
-
-                  <div className="py-2 space-y-2 text-xs border-b border-slate-100 my-2">
-                    <div className="flex items-center justify-between text-slate-600">
-                      <span>Peran Akses:</span>
-                      {getRoleBadge(user?.role)}
-                    </div>
-                    {user?.nim_nis && (
-                      <div className="flex items-center justify-between text-slate-600">
-                        <span>NIM / Identifier:</span>
-                        <span className="font-mono text-[11px] font-semibold text-slate-800">{user.nim_nis}</span>
-                      </div>
-                    )}
                   </div>
 
                   <button
@@ -173,7 +160,7 @@ const Layout = () => {
                     className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100/80 hover:bg-slate-200/80 border border-slate-200 transition-all mb-2"
                   >
                     <User size={15} />
-                    <span>Kelola Profil Saya</span>
+                    <span>Profil Saya</span>
                   </button>
 
                   <button
@@ -181,7 +168,7 @@ const Layout = () => {
                     className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 transition-all"
                   >
                     <LogOut size={15} />
-                    <span>Keluar dari Sistem</span>
+                    <span>Keluar</span>
                   </button>
                 </div>
               </>

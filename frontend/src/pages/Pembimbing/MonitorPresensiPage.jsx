@@ -57,7 +57,7 @@ const MonitorPresensiPage = () => {
       <div>
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">Monitor Presensi & Lokasi GPS</h2>
         <p className="text-slate-500 text-xs mt-0.5">
-          Pantau riwayat kehadiran dan titik lokasi check-in/check-out peserta magang bimbingan Anda.
+          Pantau riwayat kehadiran dan titik lokasi presensi masuk/pulang peserta magang bimbingan Anda.
         </p>
       </div>
 
@@ -176,11 +176,11 @@ const MonitorPresensiPage = () => {
                                       open: true,
                                       lat: item.latitude_masuk || -6.958742,
                                       lng: item.longitude_masuk || 110.285810,
-                                      title: `Check-In · ${selectedPeserta?.nama || ''}`,
+                                      title: `Presensi Masuk · ${selectedPeserta?.nama || ''}`,
                                       timestamp: `${new Date(item.tanggal).toLocaleDateString('id-ID')} | ${item.jam_masuk}`
                                     })}
                                     className="inline-flex items-center gap-1 text-[11px] bg-amber-100 text-amber-900 font-semibold px-2 py-1 rounded-lg hover:bg-amber-200 transition-colors border border-amber-300/60"
-                                    title="Lihat lokasi check-in di peta"
+                                    title="Lihat lokasi presensi masuk di peta"
                                   >
                                     <MapPin size={11} className="text-amber-700" />
                                     <span>Peta In</span>
@@ -194,11 +194,11 @@ const MonitorPresensiPage = () => {
                                       open: true,
                                       lat: item.latitude_pulang || -6.958742,
                                       lng: item.longitude_pulang || 110.285810,
-                                      title: `Check-Out · ${selectedPeserta?.nama || ''}`,
+                                      title: `Presensi Pulang · ${selectedPeserta?.nama || ''}`,
                                       timestamp: `${new Date(item.tanggal).toLocaleDateString('id-ID')} | ${item.jam_pulang}`
                                     })}
                                     className="inline-flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-900 font-semibold px-2 py-1 rounded-lg hover:bg-emerald-200 transition-colors border border-emerald-300/60"
-                                    title="Lihat lokasi check-out di peta"
+                                    title="Lihat lokasi presensi pulang di peta"
                                   >
                                     <MapPin size={11} className="text-emerald-700" />
                                     <span>Peta Out</span>

@@ -66,7 +66,7 @@ const PresensiPage = () => {
       setAlert({ type: 'success', message: res.data.message + (latitude ? ` 📍 Lokasi GPS dicatat.` : '') });
       fetchPresensi();
     } catch (err) {
-      setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal melakukan check-in' });
+      setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal melakukan presensi masuk' });
     } finally {
       setActionLoading(false);
     }
@@ -81,7 +81,7 @@ const PresensiPage = () => {
       setAlert({ type: 'success', message: res.data.message + (latitude ? ` 📍 Lokasi GPS dicatat.` : '') });
       fetchPresensi();
     } catch (err) {
-      setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal melakukan check-out' });
+      setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal melakukan presensi pulang' });
     } finally {
       setActionLoading(false);
     }
@@ -107,7 +107,7 @@ const PresensiPage = () => {
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">Presensi Harian Magang</h2>
           <p className="text-slate-500 text-xs mt-0.5">
-            Lakukan check-in dan check-out sesuai jam kerja. Lokasi GPS akan dicatat otomatis.
+            Lakukan presensi masuk dan presensi pulang sesuai jam kerja. Lokasi GPS akan dicatat otomatis.
           </p>
         </div>
         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold self-start sm:self-auto">
@@ -154,15 +154,15 @@ const PresensiPage = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {/* Check In Box */}
+                {/* Presensi Masuk Box */}
                 <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 flex flex-col justify-between gap-3">
                   <div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-900">Check-In Masuk</span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-900">Presensi Masuk</span>
                     <div className="mt-1 text-2xl font-extrabold text-slate-900 font-mono">
                       {today?.jam_masuk ? today.jam_masuk : '--:--:--'}
                     </div>
                     <p className="text-xs text-slate-600 mt-0.5">
-                      {today ? `Status: ${today.status}` : 'Belum check-in hari ini.'}
+                      {today ? `Status: ${today.status}` : 'Belum presensi masuk hari ini.'}
                     </p>
                     {today?.jam_masuk && (
                       <button
@@ -171,14 +171,14 @@ const PresensiPage = () => {
                             open: true,
                             lat: today.latitude_masuk || -6.958742,
                             lng: today.longitude_masuk || 110.285810,
-                            title: 'Lokasi Check-In',
+                            title: 'Lokasi Presensi Masuk',
                             timestamp: `Jam Masuk: ${today.jam_masuk}`,
                           })
                         }
                         className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-amber-900 bg-amber-200/70 hover:bg-amber-200 px-2.5 py-1 rounded-lg font-bold transition-all"
                       >
                         <MapPin size={12} className="text-amber-700" />
-                        <span>Peta Check-In</span>
+                        <span>Peta Masuk</span>
                       </button>
                     )}
                   </div>
@@ -188,19 +188,19 @@ const PresensiPage = () => {
                     className="w-full btn-poli-primary disabled:bg-slate-200 disabled:text-slate-400 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 font-extrabold shadow-xs"
                   >
                     {actionLoading ? <Loader2 size={15} className="animate-spin" /> : <Clock size={15} />}
-                    <span>{today ? 'Sudah Check-In' : 'Check-In Sekarang'}</span>
+                    <span>{today ? 'Sudah Presensi Masuk' : 'Presensi Masuk Sekarang'}</span>
                   </button>
                 </div>
 
-                {/* Check Out Box */}
+                {/* Presensi Pulang Box */}
                 <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200/70 flex flex-col justify-between gap-3">
                   <div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-900">Check-Out Pulang</span>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-900">Presensi Pulang</span>
                     <div className="mt-1 text-2xl font-extrabold text-slate-900 font-mono">
                       {today?.jam_pulang ? today.jam_pulang : '--:--:--'}
                     </div>
                     <p className="text-xs text-slate-600 mt-0.5">
-                      {today?.jam_pulang ? 'Check-out selesai.' : 'Belum check-out.'}
+                      {today?.jam_pulang ? 'Presensi pulang selesai.' : 'Belum presensi pulang.'}
                     </p>
                     {today?.jam_pulang && (
                       <button
@@ -209,14 +209,14 @@ const PresensiPage = () => {
                             open: true,
                             lat: today.latitude_pulang || -6.958742,
                             lng: today.longitude_pulang || 110.285810,
-                            title: 'Lokasi Check-Out',
+                            title: 'Lokasi Presensi Pulang',
                             timestamp: `Jam Pulang: ${today.jam_pulang}`,
                           })
                         }
                         className="mt-2 inline-flex items-center gap-1.5 text-[11px] text-emerald-900 bg-emerald-200/70 hover:bg-emerald-200 px-2.5 py-1 rounded-lg font-bold transition-all"
                       >
                         <MapPin size={12} className="text-emerald-700" />
-                        <span>Peta Check-Out</span>
+                        <span>Peta Pulang</span>
                       </button>
                     )}
                   </div>
@@ -226,7 +226,7 @@ const PresensiPage = () => {
                     className="w-full btn-poli-primary disabled:bg-slate-200 disabled:text-slate-400 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all disabled:cursor-not-allowed flex items-center justify-center gap-2 font-extrabold shadow-xs"
                   >
                     {actionLoading ? <Loader2 size={15} className="animate-spin" /> : <Clock size={15} />}
-                    <span>{today?.jam_pulang ? 'Sudah Check-Out' : 'Check-Out Sekarang'}</span>
+                    <span>{today?.jam_pulang ? 'Sudah Presensi Pulang' : 'Presensi Pulang Sekarang'}</span>
                   </button>
                 </div>
               </div>
@@ -240,7 +240,7 @@ const PresensiPage = () => {
               <span>Ketentuan Presensi GPS</span>
             </div>
             <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
-              Presensi mencatat titik lokasi GPS perangkat Anda. Pastikan browser diizinkan mengakses lokasi saat menekan tombol check-in atau check-out.
+              Presensi mencatat titik lokasi GPS perangkat Anda. Pastikan browser diizinkan mengakses lokasi saat menekan tombol presensi masuk atau presensi pulang.
             </p>
           </div>
 
@@ -299,7 +299,7 @@ const PresensiPage = () => {
                                     open: true,
                                     lat: item.latitude_masuk || -6.958742,
                                     lng: item.longitude_masuk || 110.285810,
-                                    title: `Lokasi Check-In`,
+                                    title: `Lokasi Presensi Masuk`,
                                     timestamp: `${item.tanggal} | ${item.jam_masuk}`,
                                   })
                                 }
@@ -316,7 +316,7 @@ const PresensiPage = () => {
                                     open: true,
                                     lat: item.latitude_pulang || -6.958742,
                                     lng: item.longitude_pulang || 110.285810,
-                                    title: `Lokasi Check-Out`,
+                                    title: `Lokasi Presensi Pulang`,
                                     timestamp: `${item.tanggal} | ${item.jam_pulang}`,
                                   })
                                 }
