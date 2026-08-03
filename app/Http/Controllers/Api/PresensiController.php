@@ -101,6 +101,17 @@ class PresensiController extends Controller
         }
 
         $now = Carbon::now();
+        $standar = PresensiService::getJamStandar($todayCarbon);
+        $jamPulangStandar = Carbon::parse($today . ' ' . $standar['jam_pulang']);
+
+        if ($now->lessThan($jamPulangStandar)) {
+            $jamFmt = Carbon::parse($standar['jam_pulang'])->format('H:i');
+            return response()->json([
+                'status' => 'error',
+                'message' => "Belum waktunya presensi pulang. Presensi pulang dapat dilakukan mulai pukul {$jamFmt} WIB."
+            ], 400);
+        }
+
         $jamPulang = $now->toTimeString();
         $status = PresensiService::hitungStatusCheckOut($jamPulang, $presensi->status, $now);
 

@@ -179,10 +179,10 @@ const MonitorPresensiPage = () => {
                                       title: `Presensi Masuk · ${selectedPeserta?.nama || ''}`,
                                       timestamp: `${new Date(item.tanggal).toLocaleDateString('id-ID')} | ${item.jam_masuk}`
                                     })}
-                                    className="inline-flex items-center gap-1 text-[11px] bg-amber-100 text-amber-900 font-semibold px-2 py-1 rounded-lg hover:bg-amber-200 transition-colors border border-amber-300/60"
+                                    className="inline-flex items-center gap-1 text-[11px] bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold px-2 py-1 rounded-lg transition-colors border border-slate-200"
                                     title="Lihat lokasi presensi masuk di peta"
                                   >
-                                    <MapPin size={11} className="text-amber-700" />
+                                    <MapPin size={11} className="text-amber-600" />
                                     <span>Peta In</span>
                                   </button>
                                 ) : (
@@ -197,10 +197,10 @@ const MonitorPresensiPage = () => {
                                       title: `Presensi Pulang · ${selectedPeserta?.nama || ''}`,
                                       timestamp: `${new Date(item.tanggal).toLocaleDateString('id-ID')} | ${item.jam_pulang}`
                                     })}
-                                    className="inline-flex items-center gap-1 text-[11px] bg-emerald-100 text-emerald-900 font-semibold px-2 py-1 rounded-lg hover:bg-emerald-200 transition-colors border border-emerald-300/60"
+                                    className="inline-flex items-center gap-1 text-[11px] bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold px-2 py-1 rounded-lg transition-colors border border-slate-200"
                                     title="Lihat lokasi presensi pulang di peta"
                                   >
-                                    <MapPin size={11} className="text-emerald-700" />
+                                    <MapPin size={11} className="text-amber-600" />
                                     <span>Peta Out</span>
                                   </button>
                                 ) : null}

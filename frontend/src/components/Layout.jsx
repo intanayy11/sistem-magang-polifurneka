@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getStorageUrl } from '../utils/url';
 import {
   LayoutDashboard,
   Clock,
@@ -45,15 +46,11 @@ const Layout = () => {
       </span>
     );
   };
-
   const getAvatar = (userObj, sizeClass = 'h-8 w-8 text-xs', roundClass = 'rounded-full') => {
     if (userObj?.foto_profil) {
-      const src = userObj.foto_profil.startsWith('http')
-        ? userObj.foto_profil
-        : `http://localhost:8000/storage/${userObj.foto_profil}`;
       return (
         <img
-          src={src}
+          src={getStorageUrl(userObj.foto_profil)}
           alt={userObj?.nama}
           className={`${sizeClass} ${roundClass} object-cover border border-amber-200 shrink-0`}
         />

@@ -166,15 +166,12 @@ const Login = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full btn-poli-primary py-3 rounded-xl text-xs md:text-sm uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 mt-2 shadow-md disabled:opacity-50 font-bold"
+              className="w-full btn-poli-primary py-3.5 rounded-full text-xs md:text-sm uppercase tracking-wider transition-all duration-200 flex items-center justify-center mt-2 shadow-md disabled:opacity-50 font-bold"
             >
               {submitting ? (
                 <div className="h-4 w-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
               ) : (
-                <>
-                  <LogIn size={16} />
-                  <span>Masuk ke Sistem</span>
-                </>
+                <span>Masuk ke Sistem</span>
               )}
             </button>
           </form>

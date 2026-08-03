@@ -455,5 +455,16 @@ class DatabaseSeeder extends Seeder
             'file_lampiran' => null,
             'status'        => 'Belum Dikerjakan',
         ]);
+
+        // Tugas 6: Belum Dikerjakan (OVERDUE - Terlewat Deadline)
+        Tugas::create([
+            'pembimbing_id' => $pembimbing->user_id,
+            'peserta_id'    => $peserta->user_id,
+            'judul'         => 'Laporan Analisis Kualitas Material Kayu Olahan',
+            'deskripsi'     => 'Melakukan pengujian ketahanan dan analisis struktur material kayu olahan (MDF & Particle Board) di laboratorium uji. Susun laporan analisis teknis beserta tabel komparasi.',
+            'deadline'      => Carbon::now()->subDays(2)->toDateString() . ' 16:00:00',
+            'file_lampiran' => null,
+            'status'        => 'Belum Dikerjakan',
+        ]);
     }
 }

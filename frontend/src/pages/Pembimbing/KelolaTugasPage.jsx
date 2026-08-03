@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
+import { isTaskOverdue } from '../../utils/dateHelpers';
 
 const KelolaTugasPage = () => {
   const [tugasList, setTugasList] = useState([]);
@@ -203,8 +204,15 @@ const KelolaTugasPage = () => {
                       <div className="font-bold text-slate-900">{tugas.judul}</div>
                       <div className="text-slate-500 line-clamp-1 mt-0.5">{tugas.deskripsi || '-'}</div>
                     </td>
-                    <td className="px-5 py-3.5 font-mono text-slate-700">
-                      {new Date(tugas.deadline).toLocaleString('id-ID')}
+                    <td className="px-5 py-3.5">
+                      <div className={`font-mono ${isTaskOverdue(tugas.deadline, tugas.status) ? 'text-rose-700 font-bold' : 'text-slate-700'}`}>
+                        {new Date(tugas.deadline).toLocaleString('id-ID')}
+                      </div>
+                      {isTaskOverdue(tugas.deadline, tugas.status) && (
+                        <span className="inline-block text-[9px] font-extrabold text-white bg-rose-600 px-1.5 py-0.5 rounded shadow-2xs mt-1">
+                          Lewat Tenggat
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-3.5 font-semibold text-slate-700">
                       {tugas.pengumpulan?.length || 0} Versi

@@ -56,3 +56,16 @@ export function nearestWorkdayOnOrBefore(isoDate) {
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
 }
+
+/**
+ * Checks if a task is overdue (past deadline and status is not Selesai or Menunggu Review).
+ * Applies to 'Belum Dikerjakan' and 'Perlu Revisi'.
+ * @param {string|Date} deadline
+ * @param {string} status
+ * @returns {boolean}
+ */
+export function isTaskOverdue(deadline, status) {
+  if (!deadline) return false;
+  if (status === 'Selesai' || status === 'Menunggu Review') return false;
+  return new Date(deadline) < new Date();
+}

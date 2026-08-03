@@ -4,6 +4,7 @@ import StatusBadge from '../../components/StatusBadge';
 import { BookOpen, Image as ImageIcon, AlertCircle, X } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
+import { getStorageUrl } from '../../utils/url';
 
 const ReviewLogbookPage = () => {
   const [logbooks, setLogbooks] = useState([]);
@@ -155,7 +156,7 @@ const ReviewLogbookPage = () => {
                     <td className="px-5 py-3.5">
                       {log.foto_bukti ? (
                         <a
-                          href={`/${log.foto_bukti}`}
+                          href={getStorageUrl(log.foto_bukti)}
                           target="_blank"
                           rel="noreferrer"
                           className="text-amber-700 hover:underline flex items-center gap-1 font-medium"

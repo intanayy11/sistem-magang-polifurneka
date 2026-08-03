@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import StatusBadge from '../../components/StatusBadge';
 import DovetailDivider from '../../components/DovetailDivider';
-import { Plus, BookOpen, Image as ImageIcon, X } from 'lucide-react';
+import { Plus, BookOpen, Image as ImageIcon, X, Calendar, FileText, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
+import { getStorageUrl } from '../../utils/url';
 import { nearestWorkdayOnOrBefore, isWeekend, todayLocalISO } from '../../utils/dateHelpers';
 
 const LOGBOOK_FILTERS = [
@@ -14,16 +15,20 @@ const LOGBOOK_FILTERS = [
   { label: 'Perlu Revisi', value: 'Revisi' },
 ];
 
+const ITEMS_PER_PAGE = 5;
+
 const LogbookPage = () => {
   const [logbooks, setLogbooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [selectedLogbook, setSelectedLogbook] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
   const [dateNote, setDateNote] = useState('');
   const [activeFilter, setActiveFilter] = useState('Semua');
+  const [currentPage, setCurrentPage] = useState(1);
 
-  useScrollLock(showModal);
+  useScrollLock(showModal || !!selectedLogbook);
 
   const [form, setForm] = useState({
     tanggal: nearestWorkdayOnOrBefore(todayLocalISO()),
@@ -49,6 +54,11 @@ const LogbookPage = () => {
   useEffect(() => {
     fetchLogbooks();
   }, []);
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeFilter]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -104,6 +114,10 @@ const LogbookPage = () => {
     ? logbooks
     : logbooks.filter(l => l.status === activeFilter);
 
+  const totalPages = Math.ceil(filteredLogbooks.length / ITEMS_PER_PAGE) || 1;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedLogbooks = filteredLogbooks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
   return (
     <div className="space-y-5">
       {/* Top Header with Primary Action Button */}
@@ -111,7 +125,7 @@ const LogbookPage = () => {
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">Logbook Kegiatan Harian</h2>
           <p className="text-slate-500 text-xs mt-0.5">
-            Catat aktivitas harian dan upload foto bukti kegiatan magang Anda.
+            Catat aktivitas harian dan upload foto bukti kegiatan magang Anda. Klik baris tabel untuk melihat detail.
           </p>
         </div>
         <button
@@ -155,9 +169,9 @@ const LogbookPage = () => {
         })}
       </div>
 
-      {/* Full-Width Logbook Cards Grid */}
+      {/* Bento Table View */}
       {filteredLogbooks.length === 0 ? (
-        <div className="card-bento p-12 text-center">
+        <div className="card-clean p-12 text-center">
           <BookOpen size={40} className="mx-auto text-slate-300 mb-3" />
           <p className="text-slate-700 font-bold text-sm">
             {activeFilter === 'Semua' ? 'Belum Ada Logbook' : `Tidak ada logbook dengan status "${LOGBOOK_FILTERS.find(f => f.value === activeFilter)?.label}"`}
@@ -167,50 +181,226 @@ const LogbookPage = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filteredLogbooks.map((log) => (
-            <div key={log.logbook_id} className="card-bento p-5 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-md">
-                    {new Date(log.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
-                  </span>
-                  <StatusBadge status={log.status} />
+        <div className="card-clean overflow-hidden">
+          <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <FileText size={16} className="text-[#E8A800]" />
+              <span>Daftar Logbook Kegiatan</span>
+            </h3>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-600">
+              <thead className="bg-slate-50 text-slate-700 font-semibold uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th className="px-5 py-3.5 w-32">Tanggal</th>
+                  <th className="px-5 py-3.5">Judul & Aktivitas</th>
+                  <th className="px-5 py-3.5 max-w-xs">Kendala / Catatan Pembimbing</th>
+                  <th className="px-5 py-3.5 w-32">Foto Bukti</th>
+                  <th className="px-5 py-3.5 w-28 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {paginatedLogbooks.map((log) => (
+                  <tr
+                    key={log.logbook_id}
+                    onClick={() => setSelectedLogbook(log)}
+                    className="hover:bg-amber-50/50 cursor-pointer transition-colors group"
+                    title="Klik untuk melihat detail logbook"
+                  >
+                    
+                    {/* Column 1: Tanggal */}
+                    <td className="px-5 py-4 align-top">
+                      <span className="text-xs font-bold text-slate-800 font-mono whitespace-nowrap bg-slate-100 group-hover:bg-amber-100/70 px-2.5 py-1 rounded-md inline-flex items-center gap-1.5 transition-colors">
+                        <Calendar size={12} className="text-amber-600 shrink-0" />
+                        {new Date(log.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </span>
+                    </td>
+
+                    {/* Column 2: Judul & Deskripsi */}
+                    <td className="px-5 py-4 align-top">
+                      <div className="font-bold text-slate-900 text-sm mb-1 group-hover:text-amber-900 transition-colors">{log.judul_kegiatan}</div>
+                      <p className="text-slate-600 text-xs whitespace-pre-line leading-relaxed line-clamp-2 max-w-xl">
+                        {log.deskripsi}
+                      </p>
+                    </td>
+
+                    {/* Column 3: Kendala & Catatan Pembimbing */}
+                    <td className="px-5 py-4 align-top max-w-xs space-y-2">
+                      {log.kendala && (
+                        <div className="text-[11px] text-slate-700">
+                          <span className="font-bold text-slate-900">Kendala: </span>
+                          <span className="text-slate-600 line-clamp-2">{log.kendala}</span>
+                        </div>
+                      )}
+
+                      {log.catatan_pembimbing && (
+                        <div className="text-[11px] text-slate-700 mt-1">
+                          <span className="font-bold text-slate-900">Catatan Pembimbing: </span>
+                          <span className="text-slate-600 line-clamp-2">{log.catatan_pembimbing}</span>
+                        </div>
+                      )}
+
+                      {!log.kendala && !log.catatan_pembimbing && (
+                        <span className="text-slate-400 italic text-[11px]">-</span>
+                      )}
+                    </td>
+
+                    {/* Column 4: Foto Bukti */}
+                    <td className="px-5 py-4 align-top whitespace-nowrap">
+                      {log.foto_bukti ? (
+                        <a
+                          href={getStorageUrl(log.foto_bukti)}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
+                        >
+                          <ImageIcon size={13} className="text-slate-500" />
+                          <span>Lihat Foto</span>
+                        </a>
+                      ) : (
+                        <span className="text-slate-400 italic text-[11px]">-</span>
+                      )}
+                    </td>
+
+                    {/* Column 5: Status */}
+                    <td className="px-5 py-4 align-top text-center whitespace-nowrap">
+                      <StatusBadge status={log.status} />
+                    </td>
+
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination Controls Footer */}
+          {filteredLogbooks.length > 0 && (
+            <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50 text-xs">
+              <span className="text-slate-500 font-medium">
+                Menampilkan <strong className="text-slate-800 font-mono">{startIndex + 1}</strong>–<strong className="text-slate-800 font-mono">{Math.min(startIndex + ITEMS_PER_PAGE, filteredLogbooks.length)}</strong> dari <strong className="text-slate-800 font-mono">{filteredLogbooks.length}</strong> logbook
+              </span>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold flex items-center gap-1"
+                >
+                  <ChevronLeft size={14} />
+                  <span>Sebelumnya</span>
+                </button>
+
+                <div className="flex items-center gap-1 px-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-7 h-7 rounded-lg text-xs font-bold transition-all ${
+                        currentPage === pageNum
+                          ? 'bg-[#E8A800] text-slate-950 shadow-xs'
+                          : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
                 </div>
 
-                <h3 className="font-bold text-slate-900 text-sm mb-1.5 line-clamp-1">{log.judul_kegiatan}</h3>
-                <p className="text-slate-600 text-xs mb-3 line-clamp-3 whitespace-pre-line leading-relaxed">{log.deskripsi}</p>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold flex items-center gap-1"
+                >
+                  <span>Berikutnya</span>
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
-                {log.kendala && (
-                  <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/70 text-amber-900 text-[11px] mb-3">
-                    <span className="font-bold block mb-0.5">Kendala:</span>
-                    {log.kendala}
-                  </div>
-                )}
+      {/* Modal Detail Logbook */}
+      {selectedLogbook && (
+        <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-[24px] max-w-xl w-full p-6 shadow-xl border border-slate-200 space-y-5 relative max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xs font-mono font-bold text-slate-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200/80 flex items-center gap-1.5">
+                  <Calendar size={13} className="text-amber-600" />
+                  {new Date(selectedLogbook.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}
+                </span>
+                <StatusBadge status={selectedLogbook.status} />
+              </div>
+              <button
+                onClick={() => setSelectedLogbook(null)}
+                className="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-                {log.catatan_pembimbing && (
-                  <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200/70 text-blue-900 text-[11px] mb-3">
-                    <span className="font-bold block mb-0.5">Catatan Pembimbing:</span>
-                    {log.catatan_pembimbing}
-                  </div>
-                )}
+            {/* Modal Body */}
+            <div className="space-y-4 text-xs text-slate-700">
+              <div>
+                <h3 className="font-extrabold text-slate-900 text-base leading-snug mb-2">
+                  {selectedLogbook.judul_kegiatan}
+                </h3>
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-700 leading-relaxed whitespace-pre-line text-xs font-normal">
+                  {selectedLogbook.deskripsi}
+                </div>
               </div>
 
-              {log.foto_bukti && (
-                <div className="pt-3 border-t border-slate-100 flex items-center gap-2 mt-2">
-                  <ImageIcon size={14} className="text-amber-600 shrink-0" />
+              {selectedLogbook.kendala && (
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-800 space-y-1">
+                  <span className="font-bold block text-xs text-slate-900">Kendala yang Dihadapi:</span>
+                  <p className="leading-relaxed whitespace-pre-line text-xs text-slate-600">{selectedLogbook.kendala}</p>
+                </div>
+              )}
+
+              {selectedLogbook.catatan_pembimbing && (
+                <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 text-slate-800 space-y-1">
+                  <span className="font-bold block text-xs text-slate-900">Catatan Pembimbing Lapangan:</span>
+                  <p className="leading-relaxed whitespace-pre-line text-xs text-slate-600">{selectedLogbook.catatan_pembimbing}</p>
+                </div>
+              )}
+
+              {selectedLogbook.foto_bukti && (
+                <div className="space-y-2 pt-2 border-t border-slate-100">
+                  <span className="font-bold text-slate-800 block text-xs">Foto Bukti Kegiatan:</span>
+                  <div className="relative rounded-2xl overflow-hidden border border-slate-200 max-h-64 bg-slate-100">
+                    <img
+                      src={getStorageUrl(selectedLogbook.foto_bukti)}
+                      alt="Foto Bukti Logbook"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                   <a
-                    href={`http://localhost:8000/storage/${log.foto_bukti}`}
+                    href={getStorageUrl(selectedLogbook.foto_bukti)}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs text-amber-800 hover:underline font-bold truncate"
+                    className="inline-flex items-center gap-1.5 text-xs text-amber-800 font-bold hover:underline mt-1"
                   >
-                    Foto Bukti Kegiatan
+                    <ExternalLink size={14} />
+                    <span>Buka Foto Ukuran Penuh</span>
                   </a>
                 </div>
               )}
             </div>
-          ))}
+
+            {/* Modal Footer */}
+            <div className="pt-3 border-t border-slate-100 flex justify-end">
+              <button
+                onClick={() => setSelectedLogbook(null)}
+                className="btn-poli-primary px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider font-extrabold"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

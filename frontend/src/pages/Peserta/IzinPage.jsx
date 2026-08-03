@@ -109,7 +109,6 @@ const IzinPage = () => {
       <div className="card-clean overflow-hidden">
         <div className="p-5 border-b border-slate-100 flex items-center justify-between">
           <h3 className="font-bold text-slate-900 text-base">Daftar Pengajuan Saya</h3>
-          <span className="text-xs text-slate-500 font-medium">Total: {izinList.length} Pengajuan</span>
         </div>
 
         <div className="overflow-x-auto">

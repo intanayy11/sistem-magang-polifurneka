@@ -43,6 +43,17 @@ class DashboardController extends Controller
         $sudahPresensiHariIni = $todayPresensi !== null;
         $jamSekarang = Carbon::now()->format('H:i');
 
+        // 5. Recent Logbooks & Recent Tugas for dashboard widgets
+        $recentLogbooks = Logbook::where('peserta_id', $user->user_id)
+            ->orderBy('tanggal', 'desc')
+            ->take(5)
+            ->get(['logbook_id', 'tanggal', 'judul_kegiatan', 'status']);
+
+        $recentTugas = Tugas::where('peserta_id', $user->user_id)
+            ->orderBy('deadline', 'asc')
+            ->take(5)
+            ->get(['tugas_id', 'judul as judul_tugas', 'deadline', 'status']);
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -54,6 +65,8 @@ class DashboardController extends Controller
                 'today_presensi' => $todayPresensi,
                 'sudah_presensi_hari_ini' => $sudahPresensiHariIni,
                 'jam_sekarang' => $jamSekarang,
+                'recent_logbooks' => $recentLogbooks,
+                'recent_tugas' => $recentTugas,
             ]
         ]);
     }

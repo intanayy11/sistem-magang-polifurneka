@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import StatusBadge from '../../components/StatusBadge';
+import { getStorageUrl } from '../../utils/url';
 import DovetailDivider from '../../components/DovetailDivider';
 import {
   CheckSquare,
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
+import { isTaskOverdue } from '../../utils/dateHelpers';
 
 const STATUS_FILTERS = [
   { label: 'Semua', value: 'Semua' },
@@ -164,9 +166,16 @@ const TugasPage = () => {
             <div key={tugas.tugas_id} className="card-bento p-5 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
-                    <Calendar size={13} className="text-amber-600" />
-                    {new Date(tugas.deadline).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1 flex-wrap">
+                    <Calendar size={13} className={isTaskOverdue(tugas.deadline, tugas.status) ? "text-rose-600 shrink-0" : "text-amber-600 shrink-0"} />
+                    <span className={isTaskOverdue(tugas.deadline, tugas.status) ? "text-rose-700 font-bold" : ""}>
+                      {new Date(tugas.deadline).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </span>
+                    {isTaskOverdue(tugas.deadline, tugas.status) && (
+                      <span className="text-[10px] font-extrabold text-white bg-rose-600 px-1.5 py-0.5 rounded shadow-2xs">
+                        Lewat Tenggat
+                      </span>
+                    )}
                   </span>
                   <StatusBadge status={tugas.status} />
                 </div>
@@ -221,7 +230,7 @@ const TugasPage = () => {
               {selectedTugas.file_lampiran && (
                 <div className="pt-2">
                   <a
-                    href={`http://localhost:8000/storage/${selectedTugas.file_lampiran}`}
+                    href={getStorageUrl(selectedTugas.file_lampiran)}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs text-amber-900 font-bold hover:underline bg-amber-100/80 px-2.5 py-1 rounded-lg border border-amber-200/80"
@@ -308,7 +317,7 @@ const TugasPage = () => {
                             <LinkIcon size={12} /><span className="truncate max-w-[200px]">{p.file_hasil}</span>
                           </a>
                         ) : (
-                          <a href={`http://localhost:8000/storage/${p.file_hasil}`} target="_blank" rel="noreferrer" className="text-amber-900 hover:underline flex items-center gap-1 font-bold">
+                          <a href={getStorageUrl(p.file_hasil)} target="_blank" rel="noreferrer" className="text-amber-900 hover:underline flex items-center gap-1 font-bold">
                             <FileText size={12} />Unduh File
                           </a>
                         )}
