@@ -47,7 +47,7 @@ const Login = () => {
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-slate-100 font-inter text-slate-800 relative overflow-hidden">
       
       {/* ── Left Panel: HERO BUILDING IMAGE & BRANDING (55% Width on Desktop) ── */}
-      <div className="w-full lg:w-[55%] min-h-[380px] lg:min-h-screen relative flex flex-col justify-between p-6 sm:p-10 lg:p-16 text-white overflow-hidden shrink-0">
+      <div className="w-full lg:w-[55%] min-h-[220px] sm:min-h-[300px] lg:min-h-screen relative flex flex-col justify-between p-5 sm:p-10 lg:p-16 text-white overflow-hidden shrink-0">
         
         {/* Background Building Image */}
         <div
@@ -63,24 +63,24 @@ const Login = () => {
         <div className="absolute -bottom-10 -right-10 w-48 h-48 rounded-full bg-amber-500/5 blur-3xl pointer-events-none" />
 
         {/* Top Branding Header (Dark text over bright sky) */}
-        <div className="relative z-10 flex items-center gap-3.5">
-          <img src={logoImg} alt="Logo Polifurneka" className="h-14 w-auto object-contain shrink-0 drop-shadow-sm" />
+        <div className="relative z-10 flex items-center gap-2.5 sm:gap-3.5">
+          <img src={logoImg} alt="Logo Polifurneka" className="h-10 sm:h-12 lg:h-14 w-auto object-contain shrink-0 drop-shadow-sm" />
           <div>
-            <h2 className="font-extrabold text-lg md:text-xl text-slate-900 leading-tight tracking-tight drop-shadow-2xs">
-              Sistem Monitoring Magang
+            <h2 className="font-extrabold text-sm sm:text-lg md:text-xl text-slate-900 leading-tight tracking-tight drop-shadow-2xs">
+              Sistem Monitoring Kegiatan Magang
             </h2>
-            <p className="text-xs text-amber-900 font-bold tracking-wide">
+            <p className="text-[10px] sm:text-xs text-amber-900 font-bold tracking-wide">
               Politeknik Industri Furnitur dan Pengolahan Kayu
             </p>
           </div>
         </div>
 
         {/* Bottom Hero Footer */}
-        <div className="relative z-10 text-xs text-slate-300/90 space-y-0.5">
-          <p className="text-[11px] text-slate-300 leading-tight">
+        <div className="relative z-10 text-xs text-slate-300/90 space-y-0.5 pt-4 sm:pt-0">
+          <p className="text-[10px] sm:text-[11px] text-slate-300 leading-tight">
             Jl. Wanamarta Raya No. 20 - Kawasan Industri Kendal, Kendal - Jawa Tengah 51371
           </p>
-          <div className="flex flex-wrap items-center gap-2 md:gap-3 text-[11px] text-amber-300/90 font-mono pt-0.5">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 text-[10px] sm:text-[11px] text-amber-300/90 font-mono pt-0.5">
             <span>humas@poltek-furnitur.ac.id</span>
             <span className="opacity-50">•</span>
             <span>+62 294 3692732</span>
@@ -90,7 +90,7 @@ const Login = () => {
       </div>
 
       {/* ── Right Panel: FLOATING CARD CONTAINER FOR LOGIN FORM (45% Width on Desktop) ── */}
-      <div className="w-full lg:w-[45%] min-h-screen flex items-center justify-center p-6 md:p-10 lg:p-14 bg-slate-100 relative z-10 shrink-0">
+      <div className="w-full lg:w-[45%] min-h-auto lg:min-h-screen flex items-center justify-center p-4 sm:p-8 lg:p-14 bg-slate-100 relative z-10 shrink-0">
         
         {/* Floating Card Container */}
         <div className="w-full max-w-md bg-white rounded-[24px] shadow-xl border border-slate-200/80 p-7 sm:p-9 space-y-6">
@@ -98,10 +98,10 @@ const Login = () => {
           {/* Form Header */}
           <div className="space-y-1">
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-              Selamat Datang Kembali
+              Selamat Datang di SIMONIKA
             </h1>
             <p className="text-xs text-slate-500">
-              Masukkan akun terdaftar Anda untuk mengelola aktivitas magang.
+              Silakan masukkan akun terdaftar Anda untuk mengelola aktivitas magang.
             </p>
           </div>
 
@@ -171,7 +171,7 @@ const Login = () => {
               {submitting ? (
                 <div className="h-4 w-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
               ) : (
-                <span>Masuk ke Sistem</span>
+                <span>Masuk ke SIMONIKA</span>
               )}
             </button>
           </form>

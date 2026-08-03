@@ -8,8 +8,6 @@ const StatusBadge = ({ status }) => {
         return 'text-emerald-700 font-bold';
       case 'Terlambat':
         return 'text-amber-800 font-bold';
-      case 'Pulang Cepat':
-        return 'text-amber-900 font-bold';
       case 'Alpha':
         return 'text-rose-700 font-bold';
 

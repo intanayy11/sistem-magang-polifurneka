@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   X,
+  ChevronLeft,
   ChevronRight,
   ChevronDown,
   MapPin,
@@ -25,6 +26,7 @@ const Layout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -102,23 +104,28 @@ const Layout = () => {
         {/* Top Gold Accent Line */}
         <div className="h-1 bg-gradient-to-r from-[#E8A800] via-[#F5C42E] to-[#E8A800]" />
 
-        <div className="px-4 md:px-6 py-3 flex items-center justify-between">
+        <div className="px-3 sm:px-6 py-2.5 md:py-3 flex items-center justify-between">
           {/* Left: Mobile Toggle + Unified Brand Title */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+              className="lg:hidden p-1.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
               aria-label="Toggle menu"
             >
-              {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
+              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
               {/* Brand Badge Logo */}
-              <img src={logoImg} alt="Logo Polifurneka" className="h-10 w-auto object-contain shrink-0 drop-shadow-2xs" />
-              <h1 className="font-bold text-slate-900 text-base md:text-lg tracking-tight">
-                Sistem Magang Polifurneka Kendal
-              </h1>
+              <img src={logoImg} alt="Logo Polifurneka" className="h-8 sm:h-9 md:h-11 w-auto object-contain shrink-0 drop-shadow-2xs" />
+              <div className="overflow-hidden">
+                <h1 className="font-bold text-slate-900 text-xs sm:text-sm md:text-base leading-tight tracking-tight truncate sm:whitespace-normal">
+                  Sistem Monitoring Kegiatan Magang
+                </h1>
+                <p className="text-[9px] sm:text-[10px] md:text-xs text-amber-900 font-bold tracking-wide truncate sm:whitespace-normal">
+                  Politeknik Industri Furnitur dan Pengolahan Kayu
+                </p>
+              </div>
             </div>
           </div>
 
@@ -183,16 +190,29 @@ const Layout = () => {
           />
         )}
 
-        {/* ── Sidebar Navigation (Clean White Surface) ── */}
+        {/* ── MOBILE SIDEBAR DRAWER (< lg) ── */}
         <aside
-          className={`fixed lg:static top-[68px] lg:top-0 bottom-0 left-0 w-64 bg-white text-slate-800 border-r border-slate-200/90 z-20 transform transition-transform duration-200 ease-in-out flex flex-col justify-between ${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          className={`fixed top-0 bottom-0 left-0 w-64 bg-white text-slate-800 border-r border-slate-200/90 z-40 transform transition-transform duration-200 ease-in-out flex flex-col justify-between lg:hidden ${
+            sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
           }`}
         >
-          <div className="p-4 mt-1">
-            {/* Nav Menu Links */}
+          {/* Mobile Drawer Top Header with Close Button */}
+          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <img src={logoImg} alt="Logo" className="h-7 w-auto" />
+              <span className="font-bold text-xs text-slate-900">SIMONIKA</span>
+            </div>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="p-1.5 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="p-4 flex-1 overflow-y-auto">
             <nav className="space-y-1.5">
-              <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">
+              <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-2">
                 Menu Utama
               </p>
               {getNavLinks().map((link) => {
@@ -203,18 +223,17 @@ const Layout = () => {
                     to={link.to}
                     onClick={() => setSidebarOpen(false)}
                     className={({ isActive }) =>
-                      `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                      `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                         isActive
-                          ? 'bg-[#E8A800] text-slate-950 font-extrabold shadow-xs'
-                          : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                          ? 'bg-amber-50/80 text-amber-900 font-bold'
+                          : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
                       }`
                     }
                   >
                     {({ isActive }) => (
                       <>
-                        <Icon size={18} className={`shrink-0 ${isActive ? 'text-slate-950' : 'text-amber-600/80'}`} />
+                        <Icon size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
                         <span className="flex-1">{link.label}</span>
-                        <ChevronRight size={14} className={isActive ? 'text-slate-950 opacity-80' : 'opacity-30'} />
                       </>
                     )}
                   </NavLink>
@@ -223,15 +242,75 @@ const Layout = () => {
             </nav>
           </div>
 
-          {/* Sidebar Footer */}
           <div className="p-4 border-t border-slate-100 text-center bg-slate-50/70">
-            <p className="text-xs text-slate-600 font-mono font-medium">Sistem Magang Polifurneka</p>
+            <p className="text-xs text-slate-600 font-mono font-medium">Sistem Monitoring Kegiatan Magang</p>
             <p className="text-[10px] text-slate-400 mt-0.5">poltek-furnitur.ac.id</p>
           </div>
         </aside>
 
+        {/* ── DESKTOP SIDEBAR (>= lg) ── */}
+        {!sidebarCollapsed && (
+          <aside className="hidden lg:flex flex-col justify-between w-64 bg-white text-slate-800 border-r border-slate-200/90 relative shrink-0 transition-all duration-200">
+            {/* Collapse Trigger Arrow Button on Sidebar Right Border */}
+            <button
+              onClick={() => setSidebarCollapsed(true)}
+              className="absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white border border-slate-200 shadow-md text-slate-600 hover:text-amber-800 hover:border-amber-400 hover:scale-110 transition-all flex items-center justify-center cursor-pointer z-30 group"
+              title="Tutup / Lipat Sidebar"
+            >
+              <ChevronLeft size={15} className="text-slate-600 group-hover:text-amber-800 transition-colors" />
+            </button>
+
+            <div className="p-4 mt-1 flex-1">
+              <nav className="space-y-1.5">
+                <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">
+                  Menu Utama
+                </p>
+                {getNavLinks().map((link) => {
+                  const Icon = link.icon;
+                  return (
+                    <NavLink
+                      key={link.to}
+                      to={link.to}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                          isActive
+                            ? 'bg-amber-50/80 text-amber-900 font-bold'
+                            : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                        }`
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <Icon size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                          <span className="flex-1 whitespace-nowrap">{link.label}</span>
+                        </>
+                      )}
+                    </NavLink>
+                  );
+                })}
+              </nav>
+            </div>
+
+            <div className="p-4 border-t border-slate-100 text-center bg-slate-50/70">
+              <p className="text-xs text-slate-600 font-mono font-medium whitespace-nowrap">Sistem Monitoring Kegiatan Magang</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">poltek-furnitur.ac.id</p>
+            </div>
+          </aside>
+        )}
+
+        {/* Floating Expand Trigger Arrow when Desktop Sidebar is Collapsed */}
+        {sidebarCollapsed && (
+          <button
+            onClick={() => setSidebarCollapsed(false)}
+            className="hidden lg:flex fixed left-3 top-1/2 -translate-y-1/2 w-8 h-10 rounded-r-xl bg-white border border-slate-200 border-l-4 border-l-[#E8A800] shadow-lg text-slate-700 hover:text-amber-800 hover:w-9 transition-all items-center justify-center cursor-pointer z-30 group"
+            title="Buka Sidebar"
+          >
+            <ChevronRight size={16} className="text-amber-700 group-hover:scale-110 transition-transform" />
+          </button>
+        )}
+
         {/* ── Main Content Area ── */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
+        <main className="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
           <Outlet />
         </main>
       </div>

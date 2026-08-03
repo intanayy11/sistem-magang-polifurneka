@@ -239,12 +239,12 @@ const Profile = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
                 <span className="text-slate-400 font-medium block">Nama Lengkap</span>
-                <span className="font-bold text-slate-800 text-sm mt-0.5 block">{profileData?.nama}</span>
+                <span className="font-bold text-slate-800 text-sm mt-0.5 block break-words">{profileData?.nama}</span>
               </div>
 
               <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
                 <span className="text-slate-400 font-medium block">Email Terdaftar</span>
-                <span className="font-semibold text-slate-800 text-sm mt-0.5 block">{profileData?.email}</span>
+                <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-all">{profileData?.email}</span>
               </div>
 
               <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
@@ -255,14 +255,14 @@ const Profile = () => {
               {profileData?.nim_nis && (
                 <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
                   <span className="text-slate-400 font-medium block">NIM / NIS / NIP</span>
-                  <span className="font-mono font-bold text-slate-800 text-sm mt-0.5 block">{profileData.nim_nis}</span>
+                  <span className="font-mono font-bold text-slate-800 text-sm mt-0.5 block break-all">{profileData.nim_nis}</span>
                 </div>
               )}
 
               {profileData?.asal_instansi && (
                 <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100 sm:col-span-2">
                   <span className="text-slate-400 font-medium block">Asal Sekolah / Universitas</span>
-                  <span className="font-semibold text-slate-800 text-sm mt-0.5 block">{profileData.asal_instansi}</span>
+                  <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.asal_instansi}</span>
                 </div>
               )}
             </div>

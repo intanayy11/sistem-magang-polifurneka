@@ -51,7 +51,7 @@ class PresensiService
 
     /**
      * Menentukan status presensi saat check-out.
-     * Mengubah status menjadi 'Pulang Cepat' jika pulang sebelum jam standar dan status awal 'Hadir'.
+     * Status presensi tetap (Hadir atau Terlambat) karena check-out sebelum jam kerja resmi telah diblokir.
      *
      * @param string $jamPulang Format HH:MM atau HH:MM:SS
      * @param string $currentStatus Status presensi sebelum check-out
@@ -60,15 +60,6 @@ class PresensiService
      */
     public static function hitungStatusCheckOut(string $jamPulang, string $currentStatus, $date = null): string
     {
-        $standar = static::getJamStandar($date);
-
-        $jamPulangCarbon = Carbon::parse($jamPulang);
-        $jamPulangStandarCarbon = Carbon::parse($standar['jam_pulang']);
-
-        if ($jamPulangCarbon->lessThan($jamPulangStandarCarbon) && $currentStatus === 'Hadir') {
-            return 'Pulang Cepat';
-        }
-
         return $currentStatus;
     }
 }
