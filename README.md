@@ -201,9 +201,9 @@ Setelah menjalankan `php artisan migrate:fresh --seed`, Anda dapat menggunakan a
 
 | Peran (Role) | Email Login | Password | Hak Akses Utama |
 | :--- | :--- | :--- | :--- |
-| **Admin Instansi** | `admin@polifurneka.ac.id` | `admin123` | Kelola User, Plotting Bimbingan, Master Data |
-| **Pembimbing Lapangan** | `pembimbing@polifurneka.ac.id` | `pembimbing123` | Monitor Presensi GPS, Review Logbook & Tugas |
-| **Peserta Magang** | `peserta@polifurneka.ac.id` | `peserta123` | Presensi GPS, Isi Logbook, Upload Izin & Tugas |
+| **Admin Instansi** | `admin@poltek-furnitur.ac.id` | `password123` | Kelola User, Plotting Bimbingan, Master Data |
+| **Pembimbing Lapangan** | `pembimbing@poltek-furnitur.ac.id` | `password123` | Monitor Presensi GPS, Review Logbook & Tugas |
+| **Peserta Magang** | `peserta@poltek-furnitur.ac.id` | `password123` | Presensi GPS, Isi Logbook, Upload Izin & Tugas |
 
 ---
 

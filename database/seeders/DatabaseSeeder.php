@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         // ── 1. ADMIN ──────────────────────────────────────────────────────
         $admin = User::create([
             'nama'          => 'Administrator Sistem',
-            'email'         => 'admin@polifurneka.ac.id',
+            'email'         => 'admin@poltek-furnitur.ac.id',
             'password'      => Hash::make('password123'),
             'role'          => 'admin',
             'nim_nis'       => 'ADM-001',
@@ -33,8 +33,8 @@ class DatabaseSeeder extends Seeder
 
         // ── 2. PEMBIMBING LAPANGAN ─────────────────────────────────────────
         $pembimbing = User::create([
-            'nama'         => 'Budi Santoso, S.T., M.Eng.',
-            'email'        => 'pembimbing@polifurneka.ac.id',
+            'nama'         => 'Budi Pekerti S.kom',
+            'email'        => 'pembimbing@poltek-furnitur.ac.id',
             'password'     => Hash::make('password123'),
             'role'         => 'pembimbing',
             'nim_nis'      => 'NIP.198503152010121001',
@@ -44,11 +44,11 @@ class DatabaseSeeder extends Seeder
 
         // ── 3. PESERTA MAGANG ──────────────────────────────────────────────
         $peserta = User::create([
-            'nama'                    => 'Ahmad Rizky',
-            'email'                   => 'peserta@polifurneka.ac.id',
+            'nama'                    => 'Intan Ayu',
+            'email'                   => 'peserta@poltek-furnitur.ac.id',
             'password'                => Hash::make('password123'),
             'role'                    => 'peserta',
-            'nim_nis'                 => 'H1D022045',
+            'nim_nis'                 => 'H1D024027',
             'asal_instansi'           => 'Universitas Jenderal Soedirman',
             'no_hp'                   => '085712345678',
             'tanggal_mulai_magang'    => Carbon::now()->subMonths(2)->toDateString(),
