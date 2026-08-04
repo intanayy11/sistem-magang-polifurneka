@@ -45,14 +45,15 @@ h1, h2, h3, h4, h5, h6 {
   
   /* Buttons */
   .btn-poli-primary {
-    background-color: #E8A800;
-    color: #111827;
+    background-color: #F5C42E;
+    color: #0F172A;
     font-weight: 700;
+    border: 1px solid #FCD34D;
     transition: all 0.2s ease-in-out;
   }
   .btn-poli-primary:hover {
-    background-color: #D49800;
-    box-shadow: 0 4px 14px rgba(232, 168, 0, 0.3);
+    background-color: #E8A800;
+    box-shadow: 0 4px 14px rgba(245, 196, 46, 0.35);
   }
 
   /* Bento Cards */

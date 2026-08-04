@@ -142,7 +142,7 @@ const VerifikasiIzinPage = () => {
                     <td className="px-5 py-3.5 text-right">
                       <button
                         onClick={() => handleOpenVerifikasi(item)}
-                        className="btn-poli-primary px-3 py-1.5 rounded-lg text-xs font-semibold shadow-2xs"
+                        className="bg-[#F5C42E] hover:bg-[#E8A800] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs shadow-2xs border border-amber-300/80 transition-all cursor-pointer"
                       >
                         Verifikasi
                       </button>
