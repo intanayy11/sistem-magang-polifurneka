@@ -260,9 +260,30 @@ const Profile = () => {
               )}
 
               {profileData?.asal_instansi && (
-                <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100 sm:col-span-2">
+                <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
                   <span className="text-slate-400 font-medium block">Asal Sekolah / Universitas</span>
                   <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.asal_instansi}</span>
+                </div>
+              )}
+
+              {profileData?.jurusan && (
+                <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+                  <span className="text-slate-400 font-medium block">Jurusan / Program Studi</span>
+                  <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.jurusan}</span>
+                </div>
+              )}
+
+              {profileData?.posisi_magang && (
+                <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+                  <span className="text-slate-400 font-medium block">Posisi / Divisi Magang</span>
+                  <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.posisi_magang}</span>
+                </div>
+              )}
+
+              {profileData?.jabatan && (
+                <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+                  <span className="text-slate-400 font-medium block">Jabatan Pembimbing</span>
+                  <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.jabatan}</span>
                 </div>
               )}
             </div>

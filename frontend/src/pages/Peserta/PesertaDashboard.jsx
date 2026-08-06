@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
@@ -22,6 +23,7 @@ import { isTaskOverdue } from '../../utils/dateHelpers';
 
 const PesertaDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -199,11 +201,11 @@ const PesertaDashboard = () => {
           <div className="relative z-10 space-y-3">
             <div className="flex items-center justify-end">
               <button
-                onClick={handleExportPdf}
+                onClick={() => navigate('/peserta/laporan')}
                 className="inline-flex items-center gap-2 btn-poli-primary px-3.5 py-2 rounded-xl text-xs uppercase tracking-wider shadow-xs hover:scale-105 transition-transform"
               >
-                <FileDown size={15} />
-                <span className="hidden sm:inline">Rekap PDF</span>
+                <FileText size={15} />
+                <span className="hidden sm:inline">Laporan Magang</span>
               </button>
             </div>
 

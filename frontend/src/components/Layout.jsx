@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useLocation, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getStorageUrl } from '../utils/url';
 import {
@@ -10,6 +10,7 @@ import {
   CheckSquare,
   Users,
   UserCheck,
+  Database,
   LogOut,
   Menu,
   X,
@@ -17,7 +18,8 @@ import {
   ChevronRight,
   ChevronDown,
   MapPin,
-  User
+  User,
+  FileText
 } from 'lucide-react';
 
 import logoImg from '../assets/logo-polifurneka.png';
@@ -25,9 +27,11 @@ import logoImg from '../assets/logo-polifurneka.png';
 const Layout = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [dataMasterOpen, setDataMasterOpen] = useState(true);
 
   const handleLogout = async () => {
     await logout();
@@ -48,6 +52,7 @@ const Layout = () => {
       </span>
     );
   };
+
   const getAvatar = (userObj, sizeClass = 'h-8 w-8 text-xs', roundClass = 'rounded-full') => {
     if (userObj?.foto_profil) {
       return (
@@ -65,6 +70,204 @@ const Layout = () => {
     );
   };
 
+  const renderSidebarNav = (isMobile = false) => {
+    const textClass = isMobile ? 'text-xs' : 'text-sm';
+    const closeMobile = isMobile ? () => setSidebarOpen(false) : () => {};
+
+    if (user?.role === 'admin') {
+      const isDataMasterChildActive =
+        location.pathname === '/admin/plotting' ||
+        (location.pathname === '/admin/kelola-user' && (location.search.includes('role=peserta') || location.search.includes('role=pembimbing') || !location.search));
+
+      return (
+        <div className="space-y-1.5">
+          {/* Dashboard */}
+          <NavLink
+            to="/admin/dashboard"
+            onClick={closeMobile}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
+                isActive
+                  ? 'bg-amber-50/80 text-amber-900 font-bold'
+                  : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <LayoutDashboard size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                <span className="flex-1 whitespace-nowrap">Dashboard</span>
+              </>
+            )}
+          </NavLink>
+
+          {/* Collapsible Data Master Group */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setDataMasterOpen(!dataMasterOpen)}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 cursor-pointer ${
+                isDataMasterChildActive
+                  ? 'bg-amber-50/50 text-amber-950 font-bold'
+                  : 'text-slate-700 hover:bg-slate-100/70'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Database size={18} className={`shrink-0 ${isDataMasterChildActive ? 'text-[#E8A800]' : 'text-slate-500'}`} />
+                <span className="whitespace-nowrap">Data Master</span>
+              </div>
+              <ChevronDown
+                size={14}
+                className={`text-slate-400 transition-transform duration-200 ${dataMasterOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {dataMasterOpen && (
+              <div className="pl-5 pt-1 space-y-1">
+                {/* Sub-menu 1: Data Peserta */}
+                <NavLink
+                  to="/admin/kelola-user?role=peserta"
+                  onClick={closeMobile}
+                  className={({ isActive }) => {
+                    const isPesertaActive = isActive || (location.pathname === '/admin/kelola-user' && location.search.includes('role=peserta'));
+                    return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
+                      isPesertaActive
+                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
+                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                    }`;
+                  }}
+                >
+                  {({ isActive }) => {
+                    const isPesertaActive = isActive || (location.pathname === '/admin/kelola-user' && location.search.includes('role=peserta'));
+                    return (
+                      <>
+                        <Users size={16} className={`shrink-0 ${isPesertaActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <span className="flex-1 whitespace-nowrap">Data Peserta</span>
+                      </>
+                    );
+                  }}
+                </NavLink>
+
+                {/* Sub-menu 2: Data Pembimbing */}
+                <NavLink
+                  to="/admin/kelola-user?role=pembimbing"
+                  onClick={closeMobile}
+                  className={({ isActive }) => {
+                    const isPembimbingActive = location.pathname === '/admin/kelola-user' && location.search.includes('role=pembimbing');
+                    return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
+                      isPembimbingActive
+                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
+                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                    }`;
+                  }}
+                >
+                  {({ isActive }) => {
+                    const isPembimbingActive = location.pathname === '/admin/kelola-user' && location.search.includes('role=pembimbing');
+                    return (
+                      <>
+                        <UserCheck size={16} className={`shrink-0 ${isPembimbingActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <span className="flex-1 whitespace-nowrap">Data Pembimbing</span>
+                      </>
+                    );
+                  }}
+                </NavLink>
+
+                {/* Sub-menu 3: Plotting Bimbingan */}
+                <NavLink
+                  to="/admin/plotting"
+                  onClick={closeMobile}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
+                      isActive
+                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
+                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <UserCheck size={16} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                      <span className="flex-1 whitespace-nowrap">Plotting Bimbingan</span>
+                    </>
+                  )}
+                </NavLink>
+
+                {/* Sub-menu 4: Laporan Central */}
+                <NavLink
+                  to="/admin/laporan"
+                  onClick={closeMobile}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
+                      isActive
+                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
+                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <FileText size={16} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                      <span className="flex-1 whitespace-nowrap">Laporan Central</span>
+                    </>
+                  )}
+                </NavLink>
+              </div>
+            )}
+          </div>
+
+          {/* Profil Saya */}
+          <NavLink
+            to="/profil"
+            onClick={closeMobile}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
+                isActive
+                  ? 'bg-amber-50/80 text-amber-900 font-bold'
+                  : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <User size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                <span className="flex-1 whitespace-nowrap">Profil Saya</span>
+              </>
+            )}
+          </NavLink>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-1.5">
+        {getNavLinks().map((link) => {
+          const Icon = link.icon;
+          return (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              onClick={closeMobile}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
+                  isActive
+                    ? 'bg-amber-50/80 text-amber-900 font-bold'
+                    : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                  <span className="flex-1 whitespace-nowrap">{link.label}</span>
+                </>
+              )}
+            </NavLink>
+          );
+        })}
+      </div>
+    );
+  };
+
   const getNavLinks = () => {
     let links = [];
     if (user?.role === 'peserta') {
@@ -74,6 +277,7 @@ const Layout = () => {
         { to: '/peserta/logbook',    label: 'Logbook Kegiatan',  icon: BookOpen },
         { to: '/peserta/izin',       label: 'Pengajuan Izin',    icon: FileCheck },
         { to: '/peserta/tugas',      label: 'Tugas Magang',      icon: CheckSquare },
+        { to: '/peserta/laporan',    label: 'Laporan Magang',    icon: FileText },
       ];
     } else if (user?.role === 'pembimbing') {
       links = [
@@ -82,12 +286,14 @@ const Layout = () => {
         { to: '/pembimbing/verifikasi-izin',   label: 'Verifikasi Izin',        icon: FileCheck },
         { to: '/pembimbing/kelola-tugas',      label: 'Kelola & Review Tugas',  icon: CheckSquare },
         { to: '/pembimbing/monitor-presensi',  label: 'Monitor Presensi & GPS', icon: MapPin },
+        { to: '/pembimbing/laporan',           label: 'Laporan & Rekap',        icon: FileText },
       ];
     } else if (user?.role === 'admin') {
       links = [
         { to: '/admin/dashboard',    label: 'Dashboard',           icon: LayoutDashboard },
         { to: '/admin/kelola-user',  label: 'Kelola User (Master)',icon: Users },
         { to: '/admin/plotting',     label: 'Plotting Bimbingan',  icon: UserCheck },
+        { to: '/admin/laporan',      label: 'Laporan Central',     icon: FileText },
       ];
     }
 
@@ -210,35 +416,12 @@ const Layout = () => {
             </button>
           </div>
 
-          <div className="p-4 flex-1 overflow-y-auto">
+            <div className="p-4 flex-1 overflow-y-auto">
             <nav className="space-y-1.5">
               <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-2">
                 Menu Utama
               </p>
-              {getNavLinks().map((link) => {
-                const Icon = link.icon;
-                return (
-                  <NavLink
-                    key={link.to}
-                    to={link.to}
-                    onClick={() => setSidebarOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                        isActive
-                          ? 'bg-amber-50/80 text-amber-900 font-bold'
-                          : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
-                      }`
-                    }
-                  >
-                    {({ isActive }) => (
-                      <>
-                        <Icon size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1">{link.label}</span>
-                      </>
-                    )}
-                  </NavLink>
-                );
-              })}
+              {renderSidebarNav(true)}
             </nav>
           </div>
 
@@ -265,29 +448,7 @@ const Layout = () => {
                 <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">
                   Menu Utama
                 </p>
-                {getNavLinks().map((link) => {
-                  const Icon = link.icon;
-                  return (
-                    <NavLink
-                      key={link.to}
-                      to={link.to}
-                      className={({ isActive }) =>
-                        `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                          isActive
-                            ? 'bg-amber-50/80 text-amber-900 font-bold'
-                            : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
-                        }`
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          <Icon size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                          <span className="flex-1 whitespace-nowrap">{link.label}</span>
-                        </>
-                      )}
-                    </NavLink>
-                  );
-                })}
+                {renderSidebarNav(false)}
               </nav>
             </div>
 

@@ -17,10 +17,11 @@ class PresensiController extends Controller
         $todayCarbon = Carbon::today();
         $today = $todayCarbon->toDateString();
 
-        if ($todayCarbon->isWeekend()) {
+        $liburCheck = PresensiService::checkHariLibur($todayCarbon);
+        if ($liburCheck['is_libur']) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Hari ini adalah hari libur (Sabtu/Minggu). Tidak ada jadwal presensi.'
+                'message' => 'Hari ini adalah ' . $liburCheck['keterangan'] . '. Tidak ada jadwal presensi.'
             ], 400);
         }
 
@@ -36,17 +37,55 @@ class PresensiController extends Controller
         }
 
         $request->validate([
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'lokasi_tipe' => 'nullable|in:instansi,luar',
+            'keterangan_luar' => 'nullable|string',
         ]);
 
+        $lokasiTipe = $request->lokasi_tipe ?? 'instansi';
+        $keteranganLuar = trim($request->keterangan_luar ?? '');
+
+        if ($lokasiTipe === 'luar' && empty($keteranganLuar)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Keterangan kegiatan luar wajib diisi.'
+            ], 400);
+        }
+
+        $lat = (float) $request->latitude;
+        $lng = (float) $request->longitude;
+
+        if ($lokasiTipe === 'instansi') {
+            $polifurnekaLat = config('presensi.polifurneka_lat', -6.929428);
+            $polifurnekaLng = config('presensi.polifurneka_lng', 110.256226);
+            $allowedRadius = config('presensi.radius_meter', 500);
+
+            $distance = PresensiService::hitungJarakMeter($lat, $lng, $polifurnekaLat, $polifurnekaLng);
+
+            if ($distance > $allowedRadius) {
+                $distFmt = $distance >= 1000 ? round($distance / 1000, 2) . ' km' : round($distance) . ' meter';
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Anda berada di luar lokasi Polifurneka (Jarak Anda: {$distFmt}, Maksimal: {$allowedRadius} meter). Gunakan Presensi Kegiatan Luar jika sedang bertugas di luar instansi."
+                ], 400);
+            }
+        }
+
         $now = Carbon::now();
+        $maxJamMasuk = Carbon::parse($today . ' 11:00:00');
+
+        if ($now->greaterThan($maxJamMasuk)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Batas waktu presensi masuk hari ini telah berakhir (maksimal pukul 11:00 WIB).'
+            ], 400);
+        }
+
         $jamMasuk = $now->toTimeString();
         $status = PresensiService::hitungStatusCheckIn($jamMasuk, $now);
 
-        // Fallback default coordinates to Polifurneka Kendal (KIK) if browser GPS is blocked/null
-        $lat = $request->latitude ?? -6.958742;
-        $lng = $request->longitude ?? 110.285810;
+        $alamatMasuk = PresensiService::reverseGeocode($lat, $lng);
 
         $presensi = Presensi::create([
             'peserta_id' => $user->user_id,
@@ -54,7 +93,10 @@ class PresensiController extends Controller
             'jam_masuk' => $jamMasuk,
             'latitude_masuk' => $lat,
             'longitude_masuk' => $lng,
+            'alamat_masuk' => $alamatMasuk,
             'status' => $status,
+            'lokasi_tipe' => $lokasiTipe,
+            'keterangan_luar' => $lokasiTipe === 'luar' ? $keteranganLuar : null,
         ]);
 
         return response()->json([
@@ -70,16 +112,19 @@ class PresensiController extends Controller
         $todayCarbon = Carbon::today();
         $today = $todayCarbon->toDateString();
 
-        if ($todayCarbon->isWeekend()) {
+        $liburCheck = PresensiService::checkHariLibur($todayCarbon);
+        if ($liburCheck['is_libur']) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Hari ini adalah hari libur (Sabtu/Minggu). Tidak ada jadwal presensi.',
+                'message' => 'Hari ini adalah ' . $liburCheck['keterangan'] . '. Tidak ada jadwal presensi.',
             ], 400);
         }
 
         $request->validate([
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'lokasi_tipe' => 'nullable|in:instansi,luar',
+            'keterangan_luar' => 'nullable|string',
         ]);
 
         $presensi = Presensi::where('peserta_id', $user->user_id)
@@ -103,6 +148,7 @@ class PresensiController extends Controller
         $now = Carbon::now();
         $standar = PresensiService::getJamStandar($todayCarbon);
         $jamPulangStandar = Carbon::parse($today . ' ' . $standar['jam_pulang']);
+        $maxJamPulang = Carbon::parse($today . ' 22:00:00');
 
         if ($now->lessThan($jamPulangStandar)) {
             $jamFmt = Carbon::parse($standar['jam_pulang'])->format('H:i');
@@ -112,19 +158,61 @@ class PresensiController extends Controller
             ], 400);
         }
 
+        if ($now->greaterThan($maxJamPulang)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Batas waktu presensi pulang hari ini telah berakhir (maksimal pukul 22:00 WIB).'
+            ], 400);
+        }
+
+        $lokasiTipe = $request->lokasi_tipe ?? $presensi->lokasi_tipe ?? 'instansi';
+        $keteranganLuar = trim($request->keterangan_luar ?? '');
+
+        if ($lokasiTipe === 'luar' && empty($keteranganLuar) && empty($presensi->keterangan_luar)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Keterangan kegiatan luar wajib diisi.'
+            ], 400);
+        }
+
+        $lat = (float) $request->latitude;
+        $lng = (float) $request->longitude;
+
+        if ($lokasiTipe === 'instansi') {
+            $polifurnekaLat = config('presensi.polifurneka_lat', -6.929428);
+            $polifurnekaLng = config('presensi.polifurneka_lng', 110.256226);
+            $allowedRadius = config('presensi.radius_meter', 500);
+
+            $distance = PresensiService::hitungJarakMeter($lat, $lng, $polifurnekaLat, $polifurnekaLng);
+
+            if ($distance > $allowedRadius) {
+                $distFmt = $distance >= 1000 ? round($distance / 1000, 2) . ' km' : round($distance) . ' meter';
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Anda berada di luar lokasi Polifurneka (Jarak Anda: {$distFmt}, Maksimal: {$allowedRadius} meter). Gunakan Presensi Kegiatan Luar jika sedang bertugas di luar instansi."
+                ], 400);
+            }
+        }
+
         $jamPulang = $now->toTimeString();
         $status = PresensiService::hitungStatusCheckOut($jamPulang, $presensi->status, $now);
 
-        // Fallback default coordinates to Polifurneka Kendal (KIK) if browser GPS is blocked/null
-        $lat = $request->latitude ?? -6.958742;
-        $lng = $request->longitude ?? 110.285810;
+        $alamatPulang = PresensiService::reverseGeocode($lat, $lng);
 
-        $presensi->update([
+        $updateData = [
             'jam_pulang' => $jamPulang,
             'latitude_pulang' => $lat,
             'longitude_pulang' => $lng,
+            'alamat_pulang' => $alamatPulang,
             'status' => $status,
-        ]);
+            'lokasi_tipe' => $lokasiTipe,
+        ];
+
+        if ($lokasiTipe === 'luar' && !empty($keteranganLuar)) {
+            $updateData['keterangan_luar'] = $keteranganLuar;
+        }
+
+        $presensi->update($updateData);
 
         return response()->json([
             'status' => 'success',
@@ -146,11 +234,14 @@ class PresensiController extends Controller
             ->where('tanggal', $today)
             ->first();
 
+        $liburInfo = PresensiService::checkHariLibur(Carbon::today());
+
         return response()->json([
             'status' => 'success',
             'data' => [
                 'today' => $todayPresensi,
-                'riwayat' => $riwayat
+                'riwayat' => $riwayat,
+                'libur_info' => $liburInfo,
             ]
         ]);
     }

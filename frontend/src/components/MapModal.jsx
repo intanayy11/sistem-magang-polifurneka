@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { X, MapPin } from 'lucide-react';
+import { X, MapPin, Loader2 } from 'lucide-react';
 import useScrollLock from '../hooks/useScrollLock';
 
 // Fix Leaflet marker icon issue in React
@@ -13,8 +13,27 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const MapModal = ({ isOpen, onClose, latitude, longitude, title, timestamp }) => {
+const MapModal = ({ isOpen, onClose, latitude, longitude, title, timestamp, alamat }) => {
   useScrollLock(isOpen);
+  const [displayAddress, setDisplayAddress] = useState(alamat || null);
+  const [fetchingAddress, setFetchingAddress] = useState(false);
+
+  useEffect(() => {
+    setDisplayAddress(alamat || null);
+    if (!alamat && isOpen && latitude && longitude) {
+      setFetchingAddress(true);
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.display_name) {
+            setDisplayAddress(data.display_name);
+          }
+        })
+        .catch((err) => console.error(err))
+        .finally(() => setFetchingAddress(false));
+    }
+  }, [isOpen, latitude, longitude, alamat]);
+
   if (!isOpen || !latitude || !longitude) return null;
 
   const lat = parseFloat(latitude);
@@ -34,14 +53,14 @@ const MapModal = ({ isOpen, onClose, latitude, longitude, title, timestamp }) =>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Map Container */}
-        <div className="h-72 w-full rounded-xl overflow-hidden border border-slate-200 relative">
+        <div className="h-64 w-full rounded-xl overflow-hidden border border-slate-200 relative">
           <MapContainer center={[lat, lng]} zoom={15} scrollWheelZoom={true} className="h-full w-full">
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -52,14 +71,31 @@ const MapModal = ({ isOpen, onClose, latitude, longitude, title, timestamp }) =>
                 <div className="text-xs">
                   <strong className="block font-bold">{title}</strong>
                   <span className="font-mono text-[11px] text-slate-600">{lat.toFixed(6)}, {lng.toFixed(6)}</span>
+                  {displayAddress && <p className="text-[10px] text-slate-700 mt-1">{displayAddress}</p>}
                 </div>
               </Popup>
             </Marker>
           </MapContainer>
         </div>
 
+        {/* Alamat Fisik Lengkap */}
+        {fetchingAddress ? (
+          <div className="bg-amber-50/80 p-3 rounded-xl border border-amber-200/80 text-xs text-amber-950 flex items-center gap-2">
+            <Loader2 size={14} className="animate-spin text-amber-700 shrink-0" />
+            <span>Mendapatkan alamat fisik dari titik lokasi GPS...</span>
+          </div>
+        ) : displayAddress ? (
+          <div className="bg-amber-50/80 p-3 rounded-xl border border-amber-200/80 text-xs text-amber-950 space-y-0.5">
+            <div className="font-bold uppercase tracking-wider text-[10px] text-amber-900 flex items-center gap-1">
+              <MapPin size={12} className="text-amber-700" />
+              <span>Alamat Terdeteksi GPS:</span>
+            </div>
+            <p className="font-medium text-slate-800 leading-relaxed pl-4">{displayAddress}</p>
+          </div>
+        ) : null}
+
         {/* Coordinate details */}
-        <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-mono text-slate-600">
+        <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-mono text-slate-600">
           <span>Latitude: <strong>{lat.toFixed(6)}</strong></span>
           <span>Longitude: <strong>{lng.toFixed(6)}</strong></span>
         </div>

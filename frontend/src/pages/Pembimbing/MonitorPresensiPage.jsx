@@ -220,6 +220,10 @@ const MonitorPresensiPage = () => {
                           longitude_masuk: item.record?.longitude_masuk,
                           latitude_pulang: item.record?.latitude_pulang,
                           longitude_pulang: item.record?.longitude_pulang,
+                          alamat_masuk: item.record?.alamat_masuk || null,
+                          alamat_pulang: item.record?.alamat_pulang || null,
+                          lokasi_tipe: item.record?.lokasi_tipe || 'instansi',
+                          keterangan_luar: item.record?.keterangan_luar || null,
                         });
                       }}
                       className="hover:bg-amber-50/60 cursor-pointer transition-colors group"
@@ -237,11 +241,18 @@ const MonitorPresensiPage = () => {
                         {item.record?.jam_pulang || '-'}
                       </td>
                       <td className="px-5 py-3.5">
-                        {item.record ? (
-                          <StatusBadge status={item.record.status} />
-                        ) : (
-                          <span className="text-rose-700 font-bold text-xs">Belum Absen</span>
-                        )}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {item.record ? (
+                            <StatusBadge status={item.record.status} />
+                          ) : (
+                            <span className="text-rose-700 font-bold text-xs">Belum Absen</span>
+                          )}
+                          {item.record?.lokasi_tipe === 'luar' && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-extrabold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-md shrink-0">
+                              Kegiatan Luar
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-5 py-3.5 text-center">
                         <div className="flex items-center justify-center gap-1.5">
@@ -254,7 +265,8 @@ const MonitorPresensiPage = () => {
                                   lat: item.record.latitude_masuk || -6.958742,
                                   lng: item.record.longitude_masuk || 110.285810,
                                   title: `Presensi Masuk · ${item.peserta.nama}`,
-                                  timestamp: `${new Date().toLocaleDateString('id-ID')} | ${item.record.jam_masuk}`
+                                  timestamp: `${new Date().toLocaleDateString('id-ID')} | ${item.record.jam_masuk}`,
+                                  alamat: item.record.alamat_masuk || null,
                                 });
                               }}
                               className="inline-flex items-center gap-1 text-[11px] bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold px-2.5 py-1 rounded-lg transition-colors border border-slate-200"
@@ -276,7 +288,8 @@ const MonitorPresensiPage = () => {
                                   lat: item.record.latitude_pulang || -6.958742,
                                   lng: item.record.longitude_pulang || 110.285810,
                                   title: `Presensi Pulang · ${item.peserta.nama}`,
-                                  timestamp: `${new Date().toLocaleDateString('id-ID')} | ${item.record.jam_pulang}`
+                                  timestamp: `${new Date().toLocaleDateString('id-ID')} | ${item.record.jam_pulang}`,
+                                  alamat: item.record.alamat_pulang || null,
                                 });
                               }}
                               className="inline-flex items-center gap-1 text-[11px] bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold px-2.5 py-1 rounded-lg transition-colors border border-slate-200"
@@ -349,6 +362,7 @@ const MonitorPresensiPage = () => {
                 <th className="px-5 py-3.5">Tanggal</th>
                 <th className="px-5 py-3.5">Jam Masuk</th>
                 <th className="px-5 py-3.5">Jam Pulang</th>
+                <th className="px-5 py-3.5">Tipe Lokasi</th>
                 <th className="px-5 py-3.5">Status</th>
                 <th className="px-5 py-3.5 text-center">Peta GPS</th>
               </tr>
@@ -356,13 +370,13 @@ const MonitorPresensiPage = () => {
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan="7" className="px-5 py-8 text-center text-slate-400 text-xs">
+                  <td colSpan="8" className="px-5 py-8 text-center text-slate-400 text-xs">
                     Memuat riwayat historis...
                   </td>
                 </tr>
               ) : displayHistory.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-5 py-8 text-center text-slate-400 text-xs italic">
+                  <td colSpan="8" className="px-5 py-8 text-center text-slate-400 text-xs italic">
                     Tidak ada rekaman riwayat presensi yang cocok dengan filter.
                   </td>
                 </tr>
@@ -382,6 +396,10 @@ const MonitorPresensiPage = () => {
                         longitude_masuk: item.longitude_masuk,
                         latitude_pulang: item.latitude_pulang,
                         longitude_pulang: item.longitude_pulang,
+                        alamat_masuk: item.alamat_masuk || null,
+                        alamat_pulang: item.alamat_pulang || null,
+                        lokasi_tipe: item.lokasi_tipe || 'instansi',
+                        keterangan_luar: item.keterangan_luar || null,
                       });
                     }}
                     className="hover:bg-amber-50/60 cursor-pointer transition-colors group"
@@ -398,6 +416,20 @@ const MonitorPresensiPage = () => {
                     <td className="px-5 py-3.5 font-mono text-slate-700 font-semibold">{item.jam_masuk || '-'}</td>
                     <td className="px-5 py-3.5 font-mono text-slate-700 font-semibold">{item.jam_pulang || '-'}</td>
                     <td className="px-5 py-3.5">
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
+                        item.lokasi_tipe === 'luar'
+                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                          : 'bg-slate-100 text-slate-700 border border-slate-200'
+                      }`}>
+                        {item.lokasi_tipe || 'instansi'}
+                      </span>
+                      {item.lokasi_tipe === 'luar' && item.keterangan_luar && (
+                        <p className="text-[10px] text-slate-500 italic mt-0.5 max-w-[140px] truncate" title={item.keterangan_luar}>
+                          {item.keterangan_luar}
+                        </p>
+                      )}
+                    </td>
+                    <td className="px-5 py-3.5">
                       <StatusBadge status={item.status} />
                     </td>
                     <td className="px-5 py-3.5 text-center whitespace-nowrap">
@@ -411,7 +443,8 @@ const MonitorPresensiPage = () => {
                                 lat: item.latitude_masuk || -6.958742,
                                 lng: item.longitude_masuk || 110.285810,
                                 title: `Presensi Masuk · ${item.namaPeserta}`,
-                                timestamp: `${new Date(item.tanggal).toLocaleDateString('id-ID')} | ${item.jam_masuk}`
+                                timestamp: `${new Date(item.tanggal).toLocaleDateString('id-ID')} | ${item.jam_masuk}`,
+                                alamat: item.alamat_masuk || null,
                               });
                             }}
                             className="inline-flex items-center gap-1 text-[11px] bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold px-2 py-1 rounded-lg transition-colors border border-slate-200"
@@ -433,7 +466,8 @@ const MonitorPresensiPage = () => {
                                 lat: item.latitude_pulang || -6.958742,
                                 lng: item.longitude_pulang || 110.285810,
                                 title: `Presensi Pulang · ${item.namaPeserta}`,
-                                timestamp: `${new Date(item.tanggal).toLocaleDateString('id-ID')} | ${item.jam_pulang}`
+                                timestamp: `${new Date(item.tanggal).toLocaleDateString('id-ID')} | ${item.jam_pulang}`,
+                                alamat: item.alamat_pulang || null,
                               });
                             }}
                             className="inline-flex items-center gap-1 text-[11px] bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold px-2 py-1 rounded-lg transition-colors border border-slate-200"
@@ -489,6 +523,18 @@ const MonitorPresensiPage = () => {
                 <StatusBadge status={selectedPresensi.status} />
               </div>
 
+              {selectedPresensi.lokasi_tipe === 'luar' && (
+                <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-1">
+                  <div className="flex items-center gap-1.5 text-amber-900 font-extrabold text-[10px] uppercase tracking-wider">
+                    <MapPin size={13} className="text-amber-700" />
+                    <span>Kegiatan Luar Instansi</span>
+                  </div>
+                  <p className="text-slate-800 font-medium text-xs pt-1 leading-relaxed">
+                    {selectedPresensi.keterangan_luar || '-'}
+                  </p>
+                </div>
+              )}
+
               {/* Presensi Masuk Box */}
               <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2">
                 <div className="flex items-center justify-between">
@@ -496,25 +542,33 @@ const MonitorPresensiPage = () => {
                   <span className="font-mono font-bold text-slate-900 text-sm">{selectedPresensi.jam_masuk || '--:--:--'}</span>
                 </div>
                 {selectedPresensi.jam_masuk ? (
-                  <div className="flex items-center justify-between pt-2 border-t border-amber-200/60 text-[11px]">
-                    <span className="text-amber-800/80">Koordinat GPS Masuk:</span>
-                    <button
-                      onClick={() => {
-                        const p = selectedPresensi;
-                        setSelectedPresensi(null);
-                        setMapModal({
-                          open: true,
-                          lat: p.latitude_masuk || -6.958742,
-                          lng: p.longitude_masuk || 110.285810,
-                          title: `Presensi Masuk · ${p.namaPeserta}`,
-                          timestamp: `${new Date(p.tanggal).toLocaleDateString('id-ID')} | ${p.jam_masuk}`,
-                        });
-                      }}
-                      className="inline-flex items-center gap-1 font-bold text-amber-900 hover:underline cursor-pointer"
-                    >
-                      <MapPin size={12} className="text-amber-700" />
-                      <span>Buka Peta GPS</span>
-                    </button>
+                  <div className="pt-2 border-t border-amber-200/60 text-[11px] space-y-1">
+                    {selectedPresensi.alamat_masuk && (
+                      <p className="text-slate-800 font-medium leading-relaxed">
+                        <strong className="text-amber-900 font-bold">Alamat:</strong> {selectedPresensi.alamat_masuk}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-amber-800/80">Koordinat GPS Masuk:</span>
+                      <button
+                        onClick={() => {
+                          const p = selectedPresensi;
+                          setSelectedPresensi(null);
+                          setMapModal({
+                            open: true,
+                            lat: p.latitude_masuk || -6.958742,
+                            lng: p.longitude_masuk || 110.285810,
+                            title: `Presensi Masuk · ${p.namaPeserta}`,
+                            timestamp: `${new Date(p.tanggal).toLocaleDateString('id-ID')} | ${p.jam_masuk}`,
+                            alamat: p.alamat_masuk || null,
+                          });
+                        }}
+                        className="inline-flex items-center gap-1 font-bold text-amber-900 hover:underline cursor-pointer"
+                      >
+                        <MapPin size={12} className="text-amber-700" />
+                        <span>Buka Peta GPS</span>
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="pt-2 border-t border-amber-200/60 text-[11px] text-slate-400 italic">
@@ -530,25 +584,33 @@ const MonitorPresensiPage = () => {
                   <span className="font-mono font-bold text-slate-900 text-sm">{selectedPresensi.jam_pulang || '--:--:--'}</span>
                 </div>
                 {selectedPresensi.jam_pulang ? (
-                  <div className="flex items-center justify-between pt-2 border-t border-emerald-200/60 text-[11px]">
-                    <span className="text-emerald-800/80">Koordinat GPS Pulang:</span>
-                    <button
-                      onClick={() => {
-                        const p = selectedPresensi;
-                        setSelectedPresensi(null);
-                        setMapModal({
-                          open: true,
-                          lat: p.latitude_pulang || -6.958742,
-                          lng: p.longitude_pulang || 110.285810,
-                          title: `Presensi Pulang · ${p.namaPeserta}`,
-                          timestamp: `${new Date(p.tanggal).toLocaleDateString('id-ID')} | ${p.jam_pulang}`,
-                        });
-                      }}
-                      className="inline-flex items-center gap-1 font-bold text-emerald-900 hover:underline cursor-pointer"
-                    >
-                      <MapPin size={12} className="text-emerald-700" />
-                      <span>Buka Peta GPS</span>
-                    </button>
+                  <div className="pt-2 border-t border-emerald-200/60 text-[11px] space-y-1">
+                    {selectedPresensi.alamat_pulang && (
+                      <p className="text-slate-800 font-medium leading-relaxed">
+                        <strong className="text-emerald-900 font-bold">Alamat:</strong> {selectedPresensi.alamat_pulang}
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-emerald-800/80">Koordinat GPS Pulang:</span>
+                      <button
+                        onClick={() => {
+                          const p = selectedPresensi;
+                          setSelectedPresensi(null);
+                          setMapModal({
+                            open: true,
+                            lat: p.latitude_pulang || -6.958742,
+                            lng: p.longitude_pulang || 110.285810,
+                            title: `Presensi Pulang · ${p.namaPeserta}`,
+                            timestamp: `${new Date(p.tanggal).toLocaleDateString('id-ID')} | ${p.jam_pulang}`,
+                            alamat: p.alamat_pulang || null,
+                          });
+                        }}
+                        className="inline-flex items-center gap-1 font-bold text-emerald-900 hover:underline cursor-pointer"
+                      >
+                        <MapPin size={12} className="text-emerald-700" />
+                        <span>Buka Peta GPS</span>
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="pt-2 border-t border-emerald-200/60 text-[11px] text-slate-400 italic">
@@ -569,6 +631,7 @@ const MonitorPresensiPage = () => {
         longitude={mapModal.lng}
         title={mapModal.title}
         timestamp={mapModal.timestamp}
+        alamat={mapModal.alamat}
       />
     </div>
   );

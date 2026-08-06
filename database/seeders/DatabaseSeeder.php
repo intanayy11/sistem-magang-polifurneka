@@ -8,6 +8,7 @@ use App\Models\PlottingBimbingan;
 use App\Models\Presensi;
 use App\Models\Logbook;
 use App\Models\Tugas;
+use App\Models\HariLibur;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -38,11 +39,12 @@ class DatabaseSeeder extends Seeder
             'password'     => Hash::make('password123'),
             'role'         => 'pembimbing',
             'nim_nis'      => 'NIP.198503152010121001',
+            'jabatan'      => 'Kepala Unit SIM & Sistem Informasi',
             'no_hp'        => '082198765432',
             'status_aktif' => true,
         ]);
 
-        // ── 3. PESERTA MAGANG ──────────────────────────────────────────────
+        // ── 3. PESERTA MAGANG 1 ──────────────────────────────────────────────
         $peserta = User::create([
             'nama'                    => 'Intan Ayu',
             'email'                   => 'peserta@poltek-furnitur.ac.id',
@@ -50,7 +52,25 @@ class DatabaseSeeder extends Seeder
             'role'                    => 'peserta',
             'nim_nis'                 => 'H1D024027',
             'asal_instansi'           => 'Universitas Jenderal Soedirman',
+            'jurusan'                 => 'Teknik Informatika',
+            'posisi_magang'           => 'Divisi Software & IT Support',
             'no_hp'                   => '085712345678',
+            'tanggal_mulai_magang'    => Carbon::now()->subMonths(2)->toDateString(),
+            'tanggal_selesai_magang'  => Carbon::now()->addMonth()->toDateString(),
+            'status_aktif'            => true,
+        ]);
+
+        // ── 3b. PESERTA MAGANG 2 (DUMMY SAMA KAMPUS/JURUSAN/POSISI/PEMBIMBING) ─
+        $peserta2 = User::create([
+            'nama'                    => 'Fajar Pratama',
+            'email'                   => 'peserta2@poltek-furnitur.ac.id',
+            'password'                => Hash::make('password123'),
+            'role'                    => 'peserta',
+            'nim_nis'                 => 'H1D024028',
+            'asal_instansi'           => 'Universitas Jenderal Soedirman',
+            'jurusan'                 => 'Teknik Informatika',
+            'posisi_magang'           => 'Divisi Software & IT Support',
+            'no_hp'                   => '085798765432',
             'tanggal_mulai_magang'    => Carbon::now()->subMonths(2)->toDateString(),
             'tanggal_selesai_magang'  => Carbon::now()->addMonth()->toDateString(),
             'status_aktif'            => true,
@@ -61,6 +81,70 @@ class DatabaseSeeder extends Seeder
             'peserta_id'   => $peserta->user_id,
             'pembimbing_id' => $pembimbing->user_id,
         ]);
+
+        PlottingBimbingan::create([
+            'peserta_id'   => $peserta2->user_id,
+            'pembimbing_id' => $pembimbing->user_id,
+        ]);
+
+        // ── 4b. HARI LIBUR NASIONAL (2025–2027) ───────────────────────────
+        $hariLiburData = [
+            // Tahun 2025
+            ['tanggal' => '2025-01-01', 'keterangan' => 'Tahun Baru 2025 Masehi'],
+            ['tanggal' => '2025-01-27', 'keterangan' => 'Isra Mikraj Nabi Muhammad SAW'],
+            ['tanggal' => '2025-01-29', 'keterangan' => 'Tahun Baru Imlek 2576 Kongzili'],
+            ['tanggal' => '2025-03-29', 'keterangan' => 'Hari Suci Nyepi (Tahun Baru Saka 1947)'],
+            ['tanggal' => '2025-03-31', 'keterangan' => 'Hari Raya Idul Fitri 1446 Hijriah'],
+            ['tanggal' => '2025-04-01', 'keterangan' => 'Hari Raya Idul Fitri 1446 Hijriah'],
+            ['tanggal' => '2025-04-18', 'keterangan' => 'Wafat Yesus Kristus'],
+            ['tanggal' => '2025-05-01', 'keterangan' => 'Hari Buruh Internasional'],
+            ['tanggal' => '2025-05-12', 'keterangan' => 'Hari Raya Waisak 2569 BE'],
+            ['tanggal' => '2025-05-29', 'keterangan' => 'Kenaikan Yesus Kristus'],
+            ['tanggal' => '2025-06-01', 'keterangan' => 'Hari Lahir Pancasila'],
+            ['tanggal' => '2025-06-06', 'keterangan' => 'Hari Raya Idul Adha 1446 Hijriah'],
+            ['tanggal' => '2025-06-27', 'keterangan' => 'Tahun Baru Islam 1447 Hijriah'],
+            ['tanggal' => '2025-08-17', 'keterangan' => 'Proklamasi Kemerdekaan Republik Indonesia'],
+            ['tanggal' => '2025-09-05', 'keterangan' => 'Maulid Nabi Muhammad SAW'],
+            ['tanggal' => '2025-12-25', 'keterangan' => 'Hari Raya Natal'],
+
+            // Tahun 2026
+            ['tanggal' => '2026-01-01', 'keterangan' => 'Tahun Baru 2026 Masehi'],
+            ['tanggal' => '2026-01-16', 'keterangan' => 'Isra Mikraj Nabi Muhammad SAW'],
+            ['tanggal' => '2026-02-17', 'keterangan' => 'Tahun Baru Imlek 2577 Kongzili'],
+            ['tanggal' => '2026-03-19', 'keterangan' => 'Hari Suci Nyepi (Tahun Baru Saka 1948)'],
+            ['tanggal' => '2026-03-20', 'keterangan' => 'Hari Raya Idul Fitri 1447 Hijriah'],
+            ['tanggal' => '2026-03-21', 'keterangan' => 'Hari Raya Idul Fitri 1447 Hijriah'],
+            ['tanggal' => '2026-04-03', 'keterangan' => 'Wafat Yesus Kristus'],
+            ['tanggal' => '2026-05-01', 'keterangan' => 'Hari Buruh Internasional'],
+            ['tanggal' => '2026-05-14', 'keterangan' => 'Kenaikan Yesus Kristus'],
+            ['tanggal' => '2026-05-27', 'keterangan' => 'Hari Raya Idul Adha 1447 Hijriah'],
+            ['tanggal' => '2026-05-31', 'keterangan' => 'Hari Raya Waisak 2570 BE'],
+            ['tanggal' => '2026-06-01', 'keterangan' => 'Hari Lahir Pancasila'],
+            ['tanggal' => '2026-06-16', 'keterangan' => 'Tahun Baru Islam 1448 Hijriah'],
+            ['tanggal' => '2026-08-17', 'keterangan' => 'Proklamasi Kemerdekaan Republik Indonesia'],
+            ['tanggal' => '2026-08-25', 'keterangan' => 'Maulid Nabi Muhammad SAW'],
+            ['tanggal' => '2026-12-25', 'keterangan' => 'Hari Raya Natal'],
+
+            // Tahun 2027
+            ['tanggal' => '2027-01-01', 'keterangan' => 'Tahun Baru 2027 Masehi'],
+            ['tanggal' => '2027-02-06', 'keterangan' => 'Tahun Baru Imlek 2578 Kongzili'],
+            ['tanggal' => '2027-03-09', 'keterangan' => 'Hari Raya Idul Fitri 1448 Hijriah'],
+            ['tanggal' => '2027-03-10', 'keterangan' => 'Hari Raya Idul Fitri 1448 Hijriah'],
+            ['tanggal' => '2027-03-26', 'keterangan' => 'Wafat Yesus Kristus'],
+            ['tanggal' => '2027-05-01', 'keterangan' => 'Hari Buruh Internasional'],
+            ['tanggal' => '2027-05-06', 'keterangan' => 'Kenaikan Yesus Kristus'],
+            ['tanggal' => '2027-05-16', 'keterangan' => 'Hari Raya Idul Adha 1448 Hijriah'],
+            ['tanggal' => '2027-05-20', 'keterangan' => 'Hari Raya Waisak 2571 BE'],
+            ['tanggal' => '2027-06-01', 'keterangan' => 'Hari Lahir Pancasila'],
+            ['tanggal' => '2027-06-06', 'keterangan' => 'Tahun Baru Islam 1449 Hijriah'],
+            ['tanggal' => '2027-08-14', 'keterangan' => 'Maulid Nabi Muhammad SAW'],
+            ['tanggal' => '2027-08-17', 'keterangan' => 'Proklamasi Kemerdekaan Republik Indonesia'],
+            ['tanggal' => '2027-12-25', 'keterangan' => 'Hari Raya Natal'],
+        ];
+
+        foreach ($hariLiburData as $libur) {
+            HariLibur::firstOrCreate(['tanggal' => $libur['tanggal']], $libur);
+        }
 
         // ── 5. PRESENSI (5 minggu ke belakang, Senin–Jumat) ───────────────
         // Kita buat presensi untuk 25 hari kerja (5 minggu x 5 hari)

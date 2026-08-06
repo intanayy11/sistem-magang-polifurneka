@@ -25,8 +25,9 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import KelolaUserPage from './pages/Admin/KelolaUserPage';
 import PlottingPage from './pages/Admin/PlottingPage';
 
-// Shared Profile Page
+// Shared Pages
 import Profile from './pages/Profile';
+import LaporanPage from './pages/LaporanPage';
 
 const RootRedirect = () => {
   const { user, token } = useAuth();
@@ -53,6 +54,7 @@ function App() {
               <Route path="/peserta/logbook" element={<LogbookPage />} />
               <Route path="/peserta/izin" element={<IzinPage />} />
               <Route path="/peserta/tugas" element={<TugasPage />} />
+              <Route path="/peserta/laporan" element={<LaporanPage />} />
             </Route>
           </Route>
 
@@ -64,6 +66,7 @@ function App() {
               <Route path="/pembimbing/verifikasi-izin" element={<VerifikasiIzinPage />} />
               <Route path="/pembimbing/kelola-tugas" element={<KelolaTugasPage />} />
               <Route path="/pembimbing/monitor-presensi" element={<MonitorPresensiPage />} />
+              <Route path="/pembimbing/laporan" element={<LaporanPage />} />
             </Route>
           </Route>
 
@@ -73,6 +76,7 @@ function App() {
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/kelola-user" element={<KelolaUserPage />} />
               <Route path="/admin/plotting" element={<PlottingPage />} />
+              <Route path="/admin/laporan" element={<LaporanPage />} />
             </Route>
           </Route>
 

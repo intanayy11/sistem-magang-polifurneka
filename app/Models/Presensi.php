@@ -22,6 +22,10 @@ class Presensi extends Model
         'latitude_pulang',
         'longitude_pulang',
         'status',
+        'lokasi_tipe',
+        'keterangan_luar',
+        'alamat_masuk',
+        'alamat_pulang',
     ];
 
     public function peserta()
