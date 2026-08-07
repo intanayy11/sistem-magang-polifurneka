@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tugas;
 use App\Models\PengumpulanTugas;
 use App\Models\PlottingBimbingan;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -48,6 +49,15 @@ class TugasController extends Controller
             'deadline' => 'required|date',
             'file_lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,rar,doc,docx|max:5120',
         ]);
+
+        // Guard: blokir pemberian tugas ke peserta yang sudah nonaktif/selesai magang
+        $peserta = User::findOrFail($request->peserta_id);
+        if ($peserta->isMagangSelesai()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Peserta ' . $peserta->nama . ' sudah selesai masa magang. Tidak dapat membuat tugas baru.',
+            ], 403);
+        }
 
         $filePath = null;
         if ($request->hasFile('file_lampiran')) {
@@ -179,11 +189,20 @@ class TugasController extends Controller
     public function pembimbingPesertaList(Request $request)
     {
         $user = $request->user();
+        $today = \Carbon\Carbon::today()->toDateString();
 
         $pesertaList = PlottingBimbingan::where('pembimbing_id', $user->user_id)
-            ->with('peserta:user_id,nama,nim_nis,email')
+            ->with('peserta:user_id,nama,nim_nis,email,tanggal_selesai_magang,status_aktif')
             ->get()
-            ->pluck('peserta');
+            ->pluck('peserta')
+            ->map(function ($peserta) use ($today) {
+                if ($peserta) {
+                    $selesai = $peserta->tanggal_selesai_magang;
+                    $peserta->is_magang_selesai = !$peserta->status_aktif
+                        || ($selesai && $today > $selesai);
+                }
+                return $peserta;
+            });
 
         return response()->json([
             'status' => 'success',
@@ -191,3 +210,4 @@ class TugasController extends Controller
         ]);
     }
 }
+

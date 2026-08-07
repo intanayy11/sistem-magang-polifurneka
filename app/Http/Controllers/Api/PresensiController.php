@@ -14,6 +14,18 @@ class PresensiController extends Controller
     public function checkIn(Request $request)
     {
         $user = $request->user();
+
+        // Guard: peserta sudah selesai magang / nonaktif
+        if ($user->isMagangSelesai()) {
+            $tgl = $user->tanggal_selesai_magang
+                ? ' pada ' . \Carbon\Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y')
+                : '';
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Masa magang Anda telah selesai' . $tgl . '. Anda tidak dapat melakukan presensi.',
+            ], 403);
+        }
+
         $todayCarbon = Carbon::today();
         $today = $todayCarbon->toDateString();
 
@@ -109,6 +121,18 @@ class PresensiController extends Controller
     public function checkOut(Request $request)
     {
         $user = $request->user();
+
+        // Guard: peserta sudah selesai magang / nonaktif
+        if ($user->isMagangSelesai()) {
+            $tgl = $user->tanggal_selesai_magang
+                ? ' pada ' . \Carbon\Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y')
+                : '';
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Masa magang Anda telah selesai' . $tgl . '. Anda tidak dapat melakukan presensi.',
+            ], 403);
+        }
+
         $todayCarbon = Carbon::today();
         $today = $todayCarbon->toDateString();
 

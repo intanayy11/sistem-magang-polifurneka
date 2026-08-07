@@ -118,7 +118,7 @@ const AdminDashboard = () => {
 
         {/* Card 2: Peserta Magang */}
         <div
-          onClick={() => navigate('/admin/kelola-user')}
+          onClick={() => navigate('/admin/kelola-user?role=peserta')}
           className="card-bento p-5 flex flex-col justify-between bg-gradient-to-br from-white to-amber-50/40 hover:border-amber-300 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
@@ -138,7 +138,7 @@ const AdminDashboard = () => {
 
         {/* Card 3: Pembimbing Lapangan */}
         <div
-          onClick={() => navigate('/admin/kelola-user')}
+          onClick={() => navigate('/admin/kelola-user?role=pembimbing')}
           className="card-bento p-5 flex flex-col justify-between bg-gradient-to-br from-white to-emerald-50/40 hover:border-emerald-300 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">

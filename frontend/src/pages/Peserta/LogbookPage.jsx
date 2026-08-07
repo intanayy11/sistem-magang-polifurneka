@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import DovetailDivider from '../../components/DovetailDivider';
-import { Plus, BookOpen, Image as ImageIcon, X, Calendar, FileText, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, BookOpen, Image as ImageIcon, X, Calendar, FileText, ExternalLink, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
 import { getStorageUrl } from '../../utils/url';
-import { nearestWorkdayOnOrBefore, isWeekend, todayLocalISO } from '../../utils/dateHelpers';
+import { nearestWorkdayOnOrBefore, isWeekend, todayLocalISO, isMagangSelesai } from '../../utils/dateHelpers';
 
 const LOGBOOK_FILTERS = [
   { label: 'Semua', value: 'Semua' },
@@ -18,6 +19,8 @@ const LOGBOOK_FILTERS = [
 const ITEMS_PER_PAGE = 5;
 
 const LogbookPage = () => {
+  const { user } = useAuth();
+  const magangSelesai = isMagangSelesai(user);
   const [logbooks, setLogbooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -130,7 +133,8 @@ const LogbookPage = () => {
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="btn-poli-primary px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider font-extrabold flex items-center justify-center gap-2 shadow-xs shrink-0 self-start sm:self-auto"
+          disabled={magangSelesai}
+          className="btn-poli-primary disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider font-extrabold flex items-center justify-center gap-2 shadow-xs shrink-0 self-start sm:self-auto"
         >
           <Plus size={16} />
           <span>Tambah Logbook Baru</span>
@@ -140,6 +144,17 @@ const LogbookPage = () => {
       <DovetailDivider className="my-2" />
 
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
+
+      {/* Banner Masa Magang Selesai */}
+      {magangSelesai && (
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-3">
+          <AlertTriangle size={17} className="text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-extrabold text-amber-900">Masa magang Anda telah selesai.</p>
+            <p className="text-xs text-amber-800 mt-0.5">Penambahan logbook baru tidak tersedia. Anda masih dapat melihat semua logbook yang sudah ada.</p>
+          </div>
+        </div>
+      )}
 
       {/* Interactive Filter Tabs */}
       <div className="flex flex-wrap gap-2">

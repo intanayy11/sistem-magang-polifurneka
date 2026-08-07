@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import DovetailDivider from '../../components/DovetailDivider';
-import { Plus, FileText, AlertCircle, X } from 'lucide-react';
+import { Plus, FileText, AlertCircle, X, AlertTriangle } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
+import { isMagangSelesai } from '../../utils/dateHelpers';
 
 const IzinPage = () => {
+  const { user } = useAuth();
+  const magangSelesai = isMagangSelesai(user);
   const [izinList, setIzinList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -94,7 +98,8 @@ const IzinPage = () => {
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center justify-center gap-2 btn-poli-primary px-4 py-2.5 rounded-xl transition-all text-xs uppercase tracking-wider shrink-0 shadow-xs"
+          disabled={magangSelesai}
+          className="flex items-center justify-center gap-2 btn-poli-primary disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2.5 rounded-xl transition-all text-xs uppercase tracking-wider shrink-0 shadow-xs"
         >
           <Plus size={16} />
           <span>Buat Pengajuan Izin</span>
@@ -104,6 +109,17 @@ const IzinPage = () => {
       <DovetailDivider className="my-2" />
 
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
+
+      {/* Banner Masa Magang Selesai */}
+      {magangSelesai && (
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-3">
+          <AlertTriangle size={17} className="text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-extrabold text-amber-900">Masa magang Anda telah selesai.</p>
+            <p className="text-xs text-amber-800 mt-0.5">Pengajuan izin baru tidak tersedia. Anda masih dapat melihat riwayat pengajuan izin Anda.</p>
+          </div>
+        </div>
+      )}
 
       {/* Permission Table */}
       <div className="card-clean overflow-hidden">

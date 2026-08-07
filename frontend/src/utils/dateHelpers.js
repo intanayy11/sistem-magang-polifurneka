@@ -69,3 +69,21 @@ export function isTaskOverdue(deadline, status) {
   if (status === 'Selesai' || status === 'Menunggu Review') return false;
   return new Date(deadline) < new Date();
 }
+
+/**
+ * Checks if a peserta's internship period has ended.
+ * Returns true if status_aktif is false OR tanggal_selesai_magang is in the past.
+ * @param {object} user – the user object from AuthContext (must have status_aktif & tanggal_selesai_magang)
+ * @returns {boolean}
+ */
+export function isMagangSelesai(user) {
+  if (!user) return false;
+  if (user.status_aktif === false) return true;
+  if (user.tanggal_selesai_magang) {
+    // Compare today (local) vs tanggal_selesai_magang
+    const today = todayLocalISO();
+    return today > user.tanggal_selesai_magang;
+  }
+  return false;
+}
+

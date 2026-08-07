@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -40,6 +41,21 @@ class User extends Authenticatable
             'password' => 'hashed',
             'status_aktif' => 'boolean',
         ];
+    }
+
+    /**
+     * Cek apakah masa magang peserta sudah selesai.
+     * True jika: tanggal_selesai_magang sudah lewat ATAU status_aktif = false.
+     */
+    public function isMagangSelesai(): bool
+    {
+        if (!$this->status_aktif) {
+            return true;
+        }
+        if ($this->tanggal_selesai_magang && Carbon::today()->gt(Carbon::parse($this->tanggal_selesai_magang))) {
+            return true;
+        }
+        return false;
     }
 
     public function plottingAsPeserta()

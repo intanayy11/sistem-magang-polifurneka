@@ -39,6 +39,14 @@ class LogbookController extends Controller
     {
         $user = $request->user();
 
+        // Guard: peserta sudah selesai magang / nonaktif
+        if ($user->isMagangSelesai()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Masa magang Anda telah selesai. Anda tidak dapat menambahkan logbook baru.',
+            ], 403);
+        }
+
         $request->validate([
             'tanggal' => 'required|date',
             'judul_kegiatan' => 'required|string|max:255',
@@ -46,6 +54,7 @@ class LogbookController extends Controller
             'kendala' => 'nullable|string',
             'foto_bukti' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
         ]);
+
 
         // Server-side: reject weekend dates regardless of how the request was sent
         $tanggal = \Carbon\Carbon::parse($request->tanggal);

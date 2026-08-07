@@ -24,8 +24,11 @@ import {
 const LaporanPage = () => {
   const { user } = useAuth();
 
-  // Filter States
-  const [jenisData, setJenisData] = useState('semua');
+  // Filter States (Checkbox pilihan jenis data)
+  const [incPresensi, setIncPresensi] = useState(true);
+  const [incLogbook, setIncLogbook] = useState(true);
+  const [incTugas, setIncTugas] = useState(true);
+
   const [tanggalMulai, setTanggalMulai] = useState('');
   const [tanggalSelesai, setTanggalSelesai] = useState('');
   const [pesertaId, setPesertaId] = useState('semua');
@@ -66,7 +69,11 @@ const LaporanPage = () => {
 
   const buildQueryParams = () => {
     const params = {};
-    if (jenisData) params.jenis_data = jenisData;
+    const list = [];
+    if (incPresensi) list.push('presensi');
+    if (incLogbook) list.push('logbook');
+    if (incTugas) list.push('tugas');
+    params.jenis_data = list.join(',');
     if (tanggalMulai) params.tanggal_mulai = tanggalMulai;
     if (tanggalSelesai) params.tanggal_selesai = tanggalSelesai;
     if (pesertaId && pesertaId !== 'semua') params.peserta_id = pesertaId;
@@ -75,7 +82,19 @@ const LaporanPage = () => {
     return params;
   };
 
+  const validateFilter = () => {
+    if (!incPresensi && !incLogbook && !incTugas) {
+      setAlert({
+        type: 'error',
+        message: 'Silakan centang minimal satu jenis rekap data (Presensi, Logbook, atau Tugas).',
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handlePreview = async () => {
+    if (!validateFilter()) return;
     setLoadingPreview(true);
     setAlert(null);
     try {
@@ -97,16 +116,20 @@ const LaporanPage = () => {
   };
 
   const handleResetFilter = () => {
-    setJenisData('semua');
+    setIncPresensi(true);
+    setIncLogbook(true);
+    setIncTugas(true);
     setTanggalMulai('');
     setTanggalSelesai('');
     setPesertaId('semua');
     setJurusan('semua');
     setPosisiMagang('semua');
     setPreviewData(null);
+    setAlert(null);
   };
 
   const handleDownloadPdf = async () => {
+    if (!validateFilter()) return;
     setDownloadingPdf(true);
     setAlert(null);
     try {
@@ -182,30 +205,84 @@ const LaporanPage = () => {
         </div>
 
         <div className="space-y-4 text-xs">
-          {/* Jenis Data */}
-          <div>
-            <label className="block font-semibold text-slate-700 uppercase mb-1.5 flex items-center gap-1">
-              <FileText size={13} className="text-slate-400" />
-              <span>Jenis Data Laporan</span>
+          {/* Pilihan Jenis Data (Checkboxes / Toggle Cards) */}
+          <div className="space-y-1.5">
+            <label className="block font-semibold text-slate-700 uppercase flex items-center justify-between">
+              <span className="flex items-center gap-1">
+                <FileText size={13} className="text-slate-400" />
+                <span>Pilih Jenis Data / Rekap yang Ingin Ditampilkan</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-normal lowercase">(bebas centang 1, 2, atau 3)</span>
             </label>
-            <select
-              value={jenisData}
-              onChange={(e) => setJenisData(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 font-medium"
-            >
-              <option value="semua">Semua Data (Presensi, Logbook, Tugas)</option>
-              <option value="presensi">Presensi Kehadiran</option>
-              <option value="logbook">Logbook Kegiatan Harian</option>
-              <option value="tugas">Pengumpulan Tugas Magang</option>
-            </select>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <label
+                className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all select-none ${
+                  incPresensi
+                    ? 'bg-amber-50/90 border-amber-300 text-amber-950 font-bold shadow-2xs'
+                    : 'bg-slate-50/80 border-slate-200 text-slate-500 hover:bg-slate-100'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={incPresensi}
+                  onChange={(e) => setIncPresensi(e.target.checked)}
+                  className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer accent-[#E8A800]"
+                />
+                <div className="flex items-center gap-2 text-xs">
+                  <Clock size={15} className={incPresensi ? 'text-amber-600' : 'text-slate-400'} />
+                  <span>Presensi Kehadiran</span>
+                </div>
+              </label>
+
+              <label
+                className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all select-none ${
+                  incLogbook
+                    ? 'bg-blue-50/90 border-blue-300 text-blue-950 font-bold shadow-2xs'
+                    : 'bg-slate-50/80 border-slate-200 text-slate-500 hover:bg-slate-100'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={incLogbook}
+                  onChange={(e) => setIncLogbook(e.target.checked)}
+                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600"
+                />
+                <div className="flex items-center gap-2 text-xs">
+                  <BookOpen size={15} className={incLogbook ? 'text-blue-600' : 'text-slate-400'} />
+                  <span>Logbook Kegiatan</span>
+                </div>
+              </label>
+
+              <label
+                className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all select-none ${
+                  incTugas
+                    ? 'bg-emerald-50/90 border-emerald-300 text-emerald-950 font-bold shadow-2xs'
+                    : 'bg-slate-50/80 border-slate-200 text-slate-500 hover:bg-slate-100'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={incTugas}
+                  onChange={(e) => setIncTugas(e.target.checked)}
+                  className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer accent-emerald-600"
+                />
+                <div className="flex items-center gap-2 text-xs">
+                  <CheckSquare size={15} className={incTugas ? 'text-emerald-600' : 'text-slate-400'} />
+                  <span>Tugas Magang</span>
+                </div>
+              </label>
+            </div>
           </div>
 
           {/* Rentang Tanggal (Bersampingan) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-semibold text-slate-700 uppercase mb-1.5 flex items-center gap-1">
-                <Calendar size={13} className="text-slate-400" />
-                <span>Dari Tanggal</span>
+              <label className="block font-semibold text-slate-700 uppercase mb-1.5 flex items-center justify-between">
+                <span className="flex items-center gap-1">
+                  <Calendar size={13} className="text-slate-400" />
+                  <span>Dari Tanggal</span>
+                </span>
+                <span className="text-[10px] text-slate-400 font-normal lowercase">(kosongkan jika tanpa batas)</span>
               </label>
               <input
                 type="date"
@@ -216,9 +293,12 @@ const LaporanPage = () => {
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 uppercase mb-1.5 flex items-center gap-1">
-                <Calendar size={13} className="text-slate-400" />
-                <span>Sampai Tanggal</span>
+              <label className="block font-semibold text-slate-700 uppercase mb-1.5 flex items-center justify-between">
+                <span className="flex items-center gap-1">
+                  <Calendar size={13} className="text-slate-400" />
+                  <span>Sampai Tanggal</span>
+                </span>
+                <span className="text-[10px] text-slate-400 font-normal lowercase">(kosongkan jika tanpa batas)</span>
               </label>
               <input
                 type="date"
@@ -306,12 +386,12 @@ const LaporanPage = () => {
             {loadingPreview ? (
               <>
                 <Loader2 size={15} className="animate-spin" />
-                <span>Memuat Preview...</span>
+                <span>Memuat...</span>
               </>
             ) : (
               <>
                 <Search size={15} />
-                <span>Tampilkan Preview</span>
+                <span>Preview</span>
               </>
             )}
           </button>
@@ -324,12 +404,12 @@ const LaporanPage = () => {
             {downloadingPdf ? (
               <>
                 <Loader2 size={15} className="animate-spin" />
-                <span>Mengunduh PDF...</span>
+                <span>Mengunduh...</span>
               </>
             ) : (
               <>
                 <Download size={15} />
-                <span>Unduh PDF (Kop Surat)</span>
+                <span>Unduh PDF</span>
               </>
             )}
           </button>
@@ -355,7 +435,7 @@ const LaporanPage = () => {
         <div className="space-y-6">
 
           {/* TABEL PRESENSI */}
-          {(jenisData === 'semua' || jenisData === 'presensi') && (
+          {previewData.include_presensi && (
             <div className="card-bento space-y-3">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
@@ -420,7 +500,7 @@ const LaporanPage = () => {
           )}
 
           {/* TABEL LOGBOOK */}
-          {(jenisData === 'semua' || jenisData === 'logbook') && (
+          {previewData.include_logbook && (
             <div className="card-bento space-y-3">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
@@ -477,7 +557,7 @@ const LaporanPage = () => {
           )}
 
           {/* TABEL TUGAS */}
-          {(jenisData === 'semua' || jenisData === 'tugas') && (
+          {previewData.include_tugas && (
             <div className="card-bento space-y-3">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">

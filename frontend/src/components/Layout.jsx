@@ -10,6 +10,10 @@ import {
   CheckSquare,
   Users,
   UserCheck,
+  UserCog,
+  UserPlus,
+  GraduationCap,
+  Link2,
   Database,
   LogOut,
   Menu,
@@ -19,7 +23,8 @@ import {
   ChevronDown,
   MapPin,
   User,
-  FileText
+  FileText,
+  History
 } from 'lucide-react';
 
 import logoImg from '../assets/logo-polifurneka.png';
@@ -76,8 +81,9 @@ const Layout = () => {
 
     if (user?.role === 'admin') {
       const isDataMasterChildActive =
-        location.pathname === '/admin/plotting' ||
-        (location.pathname === '/admin/kelola-user' && (location.search.includes('role=peserta') || location.search.includes('role=pembimbing') || !location.search));
+        (location.pathname === '/admin/kelola-user' &&
+          (location.search.includes('role=peserta') || location.search.includes('role=pembimbing') || !location.search)) ||
+        location.pathname === '/admin/tambah-user';
 
       return (
         <div className="space-y-1.5">
@@ -124,12 +130,37 @@ const Layout = () => {
 
             {dataMasterOpen && (
               <div className="pl-5 pt-1 space-y-1">
-                {/* Sub-menu 1: Data Peserta */}
+                {/* Sub-menu 1: Semua User */}
+                <NavLink
+                  to="/admin/kelola-user"
+                  onClick={closeMobile}
+                  end
+                  className={() => {
+                    const isAllUserActive = location.pathname === '/admin/kelola-user' && !location.search.includes('role=');
+                    return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
+                      isAllUserActive
+                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
+                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                    }`;
+                  }}
+                >
+                  {() => {
+                    const isAllUserActive = location.pathname === '/admin/kelola-user' && !location.search.includes('role=');
+                    return (
+                      <>
+                        <Users size={16} className={`shrink-0 ${isAllUserActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <span className="flex-1 whitespace-nowrap">Semua User System</span>
+                      </>
+                    );
+                  }}
+                </NavLink>
+
+                {/* Sub-menu 2: Data Peserta */}
                 <NavLink
                   to="/admin/kelola-user?role=peserta"
                   onClick={closeMobile}
-                  className={({ isActive }) => {
-                    const isPesertaActive = isActive || (location.pathname === '/admin/kelola-user' && location.search.includes('role=peserta'));
+                  className={() => {
+                    const isPesertaActive = location.pathname === '/admin/kelola-user' && location.search.includes('role=peserta');
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isPesertaActive
                         ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
@@ -137,22 +168,22 @@ const Layout = () => {
                     }`;
                   }}
                 >
-                  {({ isActive }) => {
-                    const isPesertaActive = isActive || (location.pathname === '/admin/kelola-user' && location.search.includes('role=peserta'));
+                  {() => {
+                    const isPesertaActive = location.pathname === '/admin/kelola-user' && location.search.includes('role=peserta');
                     return (
                       <>
-                        <Users size={16} className={`shrink-0 ${isPesertaActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <GraduationCap size={16} className={`shrink-0 ${isPesertaActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
                         <span className="flex-1 whitespace-nowrap">Data Peserta</span>
                       </>
                     );
                   }}
                 </NavLink>
 
-                {/* Sub-menu 2: Data Pembimbing */}
+                {/* Sub-menu 3: Data Pembimbing */}
                 <NavLink
                   to="/admin/kelola-user?role=pembimbing"
                   onClick={closeMobile}
-                  className={({ isActive }) => {
+                  className={() => {
                     const isPembimbingActive = location.pathname === '/admin/kelola-user' && location.search.includes('role=pembimbing');
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isPembimbingActive
@@ -161,20 +192,20 @@ const Layout = () => {
                     }`;
                   }}
                 >
-                  {({ isActive }) => {
+                  {() => {
                     const isPembimbingActive = location.pathname === '/admin/kelola-user' && location.search.includes('role=pembimbing');
                     return (
                       <>
-                        <UserCheck size={16} className={`shrink-0 ${isPembimbingActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <UserCog size={16} className={`shrink-0 ${isPembimbingActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
                         <span className="flex-1 whitespace-nowrap">Data Pembimbing</span>
                       </>
                     );
                   }}
                 </NavLink>
 
-                {/* Sub-menu 3: Plotting Bimbingan */}
+                {/* Sub-menu 4: Tambah User */}
                 <NavLink
-                  to="/admin/plotting"
+                  to="/admin/tambah-user"
                   onClick={closeMobile}
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
@@ -186,34 +217,54 @@ const Layout = () => {
                 >
                   {({ isActive }) => (
                     <>
-                      <UserCheck size={16} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                      <span className="flex-1 whitespace-nowrap">Plotting Bimbingan</span>
-                    </>
-                  )}
-                </NavLink>
-
-                {/* Sub-menu 4: Laporan Central */}
-                <NavLink
-                  to="/admin/laporan"
-                  onClick={closeMobile}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
-                      isActive
-                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
-                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
-                    }`
-                  }
-                >
-                  {({ isActive }) => (
-                    <>
-                      <FileText size={16} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                      <span className="flex-1 whitespace-nowrap">Laporan Central</span>
+                      <UserPlus size={16} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                      <span className="flex-1 whitespace-nowrap">Tambah User</span>
                     </>
                   )}
                 </NavLink>
               </div>
             )}
           </div>
+
+          {/* Menu Utama: Plotting Bimbingan */}
+          <NavLink
+            to="/admin/plotting"
+            onClick={closeMobile}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
+                isActive
+                  ? 'bg-amber-50/80 text-amber-900 font-bold'
+                  : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <Link2 size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                <span className="flex-1 whitespace-nowrap">Plotting Bimbingan</span>
+              </>
+            )}
+          </NavLink>
+
+          {/* Menu Utama: Laporan Central */}
+          <NavLink
+            to="/admin/laporan"
+            onClick={closeMobile}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
+                isActive
+                  ? 'bg-amber-50/80 text-amber-900 font-bold'
+                  : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <FileText size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                <span className="flex-1 whitespace-nowrap">Laporan Central</span>
+              </>
+            )}
+          </NavLink>
 
           {/* Profil Saya */}
           <NavLink
@@ -272,12 +323,13 @@ const Layout = () => {
     let links = [];
     if (user?.role === 'peserta') {
       links = [
-        { to: '/peserta/dashboard',  label: 'Dashboard',         icon: LayoutDashboard },
-        { to: '/peserta/presensi',   label: 'Presensi Harian',   icon: Clock },
-        { to: '/peserta/logbook',    label: 'Logbook Kegiatan',  icon: BookOpen },
-        { to: '/peserta/izin',       label: 'Pengajuan Izin',    icon: FileCheck },
-        { to: '/peserta/tugas',      label: 'Tugas Magang',      icon: CheckSquare },
-        { to: '/peserta/laporan',    label: 'Laporan Magang',    icon: FileText },
+        { to: '/peserta/dashboard',        label: 'Dashboard',         icon: LayoutDashboard },
+        { to: '/peserta/presensi',         label: 'Presensi Harian',   icon: Clock },
+        { to: '/peserta/riwayat-presensi', label: 'Riwayat Presensi', icon: History },
+        { to: '/peserta/logbook',          label: 'Logbook Kegiatan',  icon: BookOpen },
+        { to: '/peserta/izin',             label: 'Pengajuan Izin',    icon: FileCheck },
+        { to: '/peserta/tugas',            label: 'Tugas Magang',      icon: CheckSquare },
+        { to: '/peserta/laporan',          label: 'Laporan Magang',    icon: FileText },
       ];
     } else if (user?.role === 'pembimbing') {
       links = [

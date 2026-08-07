@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../../api/axios';
 import {
-  UserPlus,
   Search,
   Edit2,
   KeyRound,
@@ -79,24 +78,6 @@ const KelolaUserPage = () => {
     fetchUsers();
   }, [roleFilter, search]);
 
-  const handleOpenCreate = () => {
-    setEditingUser(null);
-    setUserForm({
-      nama: '',
-      email: '',
-      password: '',
-      role: roleFilter || 'peserta',
-      nim_nis: '',
-      asal_instansi: '',
-      jurusan: '',
-      posisi_magang: '',
-      jabatan: '',
-      no_hp: '',
-      tanggal_mulai_magang: '',
-      tanggal_selesai_magang: '',
-    });
-    setShowUserModal(true);
-  };
 
   const handleOpenEdit = (user) => {
     setEditingUser(user);
@@ -185,52 +166,63 @@ const KelolaUserPage = () => {
     }
   };
 
+  let pageTitle = 'Kelola Master Data User';
+  let pageSubtitle = 'Manajemen seluruh pengguna sistem (Peserta, Pembimbing Lapangan, & Admin Instansi).';
+  let showRoleFilterDropdown = true;
+
+  if (roleParam === 'peserta') {
+    pageTitle = 'Data Peserta Magang';
+    pageSubtitle = 'Daftar seluruh peserta magang Polifurneka.';
+    showRoleFilterDropdown = false;
+  } else if (roleParam === 'pembimbing') {
+    pageTitle = 'Data Pembimbing Lapangan';
+    pageSubtitle = 'Daftar seluruh pembimbing lapangan instansi.';
+    showRoleFilterDropdown = false;
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Kelola Master Data User</h2>
-          <p className="text-slate-500 text-xs mt-0.5">
-            Manajemen pengguna sistem (Peserta, Pembimbing Lapangan, & Admin Instansi).
-          </p>
-        </div>
-        <button
-          onClick={handleOpenCreate}
-          className="flex items-center justify-center gap-2 btn-poli-primary px-4 py-2.5 rounded-xl transition-all text-xs uppercase tracking-wider shrink-0 shadow-xs"
-        >
-          <UserPlus size={16} />
-          <span>Tambah User Baru</span>
-        </button>
+      <div>
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">{pageTitle}</h2>
+        <p className="text-slate-500 text-xs mt-0.5">{pageSubtitle}</p>
       </div>
 
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
       {/* Filter and Search Bar */}
       <div className="card-clean p-4 flex flex-col md:flex-row gap-4 justify-between items-center">
-        <div className="relative w-full md:w-80">
+        <div className={`relative w-full ${showRoleFilterDropdown ? 'md:w-80' : 'md:w-full'}`}>
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            placeholder="Cari nama, email, atau NIM..."
+            placeholder={
+              roleParam === 'peserta'
+                ? 'Cari nama, email, NIM, atau jurusan peserta...'
+                : roleParam === 'pembimbing'
+                ? 'Cari nama, email, NIP, atau jabatan pembimbing...'
+                : 'Cari nama, email, atau NIM/NIP user...'
+            }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <span className="text-xs font-semibold text-slate-500 uppercase">Filter Role:</span>
-          <select
-            value={roleFilter}
-            onChange={(e) => setRoleFilter(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
-          >
-            <option value="">Semua Role</option>
-            <option value="peserta">Peserta Magang</option>
-            <option value="pembimbing">Pembimbing Lapangan</option>
-            <option value="admin">Admin Instansi</option>
-          </select>
-        </div>
+        {showRoleFilterDropdown && (
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <span className="text-xs font-semibold text-slate-500 uppercase">Filter Role:</span>
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+            >
+              <option value="">Semua Role</option>
+              <option value="peserta">Peserta Magang</option>
+              <option value="pembimbing">Pembimbing Lapangan</option>
+              <option value="admin">Admin Instansi</option>
+            </select>
+          </div>
+        )}
       </div>
 
       {/* User Table */}
@@ -346,91 +338,84 @@ const KelolaUserPage = () => {
         </div>
       </div>
 
-      {/* Modal Create / Edit User */}
+      {/* Modal Edit User */}
       {showUserModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-[20px] max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4 relative">
+          <div className="bg-white rounded-[20px] max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-4 relative max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="font-bold text-slate-900 text-base">
-                {editingUser ? 'Edit Data User' : 'Tambah User Baru'}
+                Edit Data User
               </h3>
               <button onClick={() => setShowUserModal(false)} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
                 <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleUserSubmit} className="space-y-3.5">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Nama Lengkap</label>
-                <input
-                  type="text"
-                  required
-                  value={userForm.nama}
-                  onChange={(e) => setUserForm({ ...userForm, nama: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Email</label>
-                <input
-                  type="email"
-                  required
-                  value={userForm.email}
-                  onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
-                />
-              </div>
-
-              {!editingUser && (
+            <form onSubmit={handleUserSubmit} className="space-y-3">
+              {/* Row 1: Nama & Email */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Password Initial</label>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                    Nama Lengkap <span className="text-rose-500">*</span>
+                  </label>
                   <input
-                    type="password"
+                    type="text"
                     required
-                    value={userForm.password}
-                    onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                    value={userForm.nama}
+                    onChange={(e) => setUserForm({ ...userForm, nama: e.target.value })}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
                   />
                 </div>
-              )}
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Role Akses</label>
-                <select
-                  value={userForm.role}
-                  onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 capitalize"
-                >
-                  <option value="peserta">Peserta Magang</option>
-                  <option value="pembimbing">Pembimbing Lapangan</option>
-                  <option value="admin">Admin Instansi</option>
-                </select>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                    Email <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={userForm.email}
+                    onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">NIM / NIP / Identifier (Opsional)</label>
-                <input
-                  type="text"
-                  value={userForm.nim_nis}
-                  onChange={(e) => setUserForm({ ...userForm, nim_nis: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
-                />
+              {/* Row 2: Role & Password Initial / NIM */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                    Role Akses <span className="text-rose-500">*</span>
+                  </label>
+                  <select
+                    value={userForm.role}
+                    onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 capitalize"
+                  >
+                    <option value="peserta">Peserta Magang</option>
+                    <option value="pembimbing">Pembimbing Lapangan</option>
+                    <option value="admin">Admin Instansi</option>
+                  </select>
+                </div>
+
+                {/* NIM / NIP (Edit mode only) */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">
+                    {userForm.role === 'peserta' ? 'NIM / NIS' : userForm.role === 'pembimbing' ? 'NIP / NIK' : 'NIP / ID Pegawai'}
+                  </label>
+                  <input
+                    type="text"
+                    placeholder={userForm.role === 'peserta' ? 'Contoh: H1D024028' : 'Contoh: 198501152010121001'}
+                    value={userForm.nim_nis}
+                    onChange={(e) => setUserForm({ ...userForm, nim_nis: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                  />
+                </div>
               </div>
 
+              {/* Row 3: No HP */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Asal Sekolah / Universitas / Instansi (Opsional)</label>
-                <input
-                  type="text"
-                  placeholder="Contoh: Universitas Jenderal Soedirman"
-                  value={userForm.asal_instansi}
-                  onChange={(e) => setUserForm({ ...userForm, asal_instansi: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">No HP / WhatsApp (Opsional)</label>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">No HP / WhatsApp</label>
                 <input
                   type="text"
                   value={userForm.no_hp}
@@ -439,10 +424,25 @@ const KelolaUserPage = () => {
                 />
               </div>
 
+              {/* Row 4: Asal Instansi (Khusus Peserta) */}
               {userForm.role === 'peserta' && (
-                <>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Asal Sekolah / Universitas / Instansi</label>
+                  <input
+                    type="text"
+                    placeholder="Contoh: Universitas Jenderal Soedirman"
+                    value={userForm.asal_instansi}
+                    onChange={(e) => setUserForm({ ...userForm, asal_instansi: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                  />
+                </div>
+              )}
+
+              {/* Row 5: Jurusan & Posisi Magang (Peserta) */}
+              {userForm.role === 'peserta' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Jurusan / Program Studi (Opsional)</label>
+                    <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Jurusan / Program Studi</label>
                     <input
                       type="text"
                       placeholder="Contoh: Teknik Informatika"
@@ -453,7 +453,7 @@ const KelolaUserPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Posisi / Divisi Magang (Opsional)</label>
+                    <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Posisi / Divisi Magang</label>
                     <input
                       type="text"
                       placeholder="Contoh: Divisi Software & IT Support"
@@ -462,12 +462,13 @@ const KelolaUserPage = () => {
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
                     />
                   </div>
-                </>
+                </div>
               )}
 
+              {/* Jabatan (Pembimbing) */}
               {userForm.role === 'pembimbing' && (
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Jabatan di Instansi (Opsional)</label>
+                  <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Jabatan di Instansi</label>
                   <input
                     type="text"
                     placeholder="Contoh: Kepala Unit SIM & Sistem Informasi"
@@ -478,6 +479,7 @@ const KelolaUserPage = () => {
                 </div>
               )}
 
+              {/* Row 6: Tanggal Mulai & Tanggal Selesai (Peserta) */}
               {userForm.role === 'peserta' && (
                 <div className="grid grid-cols-2 gap-3 pt-1">
                   <div>

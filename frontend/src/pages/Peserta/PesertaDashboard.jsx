@@ -17,7 +17,8 @@ import {
   Sparkles,
   ArrowUpRight,
   ListTodo,
-  FileText
+  FileText,
+  AlertTriangle
 } from 'lucide-react';
 import { isTaskOverdue } from '../../utils/dateHelpers';
 
@@ -31,7 +32,7 @@ const PesertaDashboard = () => {
   const [locationStatus, setLocationStatus] = useState('');
 
   // Map Modal State
-  const [mapModal, setMapModal] = useState({ open: false, lat: null, lng: null, title: '', timestamp: '' });
+  const [mapModal, setMapModal] = useState({ open: false, lat: null, lng: null, title: '', timestamp: '', alamat: '' });
 
   const fetchDashboard = async () => {
     try {
@@ -73,13 +74,30 @@ const PesertaDashboard = () => {
   };
 
   const handleCheckIn = async () => {
+    const now = new Date();
+    if (now.getHours() >= 11) {
+      setAlert({
+        type: 'warning',
+        message: 'Batas waktu presensi masuk hari ini telah berakhir (maksimal pukul 11:00 WIB).',
+      });
+      return;
+    }
+
     setActionLoading(true);
     setAlert(null);
     const { latitude, longitude } = await getCoordinates();
     try {
       const res = await api.post('/presensi/check-in', { latitude, longitude });
-      setAlert({ type: 'success', message: res.data.message });
       fetchDashboard();
+      const rec = res.data.data;
+      setMapModal({
+        open: true,
+        lat: latitude || rec?.latitude_masuk || -6.929428,
+        lng: longitude || rec?.longitude_masuk || 110.256226,
+        title: 'Presensi Masuk Berhasil!',
+        timestamp: `${rec?.tanggal || new Date().toLocaleDateString('id-ID')} | ${rec?.jam_masuk || ''}`,
+        alamat: rec?.alamat_masuk || null,
+      });
     } catch (err) {
       setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal presensi masuk' });
     } finally {
@@ -104,12 +122,28 @@ const PesertaDashboard = () => {
       return;
     }
 
+    if (currentHour >= 22) {
+      setAlert({
+        type: 'warning',
+        message: 'Batas waktu presensi pulang hari ini telah berakhir (maksimal pukul 22:00 WIB).',
+      });
+      return;
+    }
+
     setActionLoading(true);
     const { latitude, longitude } = await getCoordinates();
     try {
       const res = await api.post('/presensi/check-out', { latitude, longitude });
-      setAlert({ type: 'success', message: res.data.message });
       fetchDashboard();
+      const rec = res.data.data;
+      setMapModal({
+        open: true,
+        lat: latitude || rec?.latitude_pulang || -6.929428,
+        lng: longitude || rec?.longitude_pulang || 110.256226,
+        title: 'Presensi Pulang Berhasil! 🎉',
+        timestamp: `${rec?.tanggal || new Date().toLocaleDateString('id-ID')} | ${rec?.jam_pulang || ''}`,
+        alamat: rec?.alamat_pulang || null,
+      });
     } catch (err) {
       setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal presensi pulang' });
     } finally {
@@ -157,7 +191,9 @@ const PesertaDashboard = () => {
     today_presensi,
     jam_sekarang,
     recent_logbooks = [],
-    recent_tugas = []
+    recent_tugas = [],
+    is_magang_selesai = false,
+    tanggal_selesai_magang = null,
   } = data || {};
 
   // Working day check (Monday=1 to Friday=5)
@@ -171,6 +207,25 @@ const PesertaDashboard = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+
+      {/* ── BANNER MASA MAGANG SELESAI ── */}
+      {is_magang_selesai && (
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-3 shadow-xs">
+          <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-extrabold text-amber-900">
+              Masa magang Anda telah selesai
+              {tanggal_selesai_magang && (
+                <> pada {new Date(tanggal_selesai_magang).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</>
+              )}.
+            </p>
+            <p className="text-xs text-amber-800 mt-0.5">
+              Anda masih dapat melihat seluruh data historis magang Anda, namun tidak dapat melakukan presensi, menambah logbook, atau mengajukan izin baru.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Location Loading Status Banner */}
       {locationStatus && (
         <div className="p-3.5 rounded-2xl text-xs font-semibold flex items-center gap-2.5 bg-amber-50 text-amber-900 border border-amber-200">
@@ -221,7 +276,13 @@ const PesertaDashboard = () => {
 
           {/* PRESENSI BANNER WIDGET */}
           <div className="relative z-10 mt-5 pt-3.5 border-t border-amber-200/60">
-            {isWeekend ? (
+            {/* Jika masa magang sudah selesai, tampilkan pesan readonly */}
+            {is_magang_selesai ? (
+              <div className="flex items-center gap-2 text-xs text-amber-800 font-bold bg-amber-100/60 border border-amber-300 px-4 py-2.5 rounded-xl">
+                <AlertTriangle size={15} className="text-amber-600 shrink-0" />
+                <span>Masa magang Anda sudah selesai — presensi tidak tersedia.</span>
+              </div>
+            ) : isWeekend ? (
               <div className="flex items-center gap-2 text-xs text-amber-800 font-semibold">
                 <Calendar size={16} className="text-amber-600" />
                 <span>Hari ini libur magang (Akhir Pekan)</span>
@@ -430,6 +491,7 @@ const PesertaDashboard = () => {
         longitude={mapModal.lng}
         title={mapModal.title}
         timestamp={mapModal.timestamp}
+        alamat={mapModal.alamat}
       />
     </div>
   );

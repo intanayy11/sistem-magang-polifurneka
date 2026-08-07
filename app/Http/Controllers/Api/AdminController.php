@@ -160,8 +160,15 @@ class AdminController extends Controller
 
     public function getOptionsList()
     {
+        $today = \Carbon\Carbon::today()->toDateString();
+
+        // Hanya peserta aktif yang belum selesai masa magangnya dan belum punya plotting
         $pesertaList = User::where('role', 'peserta')
             ->where('status_aktif', true)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('tanggal_selesai_magang')
+                  ->orWhere('tanggal_selesai_magang', '>=', $today);
+            })
             ->whereDoesntHave('plottingAsPeserta')
             ->select('user_id', 'nama', 'nim_nis', 'email', 'tanggal_mulai_magang', 'tanggal_selesai_magang')
             ->get();
@@ -178,9 +185,19 @@ class AdminController extends Controller
 
     public function getPlotting()
     {
-        $plotting = PlottingBimbingan::with(['peserta:user_id,nama,nim_nis,email,tanggal_mulai_magang,tanggal_selesai_magang', 'pembimbing:user_id,nama,email'])
+        $today = \Carbon\Carbon::today()->toDateString();
+
+        $plotting = PlottingBimbingan::with(['peserta:user_id,nama,nim_nis,email,tanggal_mulai_magang,tanggal_selesai_magang,status_aktif', 'pembimbing:user_id,nama,email'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($item) use ($today) {
+                if ($item->peserta) {
+                    $selesai = $item->peserta->tanggal_selesai_magang;
+                    $item->peserta->is_magang_selesai = !$item->peserta->status_aktif
+                        || ($selesai && $today > $selesai);
+                }
+                return $item;
+            });
 
         return response()->json([
             'status' => 'success',

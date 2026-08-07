@@ -144,7 +144,7 @@
     </table>
 
     <!-- 1. SECTION PRESENSI -->
-    @if(in_array($jenis_data, ['semua', 'presensi']))
+    @if($include_presensi)
     <div class="section-title">I. REKAPITULASI PRESENSI KEHADIRAN (Total: {{ $totals['presensi'] }})</div>
     <table class="data-table">
         <thead>
@@ -188,7 +188,7 @@
     @endif
 
     <!-- 2. SECTION LOGBOOK -->
-    @if(in_array($jenis_data, ['semua', 'logbook']))
+    @if($include_logbook)
     <div class="section-title">II. REKAPITULASI LOGBOOK KEGIATAN (Total: {{ $totals['logbook'] }})</div>
     <table class="data-table">
         <thead>
@@ -230,7 +230,7 @@
     @endif
 
     <!-- 3. SECTION TUGAS -->
-    @if(in_array($jenis_data, ['semua', 'tugas']))
+    @if($include_tugas)
     <div class="section-title">III. REKAPITULASI TUGAS MAGANG (Total: {{ $totals['tugas'] }})</div>
     <table class="data-table">
         <thead>

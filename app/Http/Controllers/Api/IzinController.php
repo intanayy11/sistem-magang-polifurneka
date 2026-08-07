@@ -41,6 +41,14 @@ class IzinController extends Controller
     {
         $user = $request->user();
 
+        // Guard: peserta sudah selesai magang / nonaktif
+        if ($user->isMagangSelesai()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Masa magang Anda telah selesai. Anda tidak dapat mengajukan izin baru.',
+            ], 403);
+        }
+
         $request->validate([
             'jenis' => 'required|in:Izin,Sakit',
             'tanggal_mulai' => 'required|date',
@@ -48,6 +56,7 @@ class IzinController extends Controller
             'keterangan' => 'nullable|string',
             'file_bukti' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
+
 
         $filePath = null;
         if ($request->hasFile('file_bukti')) {

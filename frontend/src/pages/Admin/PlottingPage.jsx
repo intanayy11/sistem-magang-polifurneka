@@ -143,7 +143,14 @@ const PlottingPage = () => {
                   <tr key={item.plotting_id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-5 py-3.5 font-medium text-slate-900">{idx + 1}</td>
                     <td className="px-5 py-3.5">
-                      <div className="font-bold text-slate-900">{item.peserta?.nama || '-'}</div>
+                      <div className="font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+                        {item.peserta?.nama || '-'}
+                        {item.peserta?.is_magang_selesai && (
+                          <span className="text-[9px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded-md uppercase tracking-wide">
+                            Selesai
+                          </span>
+                        )}
+                      </div>
                       <div className="text-[11px] text-slate-400 font-mono">{item.peserta?.nim_nis || '-'}</div>
                     </td>
                     <td className="px-5 py-3.5">

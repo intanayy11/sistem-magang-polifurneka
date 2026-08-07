@@ -106,12 +106,24 @@ class LaporanController extends Controller
             }
         }
 
+        $jenisData = $request->input('jenis_data', 'semua');
+        if (is_array($jenisData)) {
+            $types = $jenisData;
+        } else {
+            $types = explode(',', $jenisData);
+        }
+
+        // Determine which sections to include
+        $includePresensi = in_array('semua', $types) || in_array('presensi', $types) || in_array('presensi_logbook', $types) || in_array('presensi_tugas', $types);
+        $includeLogbook  = in_array('semua', $types) || in_array('logbook', $types) || in_array('presensi_logbook', $types) || in_array('logbook_tugas', $types);
+        $includeTugas    = in_array('semua', $types) || in_array('tugas', $types) || in_array('presensi_tugas', $types) || in_array('logbook_tugas', $types);
+
         $presensi = collect();
         $logbook = collect();
         $tugas = collect();
 
         // 1. Presensi
-        if (in_array($jenisData, ['semua', 'presensi'])) {
+        if ($includePresensi) {
             $q = Presensi::with('peserta:user_id,nama,nim_nis,asal_instansi,jurusan,posisi_magang')
                 ->whereIn('peserta_id', $pesertaIds);
 
@@ -126,7 +138,7 @@ class LaporanController extends Controller
         }
 
         // 2. Logbook
-        if (in_array($jenisData, ['semua', 'logbook'])) {
+        if ($includeLogbook) {
             $q = Logbook::with('peserta:user_id,nama,nim_nis,asal_instansi,jurusan,posisi_magang')
                 ->whereIn('peserta_id', $pesertaIds);
 
@@ -141,7 +153,7 @@ class LaporanController extends Controller
         }
 
         // 3. Tugas
-        if (in_array($jenisData, ['semua', 'tugas'])) {
+        if ($includeTugas) {
             $q = Tugas::with([
                 'peserta:user_id,nama,nim_nis,asal_instansi,jurusan,posisi_magang',
                 'pembimbing:user_id,nama',
@@ -176,6 +188,9 @@ class LaporanController extends Controller
         return [
             'user_role' => $user->role,
             'jenis_data' => $jenisData,
+            'include_presensi' => $includePresensi,
+            'include_logbook' => $includeLogbook,
+            'include_tugas' => $includeTugas,
             'periode_teks' => $periodeTeks,
             'peserta_info' => $pesertaInfo,
             'jurusan_filter' => ($jurusan && $jurusan !== 'semua') ? $jurusan : null,

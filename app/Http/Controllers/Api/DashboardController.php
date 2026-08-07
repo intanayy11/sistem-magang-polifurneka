@@ -67,6 +67,9 @@ class DashboardController extends Controller
                 'jam_sekarang' => $jamSekarang,
                 'recent_logbooks' => $recentLogbooks,
                 'recent_tugas' => $recentTugas,
+                // Status masa magang
+                'is_magang_selesai'      => $user->isMagangSelesai(),
+                'tanggal_selesai_magang' => $user->tanggal_selesai_magang,
             ]
         ]);
     }

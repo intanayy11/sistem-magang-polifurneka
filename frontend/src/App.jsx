@@ -9,6 +9,7 @@ import Login from './pages/Auth/Login';
 // Peserta Pages
 import PesertaDashboard from './pages/Peserta/PesertaDashboard';
 import PresensiPage from './pages/Peserta/PresensiPage';
+import RiwayatPresensiPage from './pages/Peserta/RiwayatPresensiPage';
 import LogbookPage from './pages/Peserta/LogbookPage';
 import IzinPage from './pages/Peserta/IzinPage';
 import TugasPage from './pages/Peserta/TugasPage';
@@ -23,6 +24,7 @@ import MonitorPresensiPage from './pages/Pembimbing/MonitorPresensiPage';
 // Admin Pages
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import KelolaUserPage from './pages/Admin/KelolaUserPage';
+import TambahUserPage from './pages/Admin/TambahUserPage';
 import PlottingPage from './pages/Admin/PlottingPage';
 
 // Shared Pages
@@ -51,6 +53,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/peserta/dashboard" element={<PesertaDashboard />} />
               <Route path="/peserta/presensi" element={<PresensiPage />} />
+              <Route path="/peserta/riwayat-presensi" element={<RiwayatPresensiPage />} />
               <Route path="/peserta/logbook" element={<LogbookPage />} />
               <Route path="/peserta/izin" element={<IzinPage />} />
               <Route path="/peserta/tugas" element={<TugasPage />} />
@@ -75,6 +78,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/kelola-user" element={<KelolaUserPage />} />
+              <Route path="/admin/tambah-user" element={<TambahUserPage />} />
               <Route path="/admin/plotting" element={<PlottingPage />} />
               <Route path="/admin/laporan" element={<LaporanPage />} />
             </Route>

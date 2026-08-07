@@ -258,10 +258,19 @@ const KelolaTugasPage = () => {
                 >
                   {pesertaOptions.map((p) => (
                     <option key={p.user_id} value={p.user_id}>
-                      {p.nama} ({p.nim_nis || 'Tanpa NIM'})
+                      {p.nama} ({p.nim_nis || 'Tanpa NIM'}){p.is_magang_selesai ? ' ⚠ Selesai Magang' : ''}
                     </option>
                   ))}
                 </select>
+                {/* Warning jika peserta yang dipilih sudah selesai magang */}
+                {(() => {
+                  const selected = pesertaOptions.find(p => String(p.user_id) === String(createForm.peserta_id));
+                  return selected?.is_magang_selesai ? (
+                    <p className="mt-1.5 text-[11px] text-amber-700 font-bold flex items-center gap-1">
+                      ⚠ Peserta ini sudah selesai masa magang. Tugas baru tidak dapat diberikan.
+                    </p>
+                  ) : null;
+                })()}
               </div>
 
               <div>
@@ -317,8 +326,11 @@ const KelolaTugasPage = () => {
                 </button>
                 <button
                   type="submit"
-                  disabled={createSubmitting}
-                  className="btn-poli-primary px-5 py-2 rounded-xl text-xs uppercase tracking-wider disabled:opacity-50"
+                  disabled={createSubmitting || (() => {
+                    const selected = pesertaOptions.find(p => String(p.user_id) === String(createForm.peserta_id));
+                    return selected?.is_magang_selesai;
+                  })()}
+                  className="btn-poli-primary px-5 py-2 rounded-xl text-xs uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {createSubmitting ? 'Membuat...' : 'Buat & Penugasan'}
                 </button>
