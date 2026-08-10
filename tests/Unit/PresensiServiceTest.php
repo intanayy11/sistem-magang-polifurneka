@@ -49,26 +49,18 @@ class PresensiServiceTest extends TestCase
 
     public function test_status_check_out_senin_sampai_kamis()
     {
-        // Senin check-out 15:55:00, status awal Hadir -> Pulang Cepat (karena jam standar 16:00)
-        $statusCepat = PresensiService::hitungStatusCheckOut('15:55:00', 'Hadir', '2026-07-20');
-        $this->assertEquals('Pulang Cepat', $statusCepat);
-
-        // Senin check-out 16:00:00, status awal Hadir -> Hadir
+        // Check-out status awal Hadir -> Tetap Hadir (karena check-out sebelum jam pulang diblokir di controller)
         $statusNormal = PresensiService::hitungStatusCheckOut('16:00:00', 'Hadir', '2026-07-20');
         $this->assertEquals('Hadir', $statusNormal);
 
-        // Senin check-out 15:55:00, status awal Terlambat -> Tetap Terlambat
-        $statusTerlambat = PresensiService::hitungStatusCheckOut('15:55:00', 'Terlambat', '2026-07-20');
+        // Check-out status awal Terlambat -> Tetap Terlambat
+        $statusTerlambat = PresensiService::hitungStatusCheckOut('16:00:00', 'Terlambat', '2026-07-20');
         $this->assertEquals('Terlambat', $statusTerlambat);
     }
 
     public function test_status_check_out_jumat()
     {
-        // Jumat check-out 16:15:00, status awal Hadir -> Pulang Cepat (karena jam standar 16:30)
-        $statusCepat = PresensiService::hitungStatusCheckOut('16:15:00', 'Hadir', '2026-07-24');
-        $this->assertEquals('Pulang Cepat', $statusCepat);
-
-        // Jumat check-out 16:30:00, status awal Hadir -> Hadir
+        // Jumat check-out status awal Hadir -> Tetap Hadir
         $statusNormal = PresensiService::hitungStatusCheckOut('16:30:00', 'Hadir', '2026-07-24');
         $this->assertEquals('Hadir', $statusNormal);
     }

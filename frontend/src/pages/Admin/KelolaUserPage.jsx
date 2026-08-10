@@ -210,7 +210,6 @@ const KelolaUserPage = () => {
 
         {showRoleFilterDropdown && (
           <div className="flex items-center gap-2 w-full md:w-auto">
-            <span className="text-xs font-semibold text-slate-500 uppercase">Filter Role:</span>
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
@@ -256,7 +255,14 @@ const KelolaUserPage = () => {
                 users.map((u) => (
                   <tr key={u.user_id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-5 py-3.5">
-                      <div className="font-bold text-slate-900">{u.nama}</div>
+                      <div className="font-bold text-slate-900 flex items-center gap-1.5 flex-wrap">
+                        <span>{u.nama}</span>
+                        {u.role === 'peserta' && u.is_magang_selesai && (
+                          <span className="text-[9px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded-md uppercase tracking-wide">
+                            Selesai Magang
+                          </span>
+                        )}
+                      </div>
                       <div className="text-[11px] text-slate-400 font-mono">{u.nim_nis || '-'}</div>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {u.asal_instansi && (

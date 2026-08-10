@@ -151,19 +151,8 @@ const PesertaDashboard = () => {
     }
   };
 
-  const handleExportPdf = async () => {
-    try {
-      const res = await api.get('/laporan/rekap-pdf', { responseType: 'blob' });
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `rekap-magang-${user?.nama || 'peserta'}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (err) {
-      alert('Gagal mendownload rekap PDF.');
-    }
+  const handleExportPdf = () => {
+    navigate('/laporan');
   };
 
   // Greeting helper based on time of day

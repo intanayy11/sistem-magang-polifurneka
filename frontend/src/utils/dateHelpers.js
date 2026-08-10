@@ -87,3 +87,25 @@ export function isMagangSelesai(user) {
   return false;
 }
 
+/**
+ * Checks if a peserta is within the 3-day grace period for submitting task revisions.
+ * @param {object} user
+ * @returns {boolean}
+ */
+export function dalamGracePeriodRevisi(user) {
+  if (!user) return false;
+  if (user.status_aktif === false) return false;
+  if (!user.tanggal_selesai_magang) return true;
+
+  const today = todayLocalISO();
+  const d = new Date(user.tanggal_selesai_magang + 'T00:00:00');
+  d.setDate(d.getDate() + 3);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const graceEnd = `${y}-${m}-${day}`;
+
+  return today <= graceEnd;
+}
+
+

@@ -11,8 +11,20 @@ import {
   BadgeCheck,
   Loader2,
   Save,
-  Lock
+  Lock,
+  Calendar,
+  Info
 } from 'lucide-react';
+
+const formatDateIndo = (dateStr) => {
+  if (!dateStr) return '-';
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
+};
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -280,6 +292,33 @@ const Profile = () => {
                 </div>
               )}
 
+              {profileData?.role === 'peserta' && (
+                <div className="bg-amber-50/90 p-4 rounded-xl border border-amber-200/80 sm:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-amber-900/80 font-bold block text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                      <Calendar size={15} className="text-amber-600" />
+                      Periode Pelaksanaan Magang
+                    </span>
+                    <span className="font-extrabold text-slate-900 text-sm mt-1 block">
+                      {profileData.tanggal_mulai_magang ? formatDateIndo(profileData.tanggal_mulai_magang) : 'Belum diatur'}
+                      {' s/d '}
+                      {profileData.tanggal_selesai_magang ? formatDateIndo(profileData.tanggal_selesai_magang) : 'Sekarang'}
+                    </span>
+                  </div>
+                  <div className="shrink-0">
+                    {profileData.is_magang_selesai ? (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs">
+                        Selesai Magang
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 shadow-2xs">
+                        Periode Aktif
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {profileData?.jabatan && (
                 <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
                   <span className="text-slate-400 font-medium block">Jabatan Pembimbing</span>
@@ -289,8 +328,18 @@ const Profile = () => {
             </div>
           </div>
 
-          <p className="text-[11px] text-slate-400 italic pt-2 border-t border-slate-100">
-            * Data nama, email, dan role dikelola oleh Admin Instansi. Hubungi Admin jika terdapat kekeliruan data.
+          <p className="text-[11px] text-slate-500 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 font-medium">
+            <Info size={14} className="text-amber-600 shrink-0" />
+            <span>
+              Data tidak sesuai? Hubungi{' '}
+              <a
+                href={`mailto:${profileData?.admin_email || 'admin@poltek-furnitur.ac.id'}`}
+                className="font-bold text-amber-800 hover:text-amber-900 underline decoration-amber-300 hover:decoration-amber-600 transition-colors"
+              >
+                Admin Instansi
+              </a>{' '}
+              untuk pembetulan.
+            </span>
           </p>
         </div>
 

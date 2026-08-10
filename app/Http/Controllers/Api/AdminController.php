@@ -27,7 +27,12 @@ class AdminController extends Controller
             });
         }
 
-        $users = $query->orderBy('created_at', 'desc')->get();
+        $users = $query->orderBy('created_at', 'desc')->get()->map(function ($u) {
+            if ($u->role === 'peserta') {
+                $u->is_magang_selesai = ! \App\Services\PeriodeMagangService::apakahAktif($u);
+            }
+            return $u;
+        });
 
         return response()->json([
             'status' => 'success',
@@ -160,18 +165,17 @@ class AdminController extends Controller
 
     public function getOptionsList()
     {
-        $today = \Carbon\Carbon::today()->toDateString();
-
-        // Hanya peserta aktif yang belum selesai masa magangnya dan belum punya plotting
+        // Hanya peserta aktif yang berada dalam periode magang aktif dan belum punya plotting
         $pesertaList = User::where('role', 'peserta')
             ->where('status_aktif', true)
-            ->where(function ($q) use ($today) {
-                $q->whereNull('tanggal_selesai_magang')
-                  ->orWhere('tanggal_selesai_magang', '>=', $today);
-            })
             ->whereDoesntHave('plottingAsPeserta')
-            ->select('user_id', 'nama', 'nim_nis', 'email', 'tanggal_mulai_magang', 'tanggal_selesai_magang')
-            ->get();
+            ->select('user_id', 'nama', 'nim_nis', 'email', 'tanggal_mulai_magang', 'tanggal_selesai_magang', 'status_aktif')
+            ->get()
+            ->filter(function ($peserta) {
+                return \App\Services\PeriodeMagangService::apakahAktif($peserta);
+            })
+            ->values();
+
         $pembimbingList = User::where('role', 'pembimbing')->where('status_aktif', true)->select('user_id', 'nama', 'email', 'no_hp')->get();
 
         return response()->json([
@@ -185,16 +189,12 @@ class AdminController extends Controller
 
     public function getPlotting()
     {
-        $today = \Carbon\Carbon::today()->toDateString();
-
         $plotting = PlottingBimbingan::with(['peserta:user_id,nama,nim_nis,email,tanggal_mulai_magang,tanggal_selesai_magang,status_aktif', 'pembimbing:user_id,nama,email'])
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function ($item) use ($today) {
+            ->map(function ($item) {
                 if ($item->peserta) {
-                    $selesai = $item->peserta->tanggal_selesai_magang;
-                    $item->peserta->is_magang_selesai = !$item->peserta->status_aktif
-                        || ($selesai && $today > $selesai);
+                    $item->peserta->is_magang_selesai = ! \App\Services\PeriodeMagangService::apakahAktif($item->peserta);
                 }
                 return $item;
             });

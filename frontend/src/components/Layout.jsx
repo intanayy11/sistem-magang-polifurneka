@@ -24,7 +24,9 @@ import {
   MapPin,
   User,
   FileText,
-  History
+  History,
+  BarChart3,
+  PieChart
 } from 'lucide-react';
 
 import logoImg from '../assets/logo-polifurneka.png';
@@ -37,6 +39,7 @@ const Layout = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [dataMasterOpen, setDataMasterOpen] = useState(true);
+  const [laporanCentralOpen, setLaporanCentralOpen] = useState(true);
 
   const handleLogout = async () => {
     await logout();
@@ -246,25 +249,153 @@ const Layout = () => {
             )}
           </NavLink>
 
-          {/* Menu Utama: Laporan Central */}
-          <NavLink
-            to="/admin/laporan"
-            onClick={closeMobile}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
-                isActive
-                  ? 'bg-amber-50/80 text-amber-900 font-bold'
-                  : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <FileText size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                <span className="flex-1 whitespace-nowrap">Laporan Central</span>
-              </>
+          {/* Collapsible Laporan Central Group */}
+          <div>
+            <button
+              type="button"
+              onClick={() => setLaporanCentralOpen(!laporanCentralOpen)}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 cursor-pointer ${
+                location.pathname === '/admin/laporan'
+                  ? 'bg-amber-50/50 text-amber-950 font-bold'
+                  : 'text-slate-700 hover:bg-slate-100/70'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <FileText size={18} className={`shrink-0 ${location.pathname === '/admin/laporan' ? 'text-[#E8A800]' : 'text-slate-500'}`} />
+                <span className="whitespace-nowrap">Laporan Central</span>
+              </div>
+              <ChevronDown
+                size={14}
+                className={`text-slate-400 transition-transform duration-200 ${laporanCentralOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+
+            {laporanCentralOpen && (
+              <div className="pl-5 pt-1 space-y-1">
+                {/* Sub-menu 1: Aktivitas Magang */}
+                <NavLink
+                  to="/admin/laporan?kategori=aktivitas_magang"
+                  onClick={closeMobile}
+                  className={() => {
+                    const isAktif = location.pathname === '/admin/laporan' &&
+                      (location.search.includes('kategori=aktivitas_magang') || !location.search.includes('kategori='));
+                    return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
+                      isAktif
+                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
+                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                    }`;
+                  }}
+                >
+                  {() => {
+                    const isAktif = location.pathname === '/admin/laporan' &&
+                      (location.search.includes('kategori=aktivitas_magang') || !location.search.includes('kategori='));
+                    return (
+                      <>
+                        <BookOpen size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <span className="flex-1 whitespace-nowrap">Aktivitas Magang</span>
+                      </>
+                    );
+                  }}
+                </NavLink>
+
+                {/* Sub-menu 2: Data Peserta */}
+                <NavLink
+                  to="/admin/laporan?kategori=data_peserta"
+                  onClick={closeMobile}
+                  className={() => {
+                    const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=data_peserta');
+                    return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
+                      isAktif
+                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
+                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                    }`;
+                  }}
+                >
+                  {() => {
+                    const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=data_peserta');
+                    return (
+                      <>
+                        <Users size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <span className="flex-1 whitespace-nowrap">Data Peserta</span>
+                      </>
+                    );
+                  }}
+                </NavLink>
+
+                {/* Sub-menu 3: Data Pembimbing */}
+                <NavLink
+                  to="/admin/laporan?kategori=data_pembimbing"
+                  onClick={closeMobile}
+                  className={() => {
+                    const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=data_pembimbing');
+                    return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
+                      isAktif
+                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
+                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                    }`;
+                  }}
+                >
+                  {() => {
+                    const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=data_pembimbing');
+                    return (
+                      <>
+                        <UserCheck size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <span className="flex-1 whitespace-nowrap">Data Pembimbing</span>
+                      </>
+                    );
+                  }}
+                </NavLink>
+
+                {/* Sub-menu 4: Rekapitulasi Kehadiran */}
+                <NavLink
+                  to="/admin/laporan?kategori=rekapitulasi_kehadiran"
+                  onClick={closeMobile}
+                  className={() => {
+                    const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=rekapitulasi_kehadiran');
+                    return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
+                      isAktif
+                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
+                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                    }`;
+                  }}
+                >
+                  {() => {
+                    const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=rekapitulasi_kehadiran');
+                    return (
+                      <>
+                        <BarChart3 size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <span className="flex-1 whitespace-nowrap">Rekapitulasi Kehadiran</span>
+                      </>
+                    );
+                  }}
+                </NavLink>
+
+                {/* Sub-menu 5: Laporan Program Magang */}
+                <NavLink
+                  to="/admin/laporan?kategori=laporan_program_magang"
+                  onClick={closeMobile}
+                  className={() => {
+                    const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=laporan_program_magang');
+                    return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
+                      isAktif
+                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
+                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                    }`;
+                  }}
+                >
+                  {() => {
+                    const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=laporan_program_magang');
+                    return (
+                      <>
+                        <PieChart size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <span className="flex-1 whitespace-nowrap">Laporan Program Magang</span>
+                      </>
+                    );
+                  }}
+                </NavLink>
+              </div>
             )}
-          </NavLink>
+          </div>
 
           {/* Profil Saya */}
           <NavLink
@@ -391,14 +522,11 @@ const Layout = () => {
           <div className="relative">
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center gap-2.5 p-1.5 pl-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all text-left"
+              className="flex items-center gap-1.5 p-1 rounded-full hover:bg-amber-50 border border-slate-200 hover:border-amber-300 transition-all cursor-pointer shadow-2xs"
+              title={user?.nama || 'Profil User'}
             >
-              {getAvatar(user, 'h-8 w-8 text-xs', 'rounded-full')}
-              <div className="hidden sm:block text-xs">
-                <div className="font-semibold text-slate-900 leading-tight max-w-[140px] truncate">{user?.nama}</div>
-                <div className="text-[10px] text-slate-500 capitalize">{user?.role}</div>
-              </div>
-              <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
+              {getAvatar(user, 'h-8 w-8 text-xs font-bold', 'rounded-full')}
+              <ChevronDown size={14} className={`text-slate-400 mr-1 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {/* Profile Dropdown Popover */}
@@ -407,10 +535,13 @@ const Layout = () => {
                 <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
                 <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl p-4 z-50 animate-in fade-in zoom-in duration-150">
                   <div className="flex items-center gap-3 pb-3 border-b border-slate-100 mb-3">
-                    {getAvatar(user, 'h-10 w-10 text-base', 'rounded-full')}
+                    {getAvatar(user, 'h-10 w-10 text-base font-bold', 'rounded-full')}
                     <div className="overflow-hidden">
                       <p className="font-bold text-sm text-slate-900 truncate">{user?.nama}</p>
                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                      <span className="inline-block mt-0.5 text-[10px] font-extrabold text-amber-900 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                        {user?.role}
+                      </span>
                     </div>
                   </div>
 

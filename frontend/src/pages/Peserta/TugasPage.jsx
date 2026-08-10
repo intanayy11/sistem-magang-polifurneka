@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
+import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import { getStorageUrl } from '../../utils/url';
 import DovetailDivider from '../../components/DovetailDivider';
@@ -12,10 +13,11 @@ import {
   X,
   History,
   ExternalLink,
+  AlertTriangle,
 } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
-import { isTaskOverdue } from '../../utils/dateHelpers';
+import { isTaskOverdue, isMagangSelesai, dalamGracePeriodRevisi } from '../../utils/dateHelpers';
 
 const STATUS_FILTERS = [
   { label: 'Semua', value: 'Semua' },
@@ -26,6 +28,7 @@ const STATUS_FILTERS = [
 ];
 
 const TugasPage = () => {
+  const { user } = useAuth();
   const [tugasList, setTugasList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedTugas, setSelectedTugas] = useState(null);
@@ -243,55 +246,134 @@ const TugasPage = () => {
             </div>
 
             {/* Submit Form */}
-            {selectedTugas.status !== 'Selesai' && (
-              <div className="bg-amber-50/60 p-4 rounded-2xl border border-amber-200/80 space-y-3">
-                <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
-                  <Upload size={15} className="text-amber-600" />
-                  Kumpulkan Hasil Kerja
-                </h4>
+            {selectedTugas.status !== 'Selesai' && (() => {
+              const magangEnd = isMagangSelesai(user);
+              const inGracePeriod = dalamGracePeriodRevisi(user);
 
-                <div className="flex gap-4 border-b border-amber-200/60 pb-2">
-                  {['file', 'link'].map((type) => (
+              if (magangEnd) {
+                if (selectedTugas.status === 'Perlu Revisi') {
+                  if (inGracePeriod) {
+                    return (
+                      <div className="bg-amber-50/60 p-4 rounded-2xl border border-amber-200/80 space-y-3">
+                        <div className="p-2.5 rounded-xl bg-amber-100/80 border border-amber-300 text-amber-900 text-xs font-semibold flex items-center gap-2">
+                          <AlertTriangle size={15} className="text-amber-700 shrink-0" />
+                          <span>Anda berada dalam masa Grace Period (3 hari kalender) untuk mengumpulkan revisi tugas ini.</span>
+                        </div>
+                        <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                          <Upload size={15} className="text-amber-600" />
+                          Kumpulkan Revisi Tugas
+                        </h4>
+
+                        <div className="flex gap-4 border-b border-amber-200/60 pb-2">
+                          {['file', 'link'].map((type) => (
+                            <button
+                              key={type}
+                              type="button"
+                              onClick={() => setSubmitType(type)}
+                              className={`text-xs font-bold pb-1 flex items-center gap-1.5 ${
+                                submitType === type ? 'text-amber-900 border-b-2 border-amber-600' : 'text-slate-500'
+                              }`}
+                            >
+                              {type === 'file' ? <Upload size={13} /> : <LinkIcon size={13} />}
+                              {type === 'file' ? 'Unggah File' : 'Link URL'}
+                            </button>
+                          ))}
+                        </div>
+
+                        <form onSubmit={handleSubmitTugas} className="space-y-3">
+                          {submitType === 'file' ? (
+                            <input
+                              type="file"
+                              onChange={(e) => setFileHasil(e.target.files[0])}
+                              className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200"
+                            />
+                          ) : (
+                            <input
+                              type="url"
+                              placeholder="https://drive.google.com/..."
+                              value={linkHasil}
+                              onChange={(e) => setLinkHasil(e.target.value)}
+                              className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                            />
+                          )}
+                          <button
+                            type="submit"
+                            disabled={submitting}
+                            className="w-full btn-poli-primary py-2.5 rounded-xl text-xs uppercase tracking-wider font-extrabold disabled:opacity-50"
+                          >
+                            {submitting ? 'Mengirim...' : 'Kirim Pengumpulan Revisi'}
+                          </button>
+                        </form>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-semibold flex items-center gap-2">
+                        <AlertTriangle size={16} className="text-amber-600 shrink-0" />
+                        <span>Masa grace period (3 hari) untuk mengumpulkan revisi tugas setelah periode magang berakhir telah habis.</span>
+                      </div>
+                    );
+                  }
+                } else {
+                  return (
+                    <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-semibold flex items-center gap-2">
+                      <AlertTriangle size={16} className="text-amber-600 shrink-0" />
+                      <span>Periode magang Anda telah berakhir — pengumpulan tugas baru tidak tersedia.</span>
+                    </div>
+                  );
+                }
+              }
+
+              return (
+                <div className="bg-amber-50/60 p-4 rounded-2xl border border-amber-200/80 space-y-3">
+                  <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
+                    <Upload size={15} className="text-amber-600" />
+                    Kumpulkan Hasil Kerja
+                  </h4>
+
+                  <div className="flex gap-4 border-b border-amber-200/60 pb-2">
+                    {['file', 'link'].map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setSubmitType(type)}
+                        className={`text-xs font-bold pb-1 flex items-center gap-1.5 ${
+                          submitType === type ? 'text-amber-900 border-b-2 border-amber-600' : 'text-slate-500'
+                        }`}
+                      >
+                        {type === 'file' ? <Upload size={13} /> : <LinkIcon size={13} />}
+                        {type === 'file' ? 'Unggah File' : 'Link URL'}
+                      </button>
+                    ))}
+                  </div>
+
+                  <form onSubmit={handleSubmitTugas} className="space-y-3">
+                    {submitType === 'file' ? (
+                      <input
+                        type="file"
+                        onChange={(e) => setFileHasil(e.target.files[0])}
+                        className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200"
+                      />
+                    ) : (
+                      <input
+                        type="url"
+                        placeholder="https://drive.google.com/..."
+                        value={linkHasil}
+                        onChange={(e) => setLinkHasil(e.target.value)}
+                        className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                      />
+                    )}
                     <button
-                      key={type}
-                      type="button"
-                      onClick={() => setSubmitType(type)}
-                      className={`text-xs font-bold pb-1 flex items-center gap-1.5 ${
-                        submitType === type ? 'text-amber-900 border-b-2 border-amber-600' : 'text-slate-500'
-                      }`}
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full btn-poli-primary py-2.5 rounded-xl text-xs uppercase tracking-wider font-extrabold disabled:opacity-50"
                     >
-                      {type === 'file' ? <Upload size={13} /> : <LinkIcon size={13} />}
-                      {type === 'file' ? 'Unggah File' : 'Link URL'}
+                      {submitting ? 'Mengirim...' : 'Kirim Pengumpulan'}
                     </button>
-                  ))}
+                  </form>
                 </div>
-
-                <form onSubmit={handleSubmitTugas} className="space-y-3">
-                  {submitType === 'file' ? (
-                    <input
-                      type="file"
-                      onChange={(e) => setFileHasil(e.target.files[0])}
-                      className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200"
-                    />
-                  ) : (
-                    <input
-                      type="url"
-                      placeholder="https://drive.google.com/..."
-                      value={linkHasil}
-                      onChange={(e) => setLinkHasil(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
-                    />
-                  )}
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full btn-poli-primary py-2.5 rounded-xl text-xs uppercase tracking-wider font-extrabold disabled:opacity-50"
-                  >
-                    {submitting ? 'Mengirim...' : 'Kirim Pengumpulan'}
-                  </button>
-                </form>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Submission History */}
             <div className="space-y-3">

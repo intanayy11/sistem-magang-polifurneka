@@ -298,13 +298,27 @@ const KelolaTugasPage = () => {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Batas Waktu (Deadline)</label>
-                <input
-                  type="datetime-local"
-                  required
-                  value={createForm.deadline}
-                  onChange={(e) => setCreateForm({ ...createForm, deadline: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
-                />
+                {(() => {
+                  const selectedPeserta = pesertaOptions.find(p => String(p.user_id) === String(createForm.peserta_id));
+                  const maxDeadline = selectedPeserta?.tanggal_selesai_magang ? `${selectedPeserta.tanggal_selesai_magang}T23:59` : undefined;
+                  return (
+                    <>
+                      <input
+                        type="datetime-local"
+                        required
+                        max={maxDeadline}
+                        value={createForm.deadline}
+                        onChange={(e) => setCreateForm({ ...createForm, deadline: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                      />
+                      {selectedPeserta?.tanggal_selesai_magang && (
+                        <p className="text-[10px] text-slate-500 mt-1">
+                          Maksimal deadline: <strong className="text-slate-700">{new Date(selectedPeserta.tanggal_selesai_magang).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</strong> (Sesuai tanggal selesai magang peserta)
+                        </p>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
 
               <div>

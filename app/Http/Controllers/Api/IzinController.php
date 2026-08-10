@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Izin;
 use App\Models\PlottingBimbingan;
+use App\Services\PeriodeMagangService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class IzinController extends Controller
 {
@@ -41,11 +43,17 @@ class IzinController extends Controller
     {
         $user = $request->user();
 
-        // Guard: peserta sudah selesai magang / nonaktif
-        if ($user->isMagangSelesai()) {
+        // Guard: periode magang peserta sudah berakhir / nonaktif
+        if (! PeriodeMagangService::apakahAktif($user)) {
+            $tglSelesai = $user->tanggal_selesai_magang
+                ? Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y')
+                : null;
+            $pesan = $tglSelesai 
+                ? "Periode magang Anda telah berakhir pada {$tglSelesai}."
+                : "Periode magang Anda telah berakhir.";
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Masa magang Anda telah selesai. Anda tidak dapat mengajukan izin baru.',
+                'message' => $pesan,
             ], 403);
         }
 

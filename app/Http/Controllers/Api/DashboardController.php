@@ -81,7 +81,7 @@ class DashboardController extends Controller
         $pesertaIds = PlottingBimbingan::where('pembimbing_id', $user->user_id)->pluck('peserta_id');
 
         $pesertaBimbingan = User::whereIn('user_id', $pesertaIds)
-            ->select('user_id', 'nama', 'email', 'nim_nis', 'no_hp', 'status_aktif')
+            ->select('user_id', 'nama', 'email', 'nim_nis', 'no_hp', 'status_aktif', 'tanggal_mulai_magang', 'tanggal_selesai_magang')
             ->withCount([
                 'logbook as logbook_pending_count' => function ($q) {
                     $q->where('status', 'Menunggu');
@@ -93,7 +93,11 @@ class DashboardController extends Controller
                     $q->where('status', 'Menunggu Review');
                 }
             ])
-            ->get();
+            ->get()
+            ->map(function ($p) {
+                $p->is_magang_selesai = ! \App\Services\PeriodeMagangService::apakahAktif($p);
+                return $p;
+            });
 
         $totalLogbookPending = Logbook::whereIn('peserta_id', $pesertaIds)->where('status', 'Menunggu')->count();
         $totalIzinPending = Izin::whereIn('peserta_id', $pesertaIds)->where('status', 'Menunggu')->count();

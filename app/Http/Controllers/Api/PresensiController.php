@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Presensi;
 use App\Models\PlottingBimbingan;
 use App\Services\PresensiService;
+use App\Services\PeriodeMagangService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -15,14 +16,17 @@ class PresensiController extends Controller
     {
         $user = $request->user();
 
-        // Guard: peserta sudah selesai magang / nonaktif
-        if ($user->isMagangSelesai()) {
-            $tgl = $user->tanggal_selesai_magang
-                ? ' pada ' . \Carbon\Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y')
-                : '';
+        // Guard: periode magang peserta sudah berakhir / nonaktif
+        if (! PeriodeMagangService::apakahAktif($user)) {
+            $tglSelesai = $user->tanggal_selesai_magang
+                ? Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y')
+                : null;
+            $pesan = $tglSelesai 
+                ? "Periode magang Anda telah berakhir pada {$tglSelesai}."
+                : "Periode magang Anda telah berakhir.";
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Masa magang Anda telah selesai' . $tgl . '. Anda tidak dapat melakukan presensi.',
+                'message' => $pesan,
             ], 403);
         }
 
@@ -122,14 +126,17 @@ class PresensiController extends Controller
     {
         $user = $request->user();
 
-        // Guard: peserta sudah selesai magang / nonaktif
-        if ($user->isMagangSelesai()) {
-            $tgl = $user->tanggal_selesai_magang
-                ? ' pada ' . \Carbon\Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y')
-                : '';
+        // Guard: periode magang peserta sudah berakhir / nonaktif
+        if (! PeriodeMagangService::apakahAktif($user)) {
+            $tglSelesai = $user->tanggal_selesai_magang
+                ? Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y')
+                : null;
+            $pesan = $tglSelesai 
+                ? "Periode magang Anda telah berakhir pada {$tglSelesai}."
+                : "Periode magang Anda telah berakhir.";
             return response()->json([
                 'status'  => 'error',
-                'message' => 'Masa magang Anda telah selesai' . $tgl . '. Anda tidak dapat melakukan presensi.',
+                'message' => $pesan,
             ], 403);
         }
 

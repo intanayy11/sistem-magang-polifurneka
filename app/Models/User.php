@@ -45,17 +45,11 @@ class User extends Authenticatable
 
     /**
      * Cek apakah masa magang peserta sudah selesai.
-     * True jika: tanggal_selesai_magang sudah lewat ATAU status_aktif = false.
+     * Menggunakan PeriodeMagangService::apakahAktif().
      */
     public function isMagangSelesai(): bool
     {
-        if (!$this->status_aktif) {
-            return true;
-        }
-        if ($this->tanggal_selesai_magang && Carbon::today()->gt(Carbon::parse($this->tanggal_selesai_magang))) {
-            return true;
-        }
-        return false;
+        return !\App\Services\PeriodeMagangService::apakahAktif($this);
     }
 
     public function plottingAsPeserta()

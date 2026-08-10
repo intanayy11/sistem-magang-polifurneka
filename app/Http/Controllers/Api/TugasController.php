@@ -7,6 +7,7 @@ use App\Models\Tugas;
 use App\Models\PengumpulanTugas;
 use App\Models\PlottingBimbingan;
 use App\Models\User;
+use App\Services\PeriodeMagangService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -50,13 +51,29 @@ class TugasController extends Controller
             'file_lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,rar,doc,docx|max:5120',
         ]);
 
-        // Guard: blokir pemberian tugas ke peserta yang sudah nonaktif/selesai magang
         $peserta = User::findOrFail($request->peserta_id);
-        if ($peserta->isMagangSelesai()) {
+        $tglSelesaiFmt = $peserta->tanggal_selesai_magang
+            ? Carbon::parse($peserta->tanggal_selesai_magang)->translatedFormat('d F Y')
+            : null;
+
+        // Guard: HANYA peserta yang aktif yang boleh diberi tugas baru
+        if (! PeriodeMagangService::apakahAktif($peserta)) {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Peserta ' . $peserta->nama . ' sudah selesai masa magang. Tidak dapat membuat tugas baru.',
             ], 403);
+        }
+
+        // Validasi: deadline tidak boleh melebihi tanggal_selesai_magang milik peserta yang dipilih
+        if ($peserta->tanggal_selesai_magang) {
+            $deadlineDate = Carbon::parse($request->deadline)->startOfDay();
+            $selesaiDate  = Carbon::parse($peserta->tanggal_selesai_magang)->startOfDay();
+            if ($deadlineDate->gt($selesaiDate)) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => "Deadline tidak boleh melebihi tanggal selesai magang peserta ({$tglSelesaiFmt}).",
+                ], 422);
+            }
         }
 
         $filePath = null;
@@ -103,6 +120,31 @@ class TugasController extends Controller
                 'status' => 'error',
                 'message' => 'Anda tidak berhak mengumpulkan tugas ini.'
             ], 403);
+        }
+
+        // Guard Periode Magang & Grace Period Revisi Tugas
+        if (! PeriodeMagangService::apakahAktif($user)) {
+            $tglSelesai = $user->tanggal_selesai_magang
+                ? Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y')
+                : null;
+            $pesanDefault = $tglSelesai 
+                ? "Periode magang Anda telah berakhir pada {$tglSelesai}."
+                : "Periode magang Anda telah berakhir.";
+
+            // Pengecualian: Grace period 3 hari kalender khusus tugas berstatus "Perlu Revisi"
+            if ($tugas->status === 'Perlu Revisi') {
+                if (! PeriodeMagangService::dalamGracePeriodRevisi($user)) {
+                    return response()->json([
+                        'status'  => 'error',
+                        'message' => "Batas waktu grace period (3 hari) untuk pengumpulan revisi tugas telah berakhir.",
+                    ], 403);
+                }
+            } else {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => $pesanDefault,
+                ], 403);
+            }
         }
 
         $request->validate([
@@ -189,20 +231,16 @@ class TugasController extends Controller
     public function pembimbingPesertaList(Request $request)
     {
         $user = $request->user();
-        $today = \Carbon\Carbon::today()->toDateString();
 
+        // HANYA tampilkan peserta yang periode magangnya masih aktif (apakahAktif() === true)
         $pesertaList = PlottingBimbingan::where('pembimbing_id', $user->user_id)
-            ->with('peserta:user_id,nama,nim_nis,email,tanggal_selesai_magang,status_aktif')
+            ->with('peserta:user_id,nama,nim_nis,email,tanggal_mulai_magang,tanggal_selesai_magang,status_aktif')
             ->get()
             ->pluck('peserta')
-            ->map(function ($peserta) use ($today) {
-                if ($peserta) {
-                    $selesai = $peserta->tanggal_selesai_magang;
-                    $peserta->is_magang_selesai = !$peserta->status_aktif
-                        || ($selesai && $today > $selesai);
-                }
-                return $peserta;
-            });
+            ->filter(function ($peserta) {
+                return $peserta && PeriodeMagangService::apakahAktif($peserta);
+            })
+            ->values();
 
         return response()->json([
             'status' => 'success',
@@ -210,4 +248,5 @@ class TugasController extends Controller
         ]);
     }
 }
+
 

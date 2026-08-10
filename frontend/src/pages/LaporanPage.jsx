@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import AlertBanner from '../components/AlertBanner';
@@ -18,38 +19,88 @@ import {
   BookOpen,
   CheckSquare,
   Loader2,
-  ListFilter
+  ListFilter,
+  Users,
+  UserCheck,
+  BarChart3,
+  PieChart,
+  FileSpreadsheet,
+  AlertCircle,
+  Building2,
+  CheckCircle2,
+  XCircle,
+  HelpCircle,
+  SlidersHorizontal,
+  ArrowUpDown
 } from 'lucide-react';
 
 const LaporanPage = () => {
   const { user } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Filter States (Checkbox pilihan jenis data)
-  const [incPresensi, setIncPresensi] = useState(true);
-  const [incLogbook, setIncLogbook] = useState(true);
-  const [incTugas, setIncTugas] = useState(true);
+  // Active Category State from URL query ?kategori=...
+  const paramKategori = searchParams.get('kategori') || 'aktivitas_magang';
+  const [kategoriLaporan, setKategoriLaporan] = useState(paramKategori);
 
+  // Sync category state when searchParams changes
+  useEffect(() => {
+    const currentKat = searchParams.get('kategori') || 'aktivitas_magang';
+    setKategoriLaporan(currentKat);
+    setPreviewData(null);
+    setAlert(null);
+  }, [searchParams]);
+
+  // Switch category handler (updates URL searchParams)
+  const handleCategoryChange = (newCat) => {
+    setSearchParams({ kategori: newCat });
+    setKategoriLaporan(newCat);
+    setPreviewData(null);
+    setAlert(null);
+  };
+
+  // Filter States - Aktivitas Magang
+  const [jenisData, setJenisData] = useState('semua'); // presensi, logbook, tugas, izin, semua
   const [tanggalMulai, setTanggalMulai] = useState('');
   const [tanggalSelesai, setTanggalSelesai] = useState('');
   const [pesertaId, setPesertaId] = useState('semua');
+  const [pembimbingId, setPembimbingId] = useState('semua');
   const [jurusan, setJurusan] = useState('semua');
   const [posisiMagang, setPosisiMagang] = useState('semua');
+  const [jabatan, setJabatan] = useState('semua');
 
-  // Filter Dropdown Options from Backend
+  // Filter Spesifik Per Jenis Data
+  const [statusPresensi, setStatusPresensi] = useState('semua');
+  const [lokasiTipe, setLokasiTipe] = useState('semua');
+  const [statusLogbook, setStatusLogbook] = useState('semua');
+  const [statusTugas, setStatusTugas] = useState('semua');
+  const [jenisIzin, setJenisIzin] = useState('semua');
+  const [statusIzin, setStatusIzin] = useState('semua');
+
+  // Filter Data Peserta (Admin)
+  const [statusPeriode, setStatusPeriode] = useState('semua'); // aktif, selesai, semua
+  const [modeTampilan, setModeTampilan] = useState('daftar'); // daftar | rekap_kategori
+  const [rekapBy, setRekapBy] = useState('jurusan'); // jurusan | posisi_magang | pembimbing
+
+  // Filter Rekapitulasi Kehadiran (Admin)
+  const [sortOrder, setSortOrder] = useState('asc'); // asc | desc
+
+  // Options List
   const [options, setOptions] = useState({
     peserta_list: [],
+    pembimbing_list: [],
     jurusan_list: [],
     posisi_list: [],
+    jabatan_list: [],
   });
 
-  // State Preview Result
+  // Preview Data State
   const [previewData, setPreviewData] = useState(null);
   const [loadingOptions, setLoadingOptions] = useState(true);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [alert, setAlert] = useState(null);
 
-  // Fetch filter options on load
+  // Fetch filter options on mount
   useEffect(() => {
     const fetchOptions = async () => {
       try {
@@ -67,34 +118,42 @@ const LaporanPage = () => {
     fetchOptions();
   }, []);
 
+
   const buildQueryParams = () => {
-    const params = {};
-    const list = [];
-    if (incPresensi) list.push('presensi');
-    if (incLogbook) list.push('logbook');
-    if (incTugas) list.push('tugas');
-    params.jenis_data = list.join(',');
+    const params = { kategori_laporan: kategoriLaporan };
+
     if (tanggalMulai) params.tanggal_mulai = tanggalMulai;
     if (tanggalSelesai) params.tanggal_selesai = tanggalSelesai;
     if (pesertaId && pesertaId !== 'semua') params.peserta_id = pesertaId;
+    if (pembimbingId && pembimbingId !== 'semua') params.pembimbing_id = pembimbingId;
     if (jurusan && jurusan !== 'semua') params.jurusan = jurusan;
     if (posisiMagang && posisiMagang !== 'semua') params.posisi_magang = posisiMagang;
+    if (jabatan && jabatan !== 'semua') params.jabatan = jabatan;
+
+    if (kategoriLaporan === 'aktivitas_magang') {
+      params.jenis_data = jenisData;
+      if (statusPresensi !== 'semua') params.status_presensi = statusPresensi;
+      if (lokasiTipe !== 'semua') params.lokasi_tipe = lokasiTipe;
+      if (statusLogbook !== 'semua') params.status_logbook = statusLogbook;
+      if (statusTugas !== 'semua') params.status_tugas = statusTugas;
+      if (jenisIzin !== 'semua') params.jenis_izin = jenisIzin;
+      if (statusIzin !== 'semua') params.status_izin = statusIzin;
+    }
+
+    if (kategoriLaporan === 'data_peserta') {
+      params.status_periode = statusPeriode;
+      params.mode_tampilan = modeTampilan;
+      params.rekap_by = rekapBy;
+    }
+
+    if (kategoriLaporan === 'rekapitulasi_kehadiran') {
+      params.sort_order = sortOrder;
+    }
+
     return params;
   };
 
-  const validateFilter = () => {
-    if (!incPresensi && !incLogbook && !incTugas) {
-      setAlert({
-        type: 'error',
-        message: 'Silakan centang minimal satu jenis rekap data (Presensi, Logbook, atau Tugas).',
-      });
-      return false;
-    }
-    return true;
-  };
-
   const handlePreview = async () => {
-    if (!validateFilter()) return;
     setLoadingPreview(true);
     setAlert(null);
     try {
@@ -116,20 +175,29 @@ const LaporanPage = () => {
   };
 
   const handleResetFilter = () => {
-    setIncPresensi(true);
-    setIncLogbook(true);
-    setIncTugas(true);
+    setJenisData('semua');
     setTanggalMulai('');
     setTanggalSelesai('');
     setPesertaId('semua');
+    setPembimbingId('semua');
     setJurusan('semua');
     setPosisiMagang('semua');
+    setJabatan('semua');
+    setStatusPresensi('semua');
+    setLokasiTipe('semua');
+    setStatusLogbook('semua');
+    setStatusTugas('semua');
+    setJenisIzin('semua');
+    setStatusIzin('semua');
+    setStatusPeriode('semua');
+    setModeTampilan('daftar');
+    setRekapBy('jurusan');
+    setSortOrder('asc');
     setPreviewData(null);
     setAlert(null);
   };
 
   const handleDownloadPdf = async () => {
-    if (!validateFilter()) return;
     setDownloadingPdf(true);
     setAlert(null);
     try {
@@ -141,7 +209,8 @@ const LaporanPage = () => {
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `Laporan_Magang_${new Date().toISOString().slice(0, 10)}.pdf`);
+      const fileSuffix = kategoriLaporan.toUpperCase();
+      link.setAttribute('download', `Laporan_${fileSuffix}_${new Date().toISOString().slice(0, 10)}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -149,7 +218,7 @@ const LaporanPage = () => {
 
       setAlert({
         type: 'success',
-        message: 'Laporan PDF berhasil diunduh.'
+        message: 'File PDF Laporan Resmi berhasil diunduh.'
       });
     } catch (err) {
       console.error(err);
@@ -162,9 +231,19 @@ const LaporanPage = () => {
     }
   };
 
+  // Helper date format
+  const formatDateIndo = (dateStr) => {
+    if (!dateStr) return '-';
+    return new Date(dateStr + 'T00:00:00').toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
   return (
-    <div className="space-y-6">
-      {/* ── Page Header ── */}
+    <div className="space-y-6 max-w-6xl mx-auto">
+      {/* ── Header Title ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
@@ -172,15 +251,8 @@ const LaporanPage = () => {
             <span>Modul Laporan & Rekapitulasi</span>
           </h2>
           <p className="text-slate-500 text-xs mt-0.5">
-            {user?.role === 'peserta' && 'Pratinjau dan cetak laporan presensi, logbook, dan tugas harian magang Anda.'}
-            {user?.role === 'pembimbing' && 'Pratinjau dan cetak rekapitulasi data magang peserta bimbingan Anda.'}
-            {user?.role === 'admin' && 'Pusat laporan komprehensif seluruh kegiatan peserta magang instansi.'}
+            Pratinjau tabel dan cetak laporan resmi ber-Kop Surat Politeknik Industri Furnitur dan Pengolahan Kayu Kendal.
           </p>
-        </div>
-
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold self-start sm:self-auto">
-          <ListFilter size={14} className="text-amber-600" />
-          <span className="capitalize">Laporan Role: {user?.role}</span>
         </div>
       </div>
 
@@ -188,12 +260,13 @@ const LaporanPage = () => {
 
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
-      {/* ── Filter Form Card ── */}
-      <div className="card-bento space-y-4">
+
+      {/* ── DYNAMIC FILTER FORM BASED ON SELECTED CATEGORY ── */}
+      <div className="card-clean p-6 space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+          <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2 uppercase tracking-wider">
             <Filter size={16} className="text-amber-600" />
-            <span>Filter Data Laporan</span>
+            <span>Form Filter — {kategoriLaporan.replace(/_/g, ' ')}</span>
           </h3>
           <button
             onClick={handleResetFilter}
@@ -204,214 +277,430 @@ const LaporanPage = () => {
           </button>
         </div>
 
-        <div className="space-y-4 text-xs">
-          {/* Pilihan Jenis Data (Checkboxes / Toggle Cards) */}
-          <div className="space-y-1.5">
-            <label className="block font-semibold text-slate-700 uppercase flex items-center justify-between">
-              <span className="flex items-center gap-1">
-                <FileText size={13} className="text-slate-400" />
-                <span>Pilih Jenis Data / Rekap yang Ingin Ditampilkan</span>
-              </span>
-              <span className="text-[10px] text-slate-400 font-normal lowercase">(bebas centang 1, 2, atau 3)</span>
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-              <label
-                className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all select-none ${
-                  incPresensi
-                    ? 'bg-amber-50/90 border-amber-300 text-amber-950 font-bold shadow-2xs'
-                    : 'bg-slate-50/80 border-slate-200 text-slate-500 hover:bg-slate-100'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={incPresensi}
-                  onChange={(e) => setIncPresensi(e.target.checked)}
-                  className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer accent-[#E8A800]"
-                />
-                <div className="flex items-center gap-2 text-xs">
-                  <Clock size={15} className={incPresensi ? 'text-amber-600' : 'text-slate-400'} />
-                  <span>Presensi Kehadiran</span>
-                </div>
+        {/* ════════ FORM FILTER KATEGORI 1: AKTIVITAS MAGANG ════════ */}
+        {kategoriLaporan === 'aktivitas_magang' && (
+          <div className="space-y-4 text-xs">
+            {/* Jenis Data Selector */}
+            <div>
+              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                Pilih Jenis Data Aktivitas
               </label>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                {[
+                  { id: 'semua', label: 'Semua Data', icon: FileSpreadsheet },
+                  { id: 'presensi', label: 'Presensi', icon: Clock },
+                  { id: 'logbook', label: 'Logbook', icon: BookOpen },
+                  { id: 'tugas', label: 'Penugasan', icon: CheckSquare },
+                  { id: 'izin', label: 'Pengajuan Izin', icon: Calendar },
+                ].map((item) => {
+                  const IconComp = item.icon;
+                  const isSelected = jenisData === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setJenisData(item.id)}
+                      className={`p-2.5 rounded-xl border flex items-center justify-center gap-2 font-bold transition-all ${
+                        isSelected
+                          ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-2xs'
+                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      <IconComp size={14} />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-              <label
-                className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all select-none ${
-                  incLogbook
-                    ? 'bg-blue-50/90 border-blue-300 text-blue-950 font-bold shadow-2xs'
-                    : 'bg-slate-50/80 border-slate-200 text-slate-500 hover:bg-slate-100'
-                }`}
-              >
+            {/* General Filters Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Tanggal Mulai (Dari)</label>
                 <input
-                  type="checkbox"
-                  checked={incLogbook}
-                  onChange={(e) => setIncLogbook(e.target.checked)}
-                  className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600"
+                  type="date"
+                  value={tanggalMulai}
+                  onChange={(e) => setTanggalMulai(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
                 />
-                <div className="flex items-center gap-2 text-xs">
-                  <BookOpen size={15} className={incLogbook ? 'text-blue-600' : 'text-slate-400'} />
-                  <span>Logbook Kegiatan</span>
-                </div>
-              </label>
+              </div>
 
-              <label
-                className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all select-none ${
-                  incTugas
-                    ? 'bg-emerald-50/90 border-emerald-300 text-emerald-950 font-bold shadow-2xs'
-                    : 'bg-slate-50/80 border-slate-200 text-slate-500 hover:bg-slate-100'
-                }`}
-              >
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Tanggal Selesai (Sampai)</label>
                 <input
-                  type="checkbox"
-                  checked={incTugas}
-                  onChange={(e) => setIncTugas(e.target.checked)}
-                  className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer accent-emerald-600"
+                  type="date"
+                  value={tanggalSelesai}
+                  onChange={(e) => setTanggalSelesai(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
                 />
-                <div className="flex items-center gap-2 text-xs">
-                  <CheckSquare size={15} className={incTugas ? 'text-emerald-600' : 'text-slate-400'} />
-                  <span>Tugas Magang</span>
+              </div>
+
+              {/* Role Pembimbing Filter Peserta */}
+              {user?.role === 'pembimbing' && (
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Peserta Bimbingan</label>
+                  <select
+                    value={pesertaId}
+                    onChange={(e) => setPesertaId(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="semua">Semua Peserta Bimbingan</option>
+                    {options.peserta_list.map((p) => (
+                      <option key={p.user_id} value={p.user_id}>
+                        {p.nama} ({p.nim_nis || '-'})
+                      </option>
+                    ))}
+                  </select>
                 </div>
-              </label>
+              )}
+
+              {/* Role Admin Filter Peserta & Jurusan & Posisi */}
+              {user?.role === 'admin' && (
+                <>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Filter Peserta Spesifik</label>
+                    <select
+                      value={pesertaId}
+                      onChange={(e) => setPesertaId(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                    >
+                      <option value="semua">Semua Peserta</option>
+                      {options.peserta_list.map((p) => (
+                        <option key={p.user_id} value={p.user_id}>
+                          {p.nama} ({p.nim_nis || '-'})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Filter Jurusan</label>
+                    <select
+                      value={jurusan}
+                      onChange={(e) => setJurusan(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                    >
+                      <option value="semua">Semua Jurusan</option>
+                      {options.jurusan_list.map((j) => (
+                        <option key={j} value={j}>{j}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Filter Posisi Magang</label>
+                    <select
+                      value={posisiMagang}
+                      onChange={(e) => setPosisiMagang(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                    >
+                      <option value="semua">Semua Posisi</option>
+                      {options.posisi_list.map((pos) => (
+                        <option key={pos} value={pos}>{pos}</option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Dynamic Specific Filters per Data Type */}
+            <div className="pt-2 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {(jenisData === 'semua' || jenisData === 'presensi') && (
+                <>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Status Presensi</label>
+                    <select
+                      value={statusPresensi}
+                      onChange={(e) => setStatusPresensi(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                    >
+                      <option value="semua">Semua Status Presensi</option>
+                      <option value="Hadir">Hadir</option>
+                      <option value="Terlambat">Terlambat</option>
+                      <option value="Pulang Cepat">Pulang Cepat</option>
+                      <option value="Alpha">Alpha</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Tipe Lokasi Presensi</label>
+                    <select
+                      value={lokasiTipe}
+                      onChange={(e) => setLokasiTipe(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                    >
+                      <option value="semua">Semua Tipe Lokasi</option>
+                      <option value="instansi">Instansi</option>
+                      <option value="luar">Kegiatan Luar</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {(jenisData === 'semua' || jenisData === 'logbook') && (
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Status Logbook</label>
+                  <select
+                    value={statusLogbook}
+                    onChange={(e) => setStatusLogbook(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="semua">Semua Status Logbook</option>
+                    <option value="Menunggu">Menunggu</option>
+                    <option value="Approve">Approve</option>
+                    <option value="Revisi">Revisi</option>
+                  </select>
+                </div>
+              )}
+
+              {(jenisData === 'semua' || jenisData === 'tugas') && (
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Status Penugasan</label>
+                  <select
+                    value={statusTugas}
+                    onChange={(e) => setStatusTugas(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="semua">Semua Status Tugas</option>
+                    <option value="Belum Dikerjakan">Belum Dikerjakan</option>
+                    <option value="Menunggu Review">Menunggu Review</option>
+                    <option value="Perlu Revisi">Perlu Revisi</option>
+                    <option value="Selesai">Selesai</option>
+                  </select>
+                </div>
+              )}
+
+              {(jenisData === 'semua' || jenisData === 'izin') && (
+                <>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Jenis Izin</label>
+                    <select
+                      value={jenisIzin}
+                      onChange={(e) => setJenisIzin(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                    >
+                      <option value="semua">Semua Jenis Izin</option>
+                      <option value="Izin">Izin</option>
+                      <option value="Sakit">Sakit</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Status Pengajuan Izin</label>
+                    <select
+                      value={statusIzin}
+                      onChange={(e) => setStatusIzin(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                    >
+                      <option value="semua">Semua Status Izin</option>
+                      <option value="Menunggu">Menunggu</option>
+                      <option value="Disetujui">Disetujui</option>
+                      <option value="Ditolak">Ditolak</option>
+                    </select>
+                  </div>
+                </>
+              )}
             </div>
           </div>
+        )}
 
-          {/* Rentang Tanggal (Bersampingan) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* ════════ FORM FILTER KATEGORI 2: DATA PESERTA (ADMIN) ════════ */}
+        {kategoriLaporan === 'data_peserta' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
             <div>
-              <label className="block font-semibold text-slate-700 uppercase mb-1.5 flex items-center justify-between">
-                <span className="flex items-center gap-1">
-                  <Calendar size={13} className="text-slate-400" />
-                  <span>Dari Tanggal</span>
-                </span>
-                <span className="text-[10px] text-slate-400 font-normal lowercase">(kosongkan jika tanpa batas)</span>
-              </label>
+              <label className="block font-semibold text-slate-700 mb-1">Filter Jurusan</label>
+              <select
+                value={jurusan}
+                onChange={(e) => setJurusan(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+              >
+                <option value="semua">Semua Jurusan</option>
+                {options.jurusan_list.map((j) => (
+                  <option key={j} value={j}>{j}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Filter Posisi Magang</label>
+              <select
+                value={posisiMagang}
+                onChange={(e) => setPosisiMagang(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+              >
+                <option value="semua">Semua Posisi</option>
+                {options.posisi_list.map((pos) => (
+                  <option key={pos} value={pos}>{pos}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Filter Pembimbing</label>
+              <select
+                value={pembimbingId}
+                onChange={(e) => setPembimbingId(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+              >
+                <option value="semua">Semua Pembimbing</option>
+                {options.pembimbing_list.map((pem) => (
+                  <option key={pem.user_id} value={pem.user_id}>{pem.nama}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Status Periode Magang</label>
+              <select
+                value={statusPeriode}
+                onChange={(e) => setStatusPeriode(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+              >
+                <option value="semua">Semua Status Periode</option>
+                <option value="aktif">Periode Aktif</option>
+                <option value="selesai">Selesai Magang</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* ════════ FORM FILTER KATEGORI 3: DATA PEMBIMBING (ADMIN) ════════ */}
+        {kategoriLaporan === 'data_pembimbing' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Filter Jabatan Pembimbing</label>
+              <select
+                value={jabatan}
+                onChange={(e) => setJabatan(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+              >
+                <option value="semua">Semua Jabatan</option>
+                {options.jabatan_list.map((jab) => (
+                  <option key={jab} value={jab}>{jab}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* ════════ FORM FILTER KATEGORI 4: REKAPITULASI KEHADIRAN (ADMIN) ════════ */}
+        {kategoriLaporan === 'rekapitulasi_kehadiran' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Tanggal Mulai (Dari)</label>
               <input
                 type="date"
                 value={tanggalMulai}
                 onChange={(e) => setTanggalMulai(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 font-medium"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 uppercase mb-1.5 flex items-center justify-between">
-                <span className="flex items-center gap-1">
-                  <Calendar size={13} className="text-slate-400" />
-                  <span>Sampai Tanggal</span>
-                </span>
-                <span className="text-[10px] text-slate-400 font-normal lowercase">(kosongkan jika tanpa batas)</span>
-              </label>
+              <label className="block font-semibold text-slate-700 mb-1">Tanggal Selesai (Sampai)</label>
               <input
                 type="date"
                 value={tanggalSelesai}
                 onChange={(e) => setTanggalSelesai(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 font-medium"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
               />
             </div>
-          </div>
 
-          {/* Filter Peserta (Pembimbing & Admin) */}
-          {(user?.role === 'pembimbing' || user?.role === 'admin') && (
             <div>
-              <label className="block font-semibold text-slate-700 uppercase mb-1.5 flex items-center gap-1">
-                <User size={13} className="text-slate-400" />
-                <span>Pilih Peserta Magang</span>
-              </label>
+              <label className="block font-semibold text-slate-700 mb-1">Filter Jurusan</label>
               <select
-                value={pesertaId}
-                onChange={(e) => setPesertaId(e.target.value)}
-                disabled={loadingOptions}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 font-medium"
+                value={jurusan}
+                onChange={(e) => setJurusan(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
               >
-                <option value="semua">
-                  {user?.role === 'pembimbing' ? 'Semua Peserta Bimbingan' : 'Semua Peserta Magang'}
-                </option>
-                {options.peserta_list.map((p) => (
-                  <option key={p.user_id} value={p.user_id}>
-                    {p.nama} {p.nim_nis ? `(${p.nim_nis})` : ''}
-                  </option>
+                <option value="semua">Semua Jurusan</option>
+                {options.jurusan_list.map((j) => (
+                  <option key={j} value={j}>{j}</option>
                 ))}
               </select>
             </div>
-          )}
 
-          {/* Filter Jurusan & Posisi Magang (Admin Only, Bersampingan) */}
-          {user?.role === 'admin' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block font-semibold text-slate-700 uppercase mb-1.5 flex items-center gap-1">
-                  <GraduationCap size={13} className="text-slate-400" />
-                  <span>Jurusan / Program Studi</span>
-                </label>
-                <select
-                  value={jurusan}
-                  onChange={(e) => setJurusan(e.target.value)}
-                  disabled={loadingOptions}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 font-medium"
-                >
-                  <option value="semua">Semua Jurusan</option>
-                  {options.jurusan_list.map((j) => (
-                    <option key={j} value={j}>{j}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 uppercase mb-1.5 flex items-center gap-1">
-                  <Briefcase size={13} className="text-slate-400" />
-                  <span>Posisi / Divisi Magang</span>
-                </label>
-                <select
-                  value={posisiMagang}
-                  onChange={(e) => setPosisiMagang(e.target.value)}
-                  disabled={loadingOptions}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 font-medium"
-                >
-                  <option value="semua">Semua Posisi Magang</option>
-                  {options.posisi_list.map((pos) => (
-                    <option key={pos} value={pos}>{pos}</option>
-                  ))}
-                </select>
-              </div>
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Filter Pembimbing</label>
+              <select
+                value={pembimbingId}
+                onChange={(e) => setPembimbingId(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+              >
+                <option value="semua">Semua Pembimbing</option>
+                {options.pembimbing_list.map((pem) => (
+                  <option key={pem.user_id} value={pem.user_id}>{pem.nama}</option>
+                ))}
+              </select>
             </div>
-          )}
-        </div>
 
-        {/* Action Buttons */}
-        <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-end gap-3">
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Urutan Persentase</label>
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
+              >
+                <option value="asc">Terendah ke Tertinggi (Default)</option>
+                <option value="desc">Tertinggi ke Terendah</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* ════════ FORM FILTER KATEGORI 5: LAPORAN PROGRAM MAGANG (ADMIN) ════════ */}
+        {kategoriLaporan === 'laporan_program_magang' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Tanggal Mulai (Dari)</label>
+              <input
+                type="date"
+                value={tanggalMulai}
+                onChange={(e) => setTanggalMulai(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Tanggal Selesai (Sampai)</label>
+              <input
+                type="date"
+                value={tanggalSelesai}
+                onChange={(e) => setTanggalSelesai(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ── ACTION BUTTONS: TAMPILKAN & UNDUH PDF ── */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 pt-3 border-t border-slate-100">
           <button
             onClick={handlePreview}
             disabled={loadingPreview}
-            className="btn-poli-primary px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider font-semibold inline-flex items-center gap-2 disabled:opacity-50"
+            className="w-full sm:w-auto btn-poli-primary px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 font-bold shadow-xs disabled:opacity-50"
           >
             {loadingPreview ? (
-              <>
-                <Loader2 size={15} className="animate-spin" />
-                <span>Memuat...</span>
-              </>
+              <Loader2 size={15} className="animate-spin" />
             ) : (
-              <>
-                <Search size={15} />
-                <span>Preview</span>
-              </>
+              <Search size={15} />
             )}
+            <span>Tampilkan Pratinjau</span>
           </button>
 
           <button
             onClick={handleDownloadPdf}
             disabled={downloadingPdf}
-            className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all inline-flex items-center gap-2 shadow-xs disabled:opacity-50"
+            className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs disabled:opacity-50"
           >
             {downloadingPdf ? (
-              <>
-                <Loader2 size={15} className="animate-spin" />
-                <span>Mengunduh...</span>
-              </>
+              <Loader2 size={15} className="animate-spin" />
             ) : (
-              <>
-                <Download size={15} />
-                <span>Unduh PDF</span>
-              </>
+              <Download size={15} className="text-amber-400" />
             )}
+            <span>Unduh PDF Resmi</span>
           </button>
         </div>
       </div>

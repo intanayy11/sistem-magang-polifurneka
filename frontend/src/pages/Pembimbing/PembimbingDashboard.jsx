@@ -222,7 +222,14 @@ const PembimbingDashboard = () => {
                             {initial}
                           </div>
                           <div>
-                            <div className="font-bold text-slate-900 text-xs group-hover:text-amber-900 transition-colors">{p.nama}</div>
+                            <div className="font-bold text-slate-900 text-xs group-hover:text-amber-900 transition-colors flex items-center gap-1.5 flex-wrap">
+                              <span>{p.nama}</span>
+                              {p.is_magang_selesai && (
+                                <span className="text-[9px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded-md uppercase tracking-wide">
+                                  Selesai Magang
+                                </span>
+                              )}
+                            </div>
                             <span className="text-[10px] text-slate-400 font-medium">Mahasiswa Magang</span>
                           </div>
                         </div>
