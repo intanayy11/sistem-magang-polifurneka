@@ -123,7 +123,7 @@ const Layout = () => {
             >
               <div className="flex items-center gap-3">
                 <Database size={18} className={`shrink-0 ${isDataMasterChildActive ? 'text-[#E8A800]' : 'text-slate-500'}`} />
-                <span className="whitespace-nowrap">Data Master</span>
+                <span className="whitespace-nowrap">Kelola User</span>
               </div>
               <ChevronDown
                 size={14}
@@ -137,9 +137,8 @@ const Layout = () => {
                 <NavLink
                   to="/admin/kelola-user"
                   onClick={closeMobile}
-                  end
                   className={() => {
-                    const isAllUserActive = location.pathname === '/admin/kelola-user' && !location.search.includes('role=');
+                    const isAllUserActive = location.pathname === '/admin/kelola-user';
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isAllUserActive
                         ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
@@ -148,65 +147,17 @@ const Layout = () => {
                   }}
                 >
                   {() => {
-                    const isAllUserActive = location.pathname === '/admin/kelola-user' && !location.search.includes('role=');
+                    const isAllUserActive = location.pathname === '/admin/kelola-user';
                     return (
                       <>
                         <Users size={16} className={`shrink-0 ${isAllUserActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 whitespace-nowrap">Semua User System</span>
+                        <span className="flex-1 whitespace-nowrap">Daftar Semua User</span>
                       </>
                     );
                   }}
                 </NavLink>
 
-                {/* Sub-menu 2: Data Peserta */}
-                <NavLink
-                  to="/admin/kelola-user?role=peserta"
-                  onClick={closeMobile}
-                  className={() => {
-                    const isPesertaActive = location.pathname === '/admin/kelola-user' && location.search.includes('role=peserta');
-                    return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
-                      isPesertaActive
-                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
-                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
-                    }`;
-                  }}
-                >
-                  {() => {
-                    const isPesertaActive = location.pathname === '/admin/kelola-user' && location.search.includes('role=peserta');
-                    return (
-                      <>
-                        <GraduationCap size={16} className={`shrink-0 ${isPesertaActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 whitespace-nowrap">Data Peserta</span>
-                      </>
-                    );
-                  }}
-                </NavLink>
-
-                {/* Sub-menu 3: Data Pembimbing */}
-                <NavLink
-                  to="/admin/kelola-user?role=pembimbing"
-                  onClick={closeMobile}
-                  className={() => {
-                    const isPembimbingActive = location.pathname === '/admin/kelola-user' && location.search.includes('role=pembimbing');
-                    return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
-                      isPembimbingActive
-                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
-                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
-                    }`;
-                  }}
-                >
-                  {() => {
-                    const isPembimbingActive = location.pathname === '/admin/kelola-user' && location.search.includes('role=pembimbing');
-                    return (
-                      <>
-                        <UserCog size={16} className={`shrink-0 ${isPembimbingActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 whitespace-nowrap">Data Pembimbing</span>
-                      </>
-                    );
-                  }}
-                </NavLink>
-
-                {/* Sub-menu 4: Tambah User */}
+                {/* Sub-menu 2: Tambah User */}
                 <NavLink
                   to="/admin/tambah-user"
                   onClick={closeMobile}
@@ -262,7 +213,7 @@ const Layout = () => {
             >
               <div className="flex items-center gap-3">
                 <FileText size={18} className={`shrink-0 ${location.pathname === '/admin/laporan' ? 'text-[#E8A800]' : 'text-slate-500'}`} />
-                <span className="whitespace-nowrap">Laporan Central</span>
+                <span className="whitespace-nowrap">Rekapitulasi & Laporan</span>
               </div>
               <ChevronDown
                 size={14}
@@ -292,7 +243,7 @@ const Layout = () => {
                     return (
                       <>
                         <BookOpen size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 whitespace-nowrap">Aktivitas Magang</span>
+                        <span className="flex-1 whitespace-nowrap">Laporan Aktivitas Magang</span>
                       </>
                     );
                   }}
@@ -316,7 +267,7 @@ const Layout = () => {
                     return (
                       <>
                         <Users size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 whitespace-nowrap">Data Peserta</span>
+                        <span className="flex-1 whitespace-nowrap">Laporan Data Peserta</span>
                       </>
                     );
                   }}
@@ -340,7 +291,7 @@ const Layout = () => {
                     return (
                       <>
                         <UserCheck size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 whitespace-nowrap">Data Pembimbing</span>
+                        <span className="flex-1 whitespace-nowrap">Laporan Data Pembimbing</span>
                       </>
                     );
                   }}

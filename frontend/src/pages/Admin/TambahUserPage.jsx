@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../api/axios';
 import DovetailDivider from '../../components/DovetailDivider';
 import {
@@ -12,6 +12,13 @@ import {
 
 const TambahUserPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const roleParam = searchParams.get('role') || '';
+
+  const initialRole = (roleParam === 'peserta' || roleParam === 'pembimbing' || roleParam === 'admin') 
+    ? roleParam 
+    : 'peserta';
+
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
 
@@ -19,7 +26,7 @@ const TambahUserPage = () => {
     nama: '',
     email: '',
     password: '',
-    role: 'peserta',
+    role: initialRole,
     nim_nis: '',
     asal_instansi: '',
     jurusan: '',
@@ -29,6 +36,12 @@ const TambahUserPage = () => {
     tanggal_mulai_magang: '',
     tanggal_selesai_magang: '',
   });
+
+  useEffect(() => {
+    if (roleParam === 'peserta' || roleParam === 'pembimbing' || roleParam === 'admin') {
+      setForm((prev) => ({ ...prev, role: roleParam }));
+    }
+  }, [roleParam]);
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));

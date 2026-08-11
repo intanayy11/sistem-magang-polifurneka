@@ -12,6 +12,7 @@ use App\Models\Izin;
 use App\Models\PlottingBimbingan;
 use App\Services\PeriodeMagangService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -251,6 +252,9 @@ class LaporanController extends Controller
             $query = User::where('role', 'peserta')
                 ->with(['plottingAsPeserta.pembimbing:user_id,nama']);
 
+            if ($pesertaId && $pesertaId !== 'semua') $query->where('user_id', $pesertaId);
+            if ($tanggalMulai) $query->whereDate('created_at', '>=', $tanggalMulai);
+            if ($tanggalSelesai) $query->whereDate('created_at', '<=', $tanggalSelesai);
             if ($jurusan && $jurusan !== 'semua') $query->where('jurusan', $jurusan);
             if ($posisiMagang && $posisiMagang !== 'semua') $query->where('posisi_magang', $posisiMagang);
             if ($pembimbingId && $pembimbingId !== 'semua') {
@@ -313,6 +317,11 @@ class LaporanController extends Controller
             $query = User::where('role', 'pembimbing')
                 ->withCount('plottingAsPembimbing as total_bimbingan');
 
+            if ($pembimbingId && $pembimbingId !== 'semua') {
+                $query->where('user_id', $pembimbingId);
+            }
+            if ($tanggalMulai) $query->whereDate('created_at', '>=', $tanggalMulai);
+            if ($tanggalSelesai) $query->whereDate('created_at', '<=', $tanggalSelesai);
             if ($jabatan && $jabatan !== 'semua') {
                 $query->where('jabatan', $jabatan);
             }
@@ -486,9 +495,14 @@ class LaporanController extends Controller
 
         $pdf->setPaper('A4', 'portrait');
 
-        $kategoriNama = str_replace('_', ' ', $result['kategori_laporan'] ?? 'Laporan');
-        $filename = 'Laporan_' . ucwords($kategoriNama) . '_' . date('Ymd_His') . '.pdf';
-        return $pdf->download($filename);
+        $kategoriSlug = Str::slug($result['kategori_laporan'] ?? 'laporan');
+        $filename = 'Laporan_' . $kategoriSlug . '_' . date('Ymd_His') . '.pdf';
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Access-Control-Expose-Headers' => 'Content-Disposition',
+        ]);
     }
 }
 
