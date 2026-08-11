@@ -82,9 +82,6 @@ const AdminDashboard = () => {
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               {getGreeting()}, {user?.nama || 'Administrator'}!
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl leading-relaxed font-medium">
-              Pusat kendali master data akun pengguna, peran aktor, serta manajemen pemetaan (plotting) pembimbing & peserta magang Polifurneka.
-            </p>
           </div>
         </div>
       </div>

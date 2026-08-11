@@ -246,7 +246,7 @@ const PresensiPage = () => {
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">Presensi Harian Magang</h2>
           <p className="text-slate-500 text-xs mt-0.5">
-            Lakukan presensi masuk dan presensi pulang sesuai jam kerja. Klik baris tabel riwayat untuk melihat detail.
+            Lakukan presensi masuk dan presensi pulang sesuai jam kerja.
           </p>
         </div>
         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold self-start sm:self-auto">

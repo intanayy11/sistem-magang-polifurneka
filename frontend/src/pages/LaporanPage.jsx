@@ -87,6 +87,9 @@ const LaporanPage = () => {
   // Filter Rekapitulasi Kehadiran (Admin)
   const [sortOrder, setSortOrder] = useState('asc'); // asc | desc
 
+  // Opsi Cetak PDF (Kop Surat)
+  const [pakaiKop, setPakaiKop] = useState(true);
+
   // Options List
   const [options, setOptions] = useState({
     peserta_list: [],
@@ -122,7 +125,10 @@ const LaporanPage = () => {
   }, []);
 
   const buildQueryParams = () => {
-    const params = { kategori_laporan: kategoriLaporan };
+    const params = {
+      kategori_laporan: kategoriLaporan,
+      pakai_kop: pakaiKop ? 1 : 0
+    };
 
     if (tanggalMulai) params.tanggal_mulai = tanggalMulai;
     if (tanggalSelesai) params.tanggal_selesai = tanggalSelesai;
@@ -351,7 +357,7 @@ const LaporanPage = () => {
       default:
         return {
           title: 'Laporan Aktivitas Magang',
-          subtitle: 'Pratinjau tabel dan cetak laporan presensi, logbook harian, penugasan, serta pengajuan izin magang.',
+          subtitle: '',
           icon: BookOpen
         };
     }
@@ -369,9 +375,6 @@ const LaporanPage = () => {
             <HeaderIcon className="text-amber-600" size={22} />
             <span>{headerInfo.title}</span>
           </h2>
-          <p className="text-slate-500 text-xs mt-0.5">
-            {headerInfo.subtitle}
-          </p>
         </div>
       </div>
 
@@ -498,12 +501,9 @@ const LaporanPage = () => {
             </div>
             {/* Sub-section 1: Periode & Target Peserta */}
             <div className="space-y-3">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 block">
-                1. Filter Periode & Target Peserta
-              </span>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                  <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Mulai (Dari)</label>
+                  <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Mulai</label>
                   <div className="flex-1 min-w-0">
                     <input
                       type="date"
@@ -515,7 +515,7 @@ const LaporanPage = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                  <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Selesai (Sampai)</label>
+                  <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Selesai</label>
                   <div className="flex-1 min-w-0">
                     <input
                       type="date"
@@ -552,7 +552,7 @@ const LaporanPage = () => {
                 {user?.role === 'admin' && (
                   <>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                      <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Peserta Spesifik</label>
+                      <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Peserta</label>
                       <div className="flex-1 min-w-0">
                         <select
                           value={pesertaId}
@@ -610,9 +610,6 @@ const LaporanPage = () => {
 
             {/* Sub-section 2: Detail Parameter Status */}
             <div className="space-y-3 pt-3 border-t border-slate-100">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 block">
-                2. Status & Parameter Spesifik ({jenisData === 'semua' ? 'Semua Aktivitas' : jenisData.toUpperCase()})
-              </span>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3">
                 {(jenisData === 'semua' || jenisData === 'presensi') && (
                   <>
@@ -736,7 +733,7 @@ const LaporanPage = () => {
         {kategoriLaporan === 'data_peserta' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3.5 text-xs">
             <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Mulai (Dari)</label>
+              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Mulai</label>
               <div className="flex-1 min-w-0">
                 <input
                   type="date"
@@ -748,7 +745,7 @@ const LaporanPage = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Selesai (Sampai)</label>
+              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Selesai</label>
               <div className="flex-1 min-w-0">
                 <input
                   type="date"
@@ -851,7 +848,7 @@ const LaporanPage = () => {
         {kategoriLaporan === 'data_pembimbing' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3.5 text-xs">
             <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Mulai (Dari)</label>
+              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Mulai</label>
               <div className="flex-1 min-w-0">
                 <input
                   type="date"
@@ -863,7 +860,7 @@ const LaporanPage = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Selesai (Sampai)</label>
+              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Selesai</label>
               <div className="flex-1 min-w-0">
                 <input
                   type="date"
@@ -914,7 +911,7 @@ const LaporanPage = () => {
         {kategoriLaporan === 'rekapitulasi_kehadiran' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3.5 text-xs">
             <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Mulai (Dari)</label>
+              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Mulai</label>
               <div className="flex-1 min-w-0">
                 <input
                   type="date"
@@ -926,7 +923,7 @@ const LaporanPage = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Selesai (Sampai)</label>
+              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Selesai</label>
               <div className="flex-1 min-w-0">
                 <input
                   type="date"
@@ -992,7 +989,7 @@ const LaporanPage = () => {
         {kategoriLaporan === 'laporan_program_magang' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3.5 text-xs">
             <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Mulai (Dari)</label>
+              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Mulai</label>
               <div className="flex-1 min-w-0">
                 <input
                   type="date"
@@ -1004,7 +1001,7 @@ const LaporanPage = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Selesai (Sampai)</label>
+              <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tanggal Selesai</label>
               <div className="flex-1 min-w-0">
                 <input
                   type="date"
@@ -1017,8 +1014,23 @@ const LaporanPage = () => {
           </div>
         )}
 
+        {/* ── OPSI FORMAT CETAK PDF (KOP SURAT) ── */}
+        <div className="pt-3 border-t border-slate-100">
+          <label className="flex items-center gap-2.5 cursor-pointer select-none group w-fit">
+            <input
+              type="checkbox"
+              checked={pakaiKop}
+              onChange={(e) => setPakaiKop(e.target.checked)}
+              className="w-4 h-4 text-amber-500 rounded border-slate-300 focus:ring-amber-400 cursor-pointer accent-amber-500"
+            />
+            <span className="text-xs font-bold text-slate-800 group-hover:text-amber-900 transition-colors">
+              Sertakan Kop Surat Resmi Polifurneka pada Dokumen PDF
+            </span>
+          </label>
+        </div>
+
         {/* ── ACTION BUTTONS: TAMPILKAN & UNDUH PDF ── */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 pt-3 border-t border-slate-100">
+        <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
           <button
             onClick={handlePreview}
             disabled={loadingPreview}

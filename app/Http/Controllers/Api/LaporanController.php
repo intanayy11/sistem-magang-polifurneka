@@ -487,9 +487,11 @@ class LaporanController extends Controller
         Carbon::setLocale('id');
         $result = $this->getFilteredData($request);
         $user = $request->user();
+        $pakaiKop = $request->boolean('pakai_kop', true);
 
         $pdf = Pdf::loadView('pdf.laporan', array_merge($result, [
             'user' => $user,
+            'pakai_kop' => $pakaiKop,
             'generatedAt' => now()->translatedFormat('d F Y H:i:s'),
         ]));
 
