@@ -79,7 +79,7 @@ const Layout = () => {
   };
 
   const renderSidebarNav = (isMobile = false) => {
-    const textClass = isMobile ? 'text-xs' : 'text-sm';
+    const textClass = isMobile ? 'text-xs' : 'text-xs sm:text-sm';
     const closeMobile = isMobile ? () => setSidebarOpen(false) : () => {};
 
     if (user?.role === 'admin') {
@@ -89,13 +89,13 @@ const Layout = () => {
         location.pathname === '/admin/tambah-user';
 
       return (
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {/* Dashboard */}
           <NavLink
             to="/admin/dashboard"
             onClick={closeMobile}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
+              `flex items-center gap-3 px-3 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
                 isActive
                   ? 'bg-amber-50/80 text-amber-900 font-bold'
                   : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
@@ -105,7 +105,7 @@ const Layout = () => {
             {({ isActive }) => (
               <>
                 <LayoutDashboard size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                <span className="flex-1 whitespace-nowrap">Dashboard</span>
+                <span className="flex-1 truncate">Dashboard</span>
               </>
             )}
           </NavLink>
@@ -115,24 +115,24 @@ const Layout = () => {
             <button
               type="button"
               onClick={() => setDataMasterOpen(!dataMasterOpen)}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 cursor-pointer ${
                 isDataMasterChildActive
                   ? 'bg-amber-50/50 text-amber-950 font-bold'
                   : 'text-slate-700 hover:bg-slate-100/70'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <Database size={18} className={`shrink-0 ${isDataMasterChildActive ? 'text-[#E8A800]' : 'text-slate-500'}`} />
-                <span className="whitespace-nowrap">Kelola User</span>
+                <span className="truncate">Kelola User</span>
               </div>
               <ChevronDown
                 size={14}
-                className={`text-slate-400 transition-transform duration-200 ${dataMasterOpen ? 'rotate-180' : ''}`}
+                className={`text-slate-400 shrink-0 transition-transform duration-200 ${dataMasterOpen ? 'rotate-180' : ''}`}
               />
             </button>
 
             {dataMasterOpen && (
-              <div className="pl-5 pt-1 space-y-1">
+              <div className="ml-3 pl-3 pt-1 pb-0.5 space-y-1 border-l-2 border-slate-100">
                 {/* Sub-menu 1: Semua User */}
                 <NavLink
                   to="/admin/kelola-user"
@@ -141,17 +141,18 @@ const Layout = () => {
                     const isAllUserActive = location.pathname === '/admin/kelola-user';
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isAllUserActive
-                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
-                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
+                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                     }`;
                   }}
+                  title="Daftar Semua User"
                 >
                   {() => {
                     const isAllUserActive = location.pathname === '/admin/kelola-user';
                     return (
                       <>
                         <Users size={16} className={`shrink-0 ${isAllUserActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 whitespace-nowrap">Daftar Semua User</span>
+                        <span className="flex-1 truncate">Daftar Semua User</span>
                       </>
                     );
                   }}
@@ -164,15 +165,16 @@ const Layout = () => {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isActive
-                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
-                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
+                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                     }`
                   }
+                  title="Tambah User"
                 >
                   {({ isActive }) => (
                     <>
                       <UserPlus size={16} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                      <span className="flex-1 whitespace-nowrap">Tambah User</span>
+                      <span className="flex-1 truncate">Tambah User</span>
                     </>
                   )}
                 </NavLink>
@@ -185,7 +187,7 @@ const Layout = () => {
             to="/admin/plotting"
             onClick={closeMobile}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
+              `flex items-center gap-3 px-3 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
                 isActive
                   ? 'bg-amber-50/80 text-amber-900 font-bold'
                   : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
@@ -195,7 +197,7 @@ const Layout = () => {
             {({ isActive }) => (
               <>
                 <Link2 size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                <span className="flex-1 whitespace-nowrap">Plotting Bimbingan</span>
+                <span className="flex-1 truncate">Plotting Bimbingan</span>
               </>
             )}
           </NavLink>
@@ -205,24 +207,24 @@ const Layout = () => {
             <button
               type="button"
               onClick={() => setLaporanCentralOpen(!laporanCentralOpen)}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 cursor-pointer ${
                 location.pathname === '/admin/laporan'
                   ? 'bg-amber-50/50 text-amber-950 font-bold'
                   : 'text-slate-700 hover:bg-slate-100/70'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <FileText size={18} className={`shrink-0 ${location.pathname === '/admin/laporan' ? 'text-[#E8A800]' : 'text-slate-500'}`} />
-                <span className="whitespace-nowrap">Rekapitulasi & Laporan</span>
+                <span className="truncate">Rekapitulasi & Laporan</span>
               </div>
               <ChevronDown
                 size={14}
-                className={`text-slate-400 transition-transform duration-200 ${laporanCentralOpen ? 'rotate-180' : ''}`}
+                className={`text-slate-400 shrink-0 transition-transform duration-200 ${laporanCentralOpen ? 'rotate-180' : ''}`}
               />
             </button>
 
             {laporanCentralOpen && (
-              <div className="pl-5 pt-1 space-y-1">
+              <div className="ml-3 pl-3 pt-1 pb-0.5 space-y-1 border-l-2 border-slate-100">
                 {/* Sub-menu 1: Aktivitas Magang */}
                 <NavLink
                   to="/admin/laporan?kategori=aktivitas_magang"
@@ -232,10 +234,11 @@ const Layout = () => {
                       (location.search.includes('kategori=aktivitas_magang') || !location.search.includes('kategori='));
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isAktif
-                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
-                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
+                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                     }`;
                   }}
+                  title="Laporan Aktivitas Magang"
                 >
                   {() => {
                     const isAktif = location.pathname === '/admin/laporan' &&
@@ -243,7 +246,7 @@ const Layout = () => {
                     return (
                       <>
                         <BookOpen size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 whitespace-nowrap">Laporan Aktivitas Magang</span>
+                        <span className="flex-1 truncate">Laporan Aktivitas Magang</span>
                       </>
                     );
                   }}
@@ -257,17 +260,18 @@ const Layout = () => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=data_peserta');
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isAktif
-                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
-                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
+                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                     }`;
                   }}
+                  title="Laporan Data Peserta"
                 >
                   {() => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=data_peserta');
                     return (
                       <>
                         <Users size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 whitespace-nowrap">Laporan Data Peserta</span>
+                        <span className="flex-1 truncate">Laporan Data Peserta</span>
                       </>
                     );
                   }}
@@ -281,17 +285,18 @@ const Layout = () => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=data_pembimbing');
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isAktif
-                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
-                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
+                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                     }`;
                   }}
+                  title="Laporan Data Pembimbing"
                 >
                   {() => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=data_pembimbing');
                     return (
                       <>
                         <UserCheck size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 whitespace-nowrap">Laporan Data Pembimbing</span>
+                        <span className="flex-1 truncate">Laporan Data Pembimbing</span>
                       </>
                     );
                   }}
@@ -305,17 +310,18 @@ const Layout = () => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=rekapitulasi_kehadiran');
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isAktif
-                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
-                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
+                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                     }`;
                   }}
+                  title="Rekapitulasi Kehadiran"
                 >
                   {() => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=rekapitulasi_kehadiran');
                     return (
                       <>
                         <BarChart3 size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 whitespace-nowrap">Rekapitulasi Kehadiran</span>
+                        <span className="flex-1 truncate">Rekapitulasi Kehadiran</span>
                       </>
                     );
                   }}
@@ -329,17 +335,18 @@ const Layout = () => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=laporan_program_magang');
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isAktif
-                        ? 'bg-amber-50/90 text-amber-900 font-bold border border-amber-200/60'
-                        : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
+                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                     }`;
                   }}
+                  title="Laporan Program Magang"
                 >
                   {() => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=laporan_program_magang');
                     return (
                       <>
                         <PieChart size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 whitespace-nowrap">Laporan Program Magang</span>
+                        <span className="flex-1 truncate">Laporan Program Magang</span>
                       </>
                     );
                   }}
@@ -353,7 +360,7 @@ const Layout = () => {
             to="/profil"
             onClick={closeMobile}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
+              `flex items-center gap-3 px-3 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
                 isActive
                   ? 'bg-amber-50/80 text-amber-900 font-bold'
                   : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
@@ -363,7 +370,7 @@ const Layout = () => {
             {({ isActive }) => (
               <>
                 <User size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                <span className="flex-1 whitespace-nowrap">Profil Saya</span>
+                <span className="flex-1 truncate">Profil Saya</span>
               </>
             )}
           </NavLink>
@@ -532,7 +539,7 @@ const Layout = () => {
 
         {/* ── MOBILE SIDEBAR DRAWER (< lg) ── */}
         <aside
-          className={`fixed top-0 bottom-0 left-0 w-64 bg-white text-slate-800 border-r border-slate-200/90 z-40 transform transition-transform duration-200 ease-in-out flex flex-col justify-between lg:hidden ${
+          className={`fixed top-0 bottom-0 left-0 w-68 bg-white text-slate-800 border-r border-slate-200/90 z-40 transform transition-transform duration-200 ease-in-out flex flex-col justify-between lg:hidden ${
             sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
           }`}
         >
@@ -567,7 +574,7 @@ const Layout = () => {
 
         {/* ── DESKTOP SIDEBAR (>= lg) ── */}
         {!sidebarCollapsed && (
-          <aside className="hidden lg:flex flex-col justify-between w-64 bg-white text-slate-800 border-r border-slate-200/90 relative shrink-0 transition-all duration-200">
+          <aside className="hidden lg:flex flex-col justify-between w-68 bg-white text-slate-800 border-r border-slate-200/90 relative shrink-0 transition-all duration-200">
             {/* Collapse Trigger Arrow Button on Sidebar Right Border */}
             <button
               onClick={() => setSidebarCollapsed(true)}
@@ -577,7 +584,7 @@ const Layout = () => {
               <ChevronLeft size={15} className="text-slate-600 group-hover:text-amber-800 transition-colors" />
             </button>
 
-            <div className="p-4 mt-1 flex-1">
+            <div className="p-3.5 mt-1 flex-1 overflow-y-auto overflow-x-hidden">
               <nav className="space-y-1.5">
                 <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">
                   Menu Utama

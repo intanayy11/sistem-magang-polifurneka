@@ -278,7 +278,7 @@ const Login = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Mail size={14} className="text-amber-700 shrink-0" />
-                    <span>admin@poltek-furnitur.ac.id / humas@poltek-furnitur.ac.id</span>
+                    <span>admin@-furnitur.ac.id / humas@-furnitur.ac.id</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone size={14} className="text-amber-700 shrink-0" />

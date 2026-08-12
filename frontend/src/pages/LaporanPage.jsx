@@ -350,7 +350,7 @@ const LaporanPage = () => {
       case 'laporan_program_magang':
         return {
           title: 'Laporan Program Magang',
-          subtitle: 'Ringkasan statistik eksekutif keseluruhan pelaksanaan program magang Polifurneka Kendal.',
+          subtitle: 'Ringkasan resmi program magang untuk periode yang dipilih — cocok diunduh dan dilaporkan ke pimpinan instansi. Untuk kondisi terkini hari ini, gunakan halaman Dashboard.',
           icon: PieChart
         };
       case 'aktivitas_magang':
@@ -375,6 +375,11 @@ const LaporanPage = () => {
             <HeaderIcon className="text-amber-600" size={22} />
             <span>{headerInfo.title}</span>
           </h2>
+          {headerInfo.subtitle && (
+            <p className="text-slate-500 text-xs mt-1 leading-relaxed max-w-3xl">
+              {headerInfo.subtitle}
+            </p>
+          )}
         </div>
       </div>
 
@@ -466,40 +471,27 @@ const LaporanPage = () => {
         {/* ════════ FORM FILTER KATEGORI 1: AKTIVITAS MAGANG ════════ */}
         {kategoriLaporan === 'aktivitas_magang' && (
           <div className="space-y-5 text-xs">
-            {/* Jenis Data Selector */}
-            <div>
-              <label className="block font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                Pilih Jenis Data Aktivitas
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                {[
-                  { id: 'semua', label: 'Semua Data', icon: FileSpreadsheet },
-                  { id: 'presensi', label: 'Presensi', icon: Clock },
-                  { id: 'logbook', label: 'Logbook', icon: BookOpen },
-                  { id: 'tugas', label: 'Penugasan', icon: CheckSquare },
-                  { id: 'izin', label: 'Pengajuan Izin', icon: Calendar },
-                ].map((item) => {
-                  const IconComp = item.icon;
-                  const isSelected = jenisData === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => setJenisData(item.id)}
-                      className={`p-2.5 rounded-xl border flex items-center justify-center gap-2 font-bold transition-all ${
-                        isSelected
-                          ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-2xs'
-                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                      }`}
-                    >
-                      <IconComp size={14} />
-                      <span>{item.label}</span>
-                    </button>
-                  );
-                })}
+            {/* Section Terpisah Paling Atas: Jenis Laporan */}
+            <div className="pb-3 border-b border-slate-100">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+                <label className="sm:w-36 font-bold text-slate-900 shrink-0 uppercase tracking-wider">Pilih Jenis Laporan</label>
+                <div className="flex-1 min-w-0">
+                  <select
+                    value={jenisData}
+                    onChange={(e) => setJenisData(e.target.value)}
+                    className="w-full bg-amber-500/10 border border-amber-300 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 font-bold focus:outline-none focus:border-amber-500"
+                  >
+                    <option value="semua">Semua</option>
+                    <option value="presensi">Presensi Harian</option>
+                    <option value="logbook">Logbook Kegiatan</option>
+                    <option value="tugas">Penugasan Magang</option>
+                    <option value="izin">Pengajuan Izin / Sakit</option>
+                  </select>
+                </div>
               </div>
             </div>
-            {/* Sub-section 1: Periode & Target Peserta */}
+
+            {/* Filter Universal */}
             <div className="space-y-3">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
@@ -608,124 +600,126 @@ const LaporanPage = () => {
               </div>
             </div>
 
-            {/* Sub-section 2: Detail Parameter Status */}
-            <div className="space-y-3 pt-3 border-t border-slate-100">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3">
-                {(jenisData === 'semua' || jenisData === 'presensi') && (
-                  <>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                      <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Status Presensi</label>
-                      <div className="flex-1 min-w-0">
-                        <select
-                          value={statusPresensi}
-                          onChange={(e) => handleSelectChange(setStatusPresensi, e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
-                        >
-                          <option value="">-- Pilih Status Presensi --</option>
-                          <option value="semua">Semua Status Presensi</option>
-                          <option value="Hadir">Hadir</option>
-                          <option value="Terlambat">Terlambat</option>
-                          <option value="Pulang Cepat">Pulang Cepat</option>
-                          <option value="Alpha">Alpha</option>
-                        </select>
+            {/* Filter Spesifik Jenis Data (HANYA MUNCUL JIKA jenisData BUKAN 'semua') */}
+            {jenisData !== 'semua' && (
+              <div className="space-y-3 pt-3 border-t border-slate-100">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3">
+                  {jenisData === 'presensi' && (
+                    <>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+                        <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Status Presensi</label>
+                        <div className="flex-1 min-w-0">
+                          <select
+                            value={statusPresensi}
+                            onChange={(e) => handleSelectChange(setStatusPresensi, e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
+                          >
+                            <option value="">-- Pilih Status Presensi --</option>
+                            <option value="semua">Semua Status Presensi</option>
+                            <option value="Hadir">Hadir</option>
+                            <option value="Terlambat">Terlambat</option>
+                            <option value="Pulang Cepat">Pulang Cepat</option>
+                            <option value="Alpha">Alpha</option>
+                          </select>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                      <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tipe Lokasi</label>
-                      <div className="flex-1 min-w-0">
-                        <select
-                          value={lokasiTipe}
-                          onChange={(e) => handleSelectChange(setLokasiTipe, e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
-                        >
-                          <option value="">-- Pilih Tipe Lokasi --</option>
-                          <option value="semua">Semua Tipe Lokasi</option>
-                          <option value="instansi">Instansi</option>
-                          <option value="luar">Kegiatan Luar</option>
-                        </select>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+                        <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Tipe Lokasi</label>
+                        <div className="flex-1 min-w-0">
+                          <select
+                            value={lokasiTipe}
+                            onChange={(e) => handleSelectChange(setLokasiTipe, e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
+                          >
+                            <option value="">-- Pilih Tipe Lokasi --</option>
+                            <option value="semua">Semua Tipe Lokasi</option>
+                            <option value="instansi">Instansi</option>
+                            <option value="luar">Kegiatan Luar</option>
+                          </select>
+                        </div>
                       </div>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
 
-                {(jenisData === 'semua' || jenisData === 'logbook') && (
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                    <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Status Logbook</label>
-                    <div className="flex-1 min-w-0">
-                      <select
-                        value={statusLogbook}
-                        onChange={(e) => handleSelectChange(setStatusLogbook, e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
-                      >
-                        <option value="">-- Pilih Status Logbook --</option>
-                        <option value="semua">Semua Status Logbook</option>
-                        <option value="Menunggu">Menunggu</option>
-                        <option value="Approve">Approve</option>
-                        <option value="Revisi">Revisi</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
-
-                {(jenisData === 'semua' || jenisData === 'tugas') && (
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                    <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Status Penugasan</label>
-                    <div className="flex-1 min-w-0">
-                      <select
-                        value={statusTugas}
-                        onChange={(e) => handleSelectChange(setStatusTugas, e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
-                      >
-                        <option value="">-- Pilih Status Tugas --</option>
-                        <option value="semua">Semua Status Tugas</option>
-                        <option value="Belum Dikerjakan">Belum Dikerjakan</option>
-                        <option value="Menunggu Review">Menunggu Review</option>
-                        <option value="Perlu Revisi">Perlu Revisi</option>
-                        <option value="Selesai">Selesai</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
-
-                {(jenisData === 'semua' || jenisData === 'izin') && (
-                  <>
+                  {jenisData === 'logbook' && (
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                      <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Jenis Izin</label>
+                      <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Status Logbook</label>
                       <div className="flex-1 min-w-0">
                         <select
-                          value={jenisIzin}
-                          onChange={(e) => handleSelectChange(setJenisIzin, e.target.value)}
+                          value={statusLogbook}
+                          onChange={(e) => handleSelectChange(setStatusLogbook, e.target.value)}
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
                         >
-                          <option value="">-- Pilih Jenis Izin --</option>
-                          <option value="semua">Semua Jenis Izin</option>
-                          <option value="Izin">Izin</option>
-                          <option value="Sakit">Sakit</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
-                      <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Status Pengajuan Izin</label>
-                      <div className="flex-1 min-w-0">
-                        <select
-                          value={statusIzin}
-                          onChange={(e) => handleSelectChange(setStatusIzin, e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
-                        >
-                          <option value="">-- Pilih Status Izin --</option>
-                          <option value="semua">Semua Status Izin</option>
+                          <option value="">-- Pilih Status Logbook --</option>
+                          <option value="semua">Semua Status Logbook</option>
                           <option value="Menunggu">Menunggu</option>
-                          <option value="Disetujui">Disetujui</option>
-                          <option value="Ditolak">Ditolak</option>
+                          <option value="Approve">Approve</option>
+                          <option value="Revisi">Revisi</option>
                         </select>
                       </div>
                     </div>
-                  </>
-                )}
+                  )}
+
+                  {jenisData === 'tugas' && (
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+                      <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Status Penugasan</label>
+                      <div className="flex-1 min-w-0">
+                        <select
+                          value={statusTugas}
+                          onChange={(e) => handleSelectChange(setStatusTugas, e.target.value)}
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
+                        >
+                          <option value="">-- Pilih Status Tugas --</option>
+                          <option value="semua">Semua Status Tugas</option>
+                          <option value="Belum Dikerjakan">Belum Dikerjakan</option>
+                          <option value="Menunggu Review">Menunggu Review</option>
+                          <option value="Perlu Revisi">Perlu Revisi</option>
+                          <option value="Selesai">Selesai</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {jenisData === 'izin' && (
+                    <>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+                        <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Jenis Izin</label>
+                        <div className="flex-1 min-w-0">
+                          <select
+                            value={jenisIzin}
+                            onChange={(e) => handleSelectChange(setJenisIzin, e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
+                          >
+                            <option value="">-- Pilih Jenis Izin --</option>
+                            <option value="semua">Semua Jenis Izin</option>
+                            <option value="Izin">Izin</option>
+                            <option value="Sakit">Sakit</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+                        <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Status Pengajuan Izin</label>
+                        <div className="flex-1 min-w-0">
+                          <select
+                            value={statusIzin}
+                            onChange={(e) => handleSelectChange(setStatusIzin, e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500 font-medium"
+                          >
+                            <option value="">-- Pilih Status Izin --</option>
+                            <option value="semua">Semua Status Izin</option>
+                            <option value="Menunggu">Menunggu</option>
+                            <option value="Disetujui">Disetujui</option>
+                            <option value="Ditolak">Ditolak</option>
+                          </select>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -1034,7 +1028,7 @@ const LaporanPage = () => {
           <button
             onClick={handlePreview}
             disabled={loadingPreview}
-            className="w-full sm:w-auto btn-poli-primary px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 font-bold shadow-xs disabled:opacity-50"
+            className="w-full sm:w-auto btn-poli-primary px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 font-extrabold shadow-2xs disabled:opacity-50"
           >
             {loadingPreview ? (
               <Loader2 size={15} className="animate-spin" />
@@ -1047,12 +1041,12 @@ const LaporanPage = () => {
           <button
             onClick={handleDownloadPdf}
             disabled={downloadingPdf}
-            className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs disabled:opacity-50"
+            className="w-full sm:w-auto bg-amber-400 hover:bg-amber-500 text-slate-950 border border-amber-300 px-6 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-2xs disabled:opacity-50"
           >
             {downloadingPdf ? (
-              <Loader2 size={15} className="animate-spin" />
+              <Loader2 size={15} className="animate-spin text-slate-950" />
             ) : (
-              <Download size={15} className="text-amber-400" />
+              <Download size={15} className="text-slate-950" />
             )}
             <span>Unduh PDF Resmi</span>
           </button>
@@ -1078,7 +1072,7 @@ const LaporanPage = () => {
         <div className="space-y-6">
 
           {/* TABEL PRESENSI */}
-          {previewData.include_presensi && (
+          {previewData.include_presensi && previewData.presensi && (
             <div className="card-bento space-y-3">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
@@ -1092,18 +1086,18 @@ const LaporanPage = () => {
                   <thead className="bg-slate-50 text-slate-600 uppercase font-semibold border-b border-slate-200 text-[11px]">
                     <tr>
                       <th className="px-4 py-3">No</th>
+                      <th className="px-4 py-3">Nama Peserta</th>
                       <th className="px-4 py-3">Tanggal</th>
-                      {user?.role !== 'peserta' && <th className="px-4 py-3">Peserta</th>}
                       <th className="px-4 py-3">Jam Masuk</th>
                       <th className="px-4 py-3">Jam Pulang</th>
-                      <th className="px-4 py-3">Tipe Lokasi</th>
                       <th className="px-4 py-3">Status</th>
+                      <th className="px-4 py-3">Tipe Lokasi</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {previewData.presensi.length === 0 ? (
                       <tr>
-                        <td colSpan={user?.role !== 'peserta' ? 7 : 6} className="px-4 py-6 text-center text-slate-400">
+                        <td colSpan={7} className="px-4 py-6 text-center text-slate-400">
                           Tidak ada data presensi sesuai filter.
                         </td>
                       </tr>
@@ -1111,15 +1105,16 @@ const LaporanPage = () => {
                       previewData.presensi.map((p, idx) => (
                         <tr key={p.presensi_id} className="hover:bg-slate-50/70 transition-colors">
                           <td className="px-4 py-3 font-mono text-slate-500">{idx + 1}</td>
+                          <td className="px-4 py-3">
+                            <div className="font-bold text-slate-900">{p.peserta?.nama || '-'}</div>
+                            <div className="text-[10px] text-slate-400 font-mono">{p.peserta?.nim_nis}</div>
+                          </td>
                           <td className="px-4 py-3 font-semibold text-slate-800">{p.tanggal}</td>
-                          {user?.role !== 'peserta' && (
-                            <td className="px-4 py-3">
-                              <div className="font-bold text-slate-900">{p.peserta?.nama || '-'}</div>
-                              <div className="text-[10px] text-slate-400 font-mono">{p.peserta?.nim_nis}</div>
-                            </td>
-                          )}
                           <td className="px-4 py-3 font-mono">{p.jam_masuk || '-'}</td>
                           <td className="px-4 py-3 font-mono">{p.jam_pulang || '-'}</td>
+                          <td className="px-4 py-3">
+                            <StatusBadge status={p.status} />
+                          </td>
                           <td className="px-4 py-3">
                             <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
                               p.lokasi_tipe === 'luar' ? 'bg-amber-100 text-amber-900' : 'bg-slate-100 text-slate-700'
@@ -1129,9 +1124,6 @@ const LaporanPage = () => {
                             {p.lokasi_tipe === 'luar' && p.keterangan_luar && (
                               <p className="text-[10px] text-slate-500 italic mt-0.5">{p.keterangan_luar}</p>
                             )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <StatusBadge status={p.status} />
                           </td>
                         </tr>
                       ))
@@ -1143,7 +1135,7 @@ const LaporanPage = () => {
           )}
 
           {/* TABEL LOGBOOK */}
-          {previewData.include_logbook && (
+          {previewData.include_logbook && previewData.logbook && (
             <div className="card-bento space-y-3">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
@@ -1157,17 +1149,16 @@ const LaporanPage = () => {
                   <thead className="bg-slate-50 text-slate-600 uppercase font-semibold border-b border-slate-200 text-[11px]">
                     <tr>
                       <th className="px-4 py-3">No</th>
+                      <th className="px-4 py-3">Nama Peserta</th>
                       <th className="px-4 py-3">Tanggal</th>
-                      {user?.role !== 'peserta' && <th className="px-4 py-3">Peserta</th>}
                       <th className="px-4 py-3">Judul Kegiatan</th>
-                      <th className="px-4 py-3">Deskripsi & Kendala</th>
-                      <th className="px-4 py-3">Status Review</th>
+                      <th className="px-4 py-3">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {previewData.logbook.length === 0 ? (
                       <tr>
-                        <td colSpan={user?.role !== 'peserta' ? 6 : 5} className="px-4 py-6 text-center text-slate-400">
+                        <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
                           Tidak ada data logbook sesuai filter.
                         </td>
                       </tr>
@@ -1175,17 +1166,14 @@ const LaporanPage = () => {
                       previewData.logbook.map((l, idx) => (
                         <tr key={l.logbook_id} className="hover:bg-slate-50/70 transition-colors">
                           <td className="px-4 py-3 font-mono text-slate-500">{idx + 1}</td>
-                          <td className="px-4 py-3 font-semibold text-slate-800">{l.tanggal}</td>
-                          {user?.role !== 'peserta' && (
-                            <td className="px-4 py-3">
-                              <div className="font-bold text-slate-900">{l.peserta?.nama || '-'}</div>
-                              <div className="text-[10px] text-slate-400 font-mono">{l.peserta?.nim_nis}</div>
-                            </td>
-                          )}
-                          <td className="px-4 py-3 font-bold text-slate-900">{l.judul_kegiatan}</td>
                           <td className="px-4 py-3">
-                            <p className="line-clamp-2">{l.deskripsi}</p>
-                            {l.kendala && <p className="text-[10px] text-amber-800 italic mt-0.5">Kendala: {l.kendala}</p>}
+                            <div className="font-bold text-slate-900">{l.peserta?.nama || '-'}</div>
+                            <div className="text-[10px] text-slate-400 font-mono">{l.peserta?.nim_nis}</div>
+                          </td>
+                          <td className="px-4 py-3 font-semibold text-slate-800">{l.tanggal}</td>
+                          <td className="px-4 py-3">
+                            <div className="font-bold text-slate-900">{l.judul_kegiatan}</div>
+                            {l.deskripsi && <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{l.deskripsi}</p>}
                           </td>
                           <td className="px-4 py-3">
                             <StatusBadge status={l.status} />
@@ -1200,7 +1188,7 @@ const LaporanPage = () => {
           )}
 
           {/* TABEL TUGAS */}
-          {previewData.include_tugas && (
+          {previewData.include_tugas && previewData.tugas && (
             <div className="card-bento space-y-3">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
@@ -1214,17 +1202,17 @@ const LaporanPage = () => {
                   <thead className="bg-slate-50 text-slate-600 uppercase font-semibold border-b border-slate-200 text-[11px]">
                     <tr>
                       <th className="px-4 py-3">No</th>
-                      <th className="px-4 py-3">Deadline</th>
-                      {user?.role !== 'peserta' && <th className="px-4 py-3">Peserta</th>}
+                      <th className="px-4 py-3">Nama Peserta</th>
                       <th className="px-4 py-3">Judul Tugas</th>
+                      <th className="px-4 py-3">Pembimbing</th>
+                      <th className="px-4 py-3">Deadline</th>
                       <th className="px-4 py-3">Status</th>
-                      <th className="px-4 py-3">Terakhir Submit / Catatan</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {previewData.tugas.length === 0 ? (
                       <tr>
-                        <td colSpan={user?.role !== 'peserta' ? 6 : 5} className="px-4 py-6 text-center text-slate-400">
+                        <td colSpan={6} className="px-4 py-6 text-center text-slate-400">
                           Tidak ada tugas magang sesuai filter.
                         </td>
                       </tr>
@@ -1232,34 +1220,17 @@ const LaporanPage = () => {
                       previewData.tugas.map((t, idx) => (
                         <tr key={t.tugas_id} className="hover:bg-slate-50/70 transition-colors">
                           <td className="px-4 py-3 font-mono text-slate-500">{idx + 1}</td>
+                          <td className="px-4 py-3">
+                            <div className="font-bold text-slate-900">{t.peserta?.nama || '-'}</div>
+                            <div className="text-[10px] text-slate-400 font-mono">{t.peserta?.nim_nis}</div>
+                          </td>
+                          <td className="px-4 py-3 font-bold text-slate-900">{t.judul || '-'}</td>
+                          <td className="px-4 py-3 text-slate-700">{t.pembimbing?.nama || '-'}</td>
                           <td className="px-4 py-3 font-semibold text-slate-800">
                             {t.deadline ? new Date(t.deadline).toLocaleDateString('id-ID') : '-'}
                           </td>
-                          {user?.role !== 'peserta' && (
-                            <td className="px-4 py-3">
-                              <div className="font-bold text-slate-900">{t.peserta?.nama || '-'}</div>
-                              <div className="text-[10px] text-slate-400 font-mono">{t.peserta?.nim_nis}</div>
-                            </td>
-                          )}
-                          <td className="px-4 py-3 font-bold text-slate-900">{t.judul || '-'}</td>
                           <td className="px-4 py-3">
                             <StatusBadge status={t.status} />
-                          </td>
-                          <td className="px-4 py-3 text-slate-600">
-                            {t.pengumpulan_terakhir ? (
-                              <div>
-                                <span className="font-mono text-[11px] font-medium text-slate-800">
-                                  {new Date(t.pengumpulan_terakhir.tanggal_submit).toLocaleString('id-ID')}
-                                </span>
-                                {t.pengumpulan_terakhir.catatan_revisi && (
-                                  <p className="text-[10px] text-amber-800 italic mt-0.5">
-                                    Revisi: {t.pengumpulan_terakhir.catatan_revisi}
-                                  </p>
-                                )}
-                              </div>
-                            ) : (
-                              <span className="text-slate-400 italic">Belum Mengumpulkan</span>
-                            )}
                           </td>
                         </tr>
                       ))
@@ -1285,17 +1256,17 @@ const LaporanPage = () => {
                   <thead className="bg-slate-50 text-slate-600 uppercase font-semibold border-b border-slate-200 text-[11px]">
                     <tr>
                       <th className="px-4 py-3">No</th>
-                      <th className="px-4 py-3">Rentang Tanggal</th>
-                      {user?.role !== 'peserta' && <th className="px-4 py-3">Peserta</th>}
-                      <th className="px-4 py-3">Jenis Izin</th>
-                      <th className="px-4 py-3">Keterangan / Alasan</th>
-                      <th className="px-4 py-3">Status Pengajuan</th>
+                      <th className="px-4 py-3">Nama Peserta</th>
+                      <th className="px-4 py-3">Jenis (Izin/Sakit)</th>
+                      <th className="px-4 py-3">Tanggal Mulai</th>
+                      <th className="px-4 py-3">Tanggal Selesai</th>
+                      <th className="px-4 py-3">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {previewData.izin.length === 0 ? (
                       <tr>
-                        <td colSpan={user?.role !== 'peserta' ? 6 : 5} className="px-4 py-6 text-center text-slate-400">
+                        <td colSpan={6} className="px-4 py-6 text-center text-slate-400">
                           Tidak ada data pengajuan izin sesuai filter.
                         </td>
                       </tr>
@@ -1303,21 +1274,17 @@ const LaporanPage = () => {
                       previewData.izin.map((iz, idx) => (
                         <tr key={iz.izin_id} className="hover:bg-slate-50/70 transition-colors">
                           <td className="px-4 py-3 font-mono text-slate-500">{idx + 1}</td>
-                          <td className="px-4 py-3 font-semibold text-slate-800">
-                            {iz.tanggal_mulai} s/d {iz.tanggal_selesai}
+                          <td className="px-4 py-3">
+                            <div className="font-bold text-slate-900">{iz.peserta?.nama || '-'}</div>
+                            <div className="text-[10px] text-slate-400 font-mono">{iz.peserta?.nim_nis}</div>
                           </td>
-                          {user?.role !== 'peserta' && (
-                            <td className="px-4 py-3">
-                              <div className="font-bold text-slate-900">{iz.peserta?.nama || '-'}</div>
-                              <div className="text-[10px] text-slate-400 font-mono">{iz.peserta?.nim_nis}</div>
-                            </td>
-                          )}
                           <td className="px-4 py-3">
                             <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-purple-100 text-purple-900">
                               {iz.jenis}
                             </span>
                           </td>
-                          <td className="px-4 py-3 text-slate-600">{iz.keterangan || iz.alasan || '-'}</td>
+                          <td className="px-4 py-3 font-semibold text-slate-800">{iz.tanggal_mulai}</td>
+                          <td className="px-4 py-3 font-semibold text-slate-800">{iz.tanggal_selesai}</td>
                           <td className="px-4 py-3">
                             <StatusBadge status={iz.status} />
                           </td>
@@ -1498,6 +1465,14 @@ const LaporanPage = () => {
           {/* PRATINJAU LAPORAN PROGRAM MAGANG */}
           {kategoriLaporan === 'laporan_program_magang' && previewData.summary_cards && (
             <div className="space-y-4">
+              <div className="flex items-center justify-between bg-amber-50/80 border border-amber-200/80 px-4 py-2.5 rounded-2xl text-xs text-amber-900 font-semibold">
+                <div className="flex items-center gap-2">
+                  <Calendar size={15} className="text-amber-600 shrink-0" />
+                  <span>Periode Data Laporan: <strong className="font-extrabold">{previewData.periode_teks || 'Semua Periode'}</strong></span>
+                </div>
+                <span className="text-[11px] text-amber-800 font-medium">Snapshot Resmi Program</span>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="card-bento p-4 border-l-4 border-l-amber-500 space-y-1">
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Peserta Aktif</p>

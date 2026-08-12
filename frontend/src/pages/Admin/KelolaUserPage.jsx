@@ -258,27 +258,31 @@ const KelolaUserPage = () => {
           <table className="w-full text-left text-xs text-slate-600">
             <thead className="bg-slate-50 text-slate-700 font-semibold uppercase tracking-wider border-b border-slate-200">
               <tr>
-                <th className="px-5 py-3.5">Nama & NIM</th>
-                <th className="px-5 py-3.5">Email & No HP</th>
-                <th className="px-5 py-3.5">Role</th>
-                <th className="px-5 py-3.5">Status Akun</th>
-                <th className="px-5 py-3.5 text-right">Aksi</th>
+                <th className="px-4 py-3.5">Nama & NIM</th>
+                <th className="px-4 py-3.5">Instansi / Kampus</th>
+                <th className="px-4 py-3.5">Jurusan</th>
+                <th className="px-4 py-3.5">Posisi / Jabatan</th>
+                <th className="px-4 py-3.5">Email & No HP</th>
+                <th className="px-4 py-3.5">Role</th>
+                <th className="px-4 py-3.5">Status Akun</th>
+                <th className="px-4 py-3.5 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan="5" className="px-5 py-8 text-center text-slate-400 text-xs">Memuat data user...</td>
+                  <td colSpan="8" className="px-4 py-8 text-center text-slate-400 text-xs">Memuat data user...</td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-5 py-8 text-center text-slate-400 text-xs">Tidak ada data user.</td>
+                  <td colSpan="8" className="px-4 py-8 text-center text-slate-400 text-xs">Tidak ada data user.</td>
                 </tr>
               ) : (
                 users.map((u) => (
                   <tr key={u.user_id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-5 py-3.5">
-                      <div className="font-bold text-slate-900 flex items-center gap-1.5 flex-wrap">
+                    {/* Nama & NIM */}
+                    <td className="px-4 py-3.5 whitespace-nowrap">
+                      <div className="font-bold text-slate-900 flex items-center gap-1.5">
                         <span>{u.nama}</span>
                         {u.role === 'peserta' && u.is_magang_selesai && (
                           <span className="text-[9px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300 px-1.5 py-0.5 rounded-md uppercase tracking-wide">
@@ -287,43 +291,61 @@ const KelolaUserPage = () => {
                         )}
                       </div>
                       <div className="text-[11px] text-slate-400 font-mono">{u.nim_nis || '-'}</div>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {u.asal_instansi && (
-                          <span className="text-[10px] text-amber-800 bg-amber-50 border border-amber-200/60 rounded px-1.5 py-0.5 font-medium">{u.asal_instansi}</span>
-                        )}
-                        {u.jurusan && (
-                          <span className="text-[10px] text-blue-800 bg-blue-50 border border-blue-200/60 rounded px-1.5 py-0.5 font-medium flex items-center gap-1">
-                            <GraduationCap size={10} />
-                            <span>{u.jurusan}</span>
-                          </span>
-                        )}
-                        {u.posisi_magang && (
-                          <span className="text-[10px] text-purple-800 bg-purple-50 border border-purple-200/60 rounded px-1.5 py-0.5 font-medium flex items-center gap-1">
-                            <Briefcase size={10} />
-                            <span>{u.posisi_magang}</span>
-                          </span>
-                        )}
-                        {u.jabatan && (
-                          <span className="text-[10px] text-emerald-800 bg-emerald-50 border border-emerald-200/60 rounded px-1.5 py-0.5 font-medium flex items-center gap-1">
-                            <Briefcase size={10} />
-                            <span>{u.jabatan}</span>
-                          </span>
-                        )}
-                      </div>
                     </td>
-                    <td className="px-5 py-3.5">
+
+                    {/* Instansi / Kampus */}
+                    <td className="px-4 py-3.5">
+                      {u.asal_instansi ? (
+                        <span className="text-xs font-semibold text-slate-800">{u.asal_instansi}</span>
+                      ) : (
+                        <span className="text-slate-400 text-xs">-</span>
+                      )}
+                    </td>
+
+                    {/* Jurusan */}
+                    <td className="px-4 py-3.5">
+                      {u.jurusan ? (
+                        <span className="text-xs text-blue-900 bg-blue-50 border border-blue-200/80 px-2.5 py-1 rounded-lg font-medium inline-block">
+                          {u.jurusan}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 text-xs">-</span>
+                      )}
+                    </td>
+
+                    {/* Posisi / Jabatan */}
+                    <td className="px-4 py-3.5">
+                      {u.posisi_magang ? (
+                        <span className="text-xs text-purple-900 bg-purple-50 border border-purple-200/80 px-2.5 py-1 rounded-lg font-medium inline-block">
+                          {u.posisi_magang}
+                        </span>
+                      ) : u.jabatan ? (
+                        <span className="text-xs text-emerald-900 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-lg font-medium inline-block">
+                          {u.jabatan}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 text-xs">-</span>
+                      )}
+                    </td>
+
+                    {/* Email & No HP */}
+                    <td className="px-4 py-3.5 whitespace-nowrap">
                       <div className="text-slate-800 font-medium">{u.email}</div>
                       <div className="text-slate-400 text-[11px]">{u.no_hp || '-'}</div>
                     </td>
-                    <td className="px-5 py-3.5">
+
+                    {/* Role */}
+                    <td className="px-4 py-3.5 whitespace-nowrap">
                       <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${
-                        u.role === 'peserta' ? 'bg-amber-100 text-amber-900' :
-                        u.role === 'pembimbing' ? 'bg-emerald-100 text-emerald-900' : 'bg-purple-100 text-purple-900'
+                        u.role === 'peserta' ? 'bg-amber-100 text-amber-900 border border-amber-200' :
+                        u.role === 'pembimbing' ? 'bg-emerald-100 text-emerald-900 border border-emerald-200' : 'bg-purple-100 text-purple-900 border border-purple-200'
                       }`}>
                         {u.role}
                       </span>
                     </td>
-                    <td className="px-5 py-3.5">
+
+                    {/* Status Akun */}
+                    <td className="px-4 py-3.5 whitespace-nowrap">
                       <button
                         onClick={() => handleToggleStatus(u)}
                         className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors ${
@@ -334,7 +356,9 @@ const KelolaUserPage = () => {
                         <span>{u.status_aktif ? 'Aktif' : 'Nonaktif'}</span>
                       </button>
                     </td>
-                    <td className="px-5 py-3.5 text-right">
+
+                    {/* Aksi */}
+                    <td className="px-4 py-3.5 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => handleOpenEdit(u)}

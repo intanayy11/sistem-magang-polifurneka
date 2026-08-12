@@ -407,11 +407,18 @@ class LaporanController extends Controller
         // KATEGORI 5: LAPORAN PROGRAM MAGANG (Admin Ringkasan Lintas Domain)
         // ═════════════════════════════════════════════════════════════════════
         if ($kategoriLaporan === 'laporan_program_magang') {
-            $allPeserta = User::where('role', 'peserta')->get();
+            $qPeserta = User::where('role', 'peserta');
+            if ($tanggalMulai) $qPeserta->whereDate('created_at', '>=', $tanggalMulai);
+            if ($tanggalSelesai) $qPeserta->whereDate('created_at', '<=', $tanggalSelesai);
+            $allPeserta = $qPeserta->get();
 
             $totalPesertaAktif = $allPeserta->filter(fn($u) => PeriodeMagangService::apakahAktif($u))->count();
             $totalPesertaSelesai = $allPeserta->filter(fn($u) => !PeriodeMagangService::apakahAktif($u))->count();
-            $totalPembimbingAktif = User::where('role', 'pembimbing')->where('status_aktif', true)->count();
+
+            $qPembimbing = User::where('role', 'pembimbing')->where('status_aktif', true);
+            if ($tanggalMulai) $qPembimbing->whereDate('created_at', '>=', $tanggalMulai);
+            if ($tanggalSelesai) $qPembimbing->whereDate('created_at', '<=', $tanggalSelesai);
+            $totalPembimbingAktif = $qPembimbing->count();
 
             // Presensi stats dalam filter
             $qPresensi = Presensi::query();
