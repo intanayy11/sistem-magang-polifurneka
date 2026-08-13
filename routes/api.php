@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/laporan/options', [LaporanController::class, 'getFilterOptions']);
     Route::get('/laporan/preview', [LaporanController::class, 'preview']);
     Route::get('/laporan/export', [LaporanController::class, 'exportPdf']);
+    Route::get('/laporan/export-excel', [LaporanController::class, 'exportExcel']);
 
     // Shared view routes
     Route::get('/izin', [IzinController::class, 'index']);

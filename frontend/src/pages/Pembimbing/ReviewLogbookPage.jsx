@@ -83,13 +83,10 @@ const ReviewLogbookPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">Review Logbook Mahasiswa</h2>
-          <p className="text-slate-500 text-xs mt-0.5">
-            Evaluasi aktivitas harian peserta bimbingan, beri catatan revisi atau persetujuan (Approve).
-          </p>
         </div>
 
         {/* Status Filter */}

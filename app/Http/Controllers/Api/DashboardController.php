@@ -117,6 +117,78 @@ class DashboardController extends Controller
 
     public function adminDashboard(Request $request)
     {
+        $today = Carbon::today()->toDateString();
+
+        // 1. Ambil Aktivitas Terbaru (Presensi, Logbook, Izin, Tugas)
+        $latestPresensi = Presensi::with('peserta:user_id,nama')
+            ->latest('updated_at')
+            ->take(4)
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => 'presensi_' . $p->presensi_id,
+                    'tipe' => 'presensi',
+                    'judul' => ($p->peserta->nama ?? 'Peserta') . ' melakukan presensi',
+                    'sub' => 'Status: ' . $p->status . ($p->jam_masuk ? ' (' . substr($p->jam_masuk, 0, 5) . ' WIB)' : ''),
+                    'waktu' => $p->updated_at ? $p->updated_at->diffForHumans() : 'Baru saja',
+                    'timestamp' => $p->updated_at,
+                ];
+            });
+
+        $latestLogbook = Logbook::with('peserta:user_id,nama')
+            ->latest('created_at')
+            ->take(4)
+            ->get()
+            ->map(function ($l) {
+                return [
+                    'id' => 'logbook_' . $l->logbook_id,
+                    'tipe' => 'logbook',
+                    'judul' => ($l->peserta->nama ?? 'Peserta') . ' mengisi logbook',
+                    'sub' => $l->judul_kegiatan,
+                    'waktu' => $l->created_at ? $l->created_at->diffForHumans() : 'Baru saja',
+                    'timestamp' => $l->created_at,
+                ];
+            });
+
+        $latestIzin = Izin::with('peserta:user_id,nama')
+            ->latest('created_at')
+            ->take(4)
+            ->get()
+            ->map(function ($i) {
+                return [
+                    'id' => 'izin_' . $i->izin_id,
+                    'tipe' => 'izin',
+                    'judul' => ($i->peserta->nama ?? 'Peserta') . ' mengajukan izin',
+                    'sub' => 'Alasan: ' . $i->alasan . ' (' . $i->status . ')',
+                    'waktu' => $i->created_at ? $i->created_at->diffForHumans() : 'Baru saja',
+                    'timestamp' => $i->created_at,
+                ];
+            });
+
+        $latestTugas = Tugas::with('pembimbing:user_id,nama')
+            ->latest('created_at')
+            ->take(4)
+            ->get()
+            ->map(function ($t) {
+                return [
+                    'id' => 'tugas_' . $t->tugas_id,
+                    'tipe' => 'tugas',
+                    'judul' => 'Tugas: ' . $t->judul,
+                    'sub' => 'Oleh: ' . ($t->pembimbing->nama ?? 'Pembimbing'),
+                    'waktu' => $t->created_at ? $t->created_at->diffForHumans() : 'Baru saja',
+                    'timestamp' => $t->created_at,
+                ];
+            });
+
+        $recentActivities = collect()
+            ->concat($latestPresensi)
+            ->concat($latestLogbook)
+            ->concat($latestIzin)
+            ->concat($latestTugas)
+            ->sortByDesc('timestamp')
+            ->values()
+            ->take(4);
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -125,6 +197,11 @@ class DashboardController extends Controller
                 'total_pembimbing' => User::where('role', 'pembimbing')->count(),
                 'total_admin' => User::where('role', 'admin')->count(),
                 'total_plotting' => PlottingBimbingan::count(),
+                'presensi_hari_ini' => Presensi::where('tanggal', $today)->count(),
+                'logbook_hari_ini' => Logbook::where('tanggal', $today)->count(),
+                'izin_pending' => Izin::where('status', 'Menunggu')->count(),
+                'tugas_aktif' => Tugas::whereIn('status', ['Belum Dikerjakan', 'Menunggu Review', 'Perlu Revisi'])->count(),
+                'recent_activities' => $recentActivities,
             ]
         ]);
     }

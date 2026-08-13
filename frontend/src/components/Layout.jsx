@@ -467,11 +467,9 @@ const Layout = () => {
               <img src={logoImg} alt="Logo Polifurneka" className="h-8 sm:h-9 md:h-11 w-auto object-contain shrink-0 drop-shadow-2xs" />
               <div className="overflow-hidden">
                 <h1 className="font-bold text-slate-900 text-xs sm:text-sm md:text-base leading-tight tracking-tight truncate sm:whitespace-normal">
-                  Sistem Monitoring Kegiatan Magang
+                  SIMONIKA
                 </h1>
-                <p className="text-[9px] sm:text-[10px] md:text-xs text-amber-900 font-bold tracking-wide truncate sm:whitespace-normal">
-                  Politeknik Industri Furnitur dan Pengolahan Kayu
-                </p>
+                
               </div>
             </div>
           </div>
@@ -567,7 +565,7 @@ const Layout = () => {
           </div>
 
           <div className="p-4 border-t border-slate-100 text-center bg-slate-50/70">
-            <p className="text-xs text-slate-600 font-mono font-medium">Sistem Monitoring Kegiatan Magang</p>
+            <p className="text-xs text-slate-600 font-mono font-medium">SIMONIKA</p>
             <p className="text-[10px] text-slate-400 mt-0.5">poltek-furnitur.ac.id</p>
           </div>
         </aside>
@@ -594,7 +592,7 @@ const Layout = () => {
             </div>
 
             <div className="p-4 border-t border-slate-100 text-center bg-slate-50/70">
-              <p className="text-xs text-slate-600 font-mono font-medium whitespace-nowrap">Sistem Monitoring Kegiatan Magang</p>
+              <p className="text-xs text-slate-600 font-mono font-medium whitespace-nowrap">SIMONIKA</p>
               <p className="text-[10px] text-slate-400 mt-0.5">poltek-furnitur.ac.id</p>
             </div>
           </aside>

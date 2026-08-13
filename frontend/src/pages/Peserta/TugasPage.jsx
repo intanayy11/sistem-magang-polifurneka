@@ -113,11 +113,10 @@ const TugasPage = () => {
     : tugasList.filter(t => t.status === activeFilter);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Header */}
       <div>
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">Tugas Magang</h2>
-        <p className="text-slate-500 text-xs mt-0.5">Kumpulkan hasil pengerjaan dan pantau status revisi dari pembimbing.</p>
       </div>
 
       <DovetailDivider className="my-2" />

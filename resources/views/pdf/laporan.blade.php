@@ -76,19 +76,6 @@
             vertical-align: top;
             color: #000000;
         }
-        
-        .footer {
-            margin-top: 25px;
-            width: 100%;
-        }
-        .signature-box {
-            float: right;
-            width: 220px;
-            text-align: center;
-        }
-        .clear {
-            clear: both;
-        }
     </style>
 </head>
 <body>
@@ -164,11 +151,12 @@
                 <tr>
                     <th style="width: 25px; text-align: center;">No</th>
                     <th>Nama Peserta</th>
-                    <th style="width: 80px;">Tanggal</th>
-                    <th style="width: 65px;">Jam Masuk</th>
-                    <th style="width: 65px;">Jam Pulang</th>
-                    <th style="width: 75px;">Status</th>
-                    <th style="width: 90px;">Tipe Lokasi</th>
+                    <th style="width: 70px;">Tanggal</th>
+                    <th style="width: 55px;">Masuk</th>
+                    <th style="width: 55px;">Pulang</th>
+                    <th style="width: 65px;">Status</th>
+                    <th style="width: 70px;">Tipe Lokasi</th>
+                    <th>Keterangan Kegiatan Luar</th>
                 </tr>
             </thead>
             <tbody>
@@ -177,19 +165,15 @@
                         <td style="text-align: center;">{{ $index + 1 }}</td>
                         <td><strong>{{ $item->peserta->nama ?? '-' }}</strong><br><small style="color:#555;">{{ $item->peserta->nim_nis ?? '' }}</small></td>
                         <td>{{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('d F Y') }}</td>
-                        <td>{{ $item->jam_masuk ?? '-' }}</td>
-                        <td>{{ $item->jam_pulang ?? '-' }}</td>
+                        <td>{{ $item->jam_masuk ? date('H:i', strtotime($item->jam_masuk)) : '-' }}</td>
+                        <td>{{ $item->jam_pulang ? date('H:i', strtotime($item->jam_pulang)) : '-' }}</td>
                         <td><strong>{{ $item->status }}</strong></td>
-                        <td>
-                            {{ ucfirst($item->lokasi_tipe ?? 'instansi') }}
-                            @if($item->lokasi_tipe === 'luar' && $item->keterangan_luar)
-                                <br><small style="color: #444;">({{ $item->keterangan_luar }})</small>
-                            @endif
-                        </td>
+                        <td>{{ ucfirst($item->lokasi_tipe ?? 'instansi') }}</td>
+                        <td>{{ $item->lokasi_tipe === 'luar' ? ($item->keterangan_luar ?? '-') : '-' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="text-align: center;">Belum ada data presensi.</td>
+                        <td colspan="8" style="text-align: center;">Belum ada data presensi.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -203,29 +187,33 @@
             <thead>
                 <tr>
                     <th style="width: 25px; text-align: center;">No</th>
-                    <th>Nama Peserta</th>
-                    <th style="width: 80px;">Tanggal</th>
-                    <th>Judul Kegiatan</th>
-                    <th style="width: 80px;">Status</th>
+                    <th style="width: 100px;">Nama Peserta</th>
+                    <th style="width: 70px;">Tanggal</th>
+                    <th style="width: 120px;">Judul Kegiatan</th>
+                    <th>Deskripsi & Kendala</th>
+                    <th style="width: 60px;">Status</th>
+                    <th style="width: 110px;">Catatan Pembimbing</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($logbook as $index => $log)
                     <tr>
                         <td style="text-align: center;">{{ $index + 1 }}</td>
-                        <td><strong>{{ $log->peserta->nama ?? '-' }}</strong><br><small style="color:#555;">{{ $log->peserta->nim_nis ?? '' }}</small></td>
+                        <td><strong>{{ $log->peserta->nama ?? '-' }}</strong></td>
                         <td>{{ \Carbon\Carbon::parse($log->tanggal)->translatedFormat('d F Y') }}</td>
+                        <td><strong>{{ $log->judul_kegiatan }}</strong></td>
                         <td>
-                            <strong>{{ $log->judul_kegiatan }}</strong>
-                            @if($log->deskripsi)
-                                <br><small style="color:#444;">{{ Str::limit($log->deskripsi, 100) }}</small>
+                            <div>{{ Str::limit($log->deskripsi, 120) }}</div>
+                            @if($log->kendala)
+                                <div style="color: #990000; font-size: 8px; margin-top: 2px;"><em>Kendala: {{ Str::limit($log->kendala, 60) }}</em></div>
                             @endif
                         </td>
                         <td><strong>{{ $log->status }}</strong></td>
+                        <td><small>{{ $log->catatan_pembimbing ?? '-' }}</small></td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align: center;">Belum ada logbook.</td>
+                        <td colspan="7" style="text-align: center;">Belum ada logbook.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -239,26 +227,37 @@
             <thead>
                 <tr>
                     <th style="width: 25px; text-align: center;">No</th>
-                    <th>Nama Peserta</th>
-                    <th>Judul Tugas</th>
-                    <th style="width: 110px;">Pembimbing</th>
-                    <th style="width: 80px;">Deadline</th>
-                    <th style="width: 80px;">Status</th>
+                    <th style="width: 95px;">Nama Peserta</th>
+                    <th>Judul & Deskripsi Tugas</th>
+                    <th style="width: 90px;">Pembimbing</th>
+                    <th style="width: 65px;">Dibuat</th>
+                    <th style="width: 65px;">Deadline</th>
+                    <th style="width: 65px;">Status</th>
+                    <th style="width: 50px; text-align: center;">Revisi</th>
+                    <th style="width: 95px;">Revisi Terakhir</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($tugas as $index => $tg)
                     <tr>
                         <td style="text-align: center;">{{ $index + 1 }}</td>
-                        <td><strong>{{ $tg->peserta->nama ?? '-' }}</strong><br><small style="color:#555;">{{ $tg->peserta->nim_nis ?? '' }}</small></td>
-                        <td><strong>{{ $tg->judul }}</strong></td>
+                        <td><strong>{{ $tg->peserta->nama ?? '-' }}</strong></td>
+                        <td>
+                            <strong>{{ $tg->judul }}</strong>
+                            @if($tg->deskripsi)
+                                <br><small style="color:#444;">{{ Str::limit($tg->deskripsi, 80) }}</small>
+                            @endif
+                        </td>
                         <td>{{ $tg->pembimbing->nama ?? '-' }}</td>
-                        <td>{{ $tg->deadline ? \Carbon\Carbon::parse($tg->deadline)->translatedFormat('d F Y') : '-' }}</td>
+                        <td>{{ $tg->created_at ? \Carbon\Carbon::parse($tg->created_at)->translatedFormat('d/m/Y') : '-' }}</td>
+                        <td>{{ $tg->deadline ? \Carbon\Carbon::parse($tg->deadline)->translatedFormat('d/m/Y') : '-' }}</td>
                         <td><strong>{{ $tg->status }}</strong></td>
+                        <td style="text-align: center;">{{ $tg->pengumpulan_count ?? 0 }}x</td>
+                        <td><small>{{ $tg->pengumpulanTerakhir?->catatan_revisi ?? '-' }}</small></td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" style="text-align: center;">Belum ada tugas magang.</td>
+                        <td colspan="9" style="text-align: center;">Belum ada tugas magang.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -273,25 +272,29 @@
                 <tr>
                     <th style="width: 25px; text-align: center;">No</th>
                     <th>Nama Peserta</th>
-                    <th style="width: 80px;">Jenis</th>
-                    <th style="width: 80px;">Tanggal Mulai</th>
-                    <th style="width: 80px;">Tanggal Selesai</th>
-                    <th style="width: 80px;">Status</th>
+                    <th style="width: 65px;">Jenis</th>
+                    <th style="width: 70px;">Tgl Mulai</th>
+                    <th style="width: 70px;">Tgl Selesai</th>
+                    <th>Keterangan</th>
+                    <th style="width: 65px;">Status</th>
+                    <th style="width: 95px;">Diverifikasi Oleh</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($izin as $index => $iz)
                     <tr>
                         <td style="text-align: center;">{{ $index + 1 }}</td>
-                        <td><strong>{{ $iz->peserta->nama ?? '-' }}</strong><br><small style="color:#555;">{{ $iz->peserta->nim_nis ?? '' }}</small></td>
+                        <td><strong>{{ $iz->peserta->nama ?? '-' }}</strong></td>
                         <td><strong>{{ $iz->jenis }}</strong></td>
-                        <td>{{ \Carbon\Carbon::parse($iz->tanggal_mulai)->translatedFormat('d F Y') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($iz->tanggal_selesai)->translatedFormat('d F Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($iz->tanggal_mulai)->translatedFormat('d/m/Y') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($iz->tanggal_selesai)->translatedFormat('d/m/Y') }}</td>
+                        <td>{{ $iz->keterangan ?? '-' }}</td>
                         <td><strong>{{ $iz->status }}</strong></td>
+                        <td>{{ $iz->pembimbing->nama ?? '-' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" style="text-align: center;">Belum ada pengajuan izin.</td>
+                        <td colspan="8" style="text-align: center;">Belum ada pengajuan izin.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -332,34 +335,36 @@
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th style="width: 25px; text-align: center;">No</th>
-                        <th style="width: 110px;">Nama Peserta</th>
-                        <th style="width: 80px;">NIM / NIS</th>
-                        <th style="width: 100px;">Jurusan</th>
-                        <th style="width: 90px;">Posisi</th>
-                        <th style="width: 100px;">Pembimbing</th>
-                        <th style="width: 130px;">Periode Magang</th>
-                        <th style="width: 60px;">Status</th>
+                        <th style="width: 20px; text-align: center;">No</th>
+                        <th>Nama & Kontak</th>
+                        <th>NIM/NIS</th>
+                        <th>Jurusan</th>
+                        <th>Posisi Magang</th>
+                        <th>Pembimbing</th>
+                        <th>Periode Magang</th>
+                        <th style="width: 50px;">Periode</th>
+                        <th style="width: 45px;">Akun</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($peserta_list as $index => $p)
                         <tr>
                             <td style="text-align: center;">{{ $index + 1 }}</td>
-                            <td><strong>{{ $p->nama }}</strong><br><small>{{ $p->email }}</small></td>
+                            <td><strong>{{ $p->nama }}</strong><br><small style="color:#555;">{{ $p->email }}<br>{{ $p->no_hp ?? '-' }}</small></td>
                             <td>{{ $p->nim_nis ?? '-' }}</td>
                             <td>{{ $p->jurusan ?? '-' }}</td>
                             <td>{{ $p->posisi_magang ?? '-' }}</td>
                             <td>{{ $p->pembimbing_nama }}</td>
                             <td>
-                                {{ $p->tanggal_mulai_magang ? \Carbon\Carbon::parse($p->tanggal_mulai_magang)->translatedFormat('d F Y') : '-' }} s/d<br>
-                                {{ $p->tanggal_selesai_magang ? \Carbon\Carbon::parse($p->tanggal_selesai_magang)->translatedFormat('d F Y') : '-' }}
+                                {{ $p->tanggal_mulai_magang ? \Carbon\Carbon::parse($p->tanggal_mulai_magang)->translatedFormat('d/m/Y') : '-' }} s/d<br>
+                                {{ $p->tanggal_selesai_magang ? \Carbon\Carbon::parse($p->tanggal_selesai_magang)->translatedFormat('d/m/Y') : '-' }}
                             </td>
                             <td><strong>{{ $p->is_magang_selesai ? 'Selesai' : 'Aktif' }}</strong></td>
+                            <td>{{ $p->status_aktif ? 'Aktif' : 'Nonaktif' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" style="text-align: center;">Tidak ada data peserta.</td>
+                            <td colspan="9" style="text-align: center;">Tidak ada data peserta.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -375,25 +380,27 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th style="width: 30px; text-align: center;">No</th>
-                    <th>Nama Pembimbing</th>
-                    <th>Email Terdaftar</th>
+                    <th style="width: 25px; text-align: center;">No</th>
+                    <th>Nama & Email</th>
+                    <th style="width: 90px;">No. HP</th>
                     <th>Jabatan</th>
-                    <th style="width: 120px; text-align: center;">Jumlah Bimbingan</th>
+                    <th style="width: 60px; text-align: center;">Total</th>
+                    <th>Daftar Peserta Bimbingan</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($pembimbing_list as $index => $pem)
                     <tr>
                         <td style="text-align: center;">{{ $index + 1 }}</td>
-                        <td><strong>{{ $pem->nama }}</strong></td>
-                        <td>{{ $pem->email }}</td>
+                        <td><strong>{{ $pem->nama }}</strong><br><small style="color:#555;">{{ $pem->email }}</small></td>
+                        <td>{{ $pem->no_hp ?? '-' }}</td>
                         <td>{{ $pem->jabatan ?? '-' }}</td>
-                        <td style="text-align: center;"><strong>{{ $pem->total_bimbingan }} Peserta</strong></td>
+                        <td style="text-align: center;"><strong>{{ $pem->total_bimbingan }}</strong></td>
+                        <td><small>{{ $pem->daftar_peserta_bimbingan ?? '-' }}</small></td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align: center;">Tidak ada data pembimbing.</td>
+                        <td colspan="6" style="text-align: center;">Tidak ada data pembimbing.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -409,14 +416,15 @@
             <thead>
                 <tr>
                     <th style="width: 25px; text-align: center;">No</th>
-                    <th style="width: 130px;">Nama Peserta</th>
-                    <th style="width: 80px;">NIM / NIS</th>
+                    <th>Nama Peserta</th>
+                    <th style="width: 75px;">NIM / NIS</th>
                     <th style="width: 100px;">Jurusan</th>
-                    <th style="width: 60px; text-align: center;">Total Hari</th>
-                    <th style="width: 50px; text-align: center;">Hadir</th>
-                    <th style="width: 70px; text-align: center;">Telat/Cepat</th>
-                    <th style="width: 50px; text-align: center;">Alpha</th>
-                    <th style="width: 70px; text-align: center;">Persentase</th>
+                    <th style="width: 45px; text-align: center;">Hari</th>
+                    <th style="width: 45px; text-align: center;">Hadir</th>
+                    <th style="width: 55px; text-align: center;">Telat/Cepat</th>
+                    <th style="width: 45px; text-align: center;">Alpha</th>
+                    <th style="width: 55px; text-align: center;">Presensi Luar</th>
+                    <th style="width: 55px; text-align: center;">Persentase</th>
                 </tr>
             </thead>
             <tbody>
@@ -430,11 +438,12 @@
                         <td style="text-align: center;">{{ $rk['jumlah_hadir'] }}</td>
                         <td style="text-align: center;">{{ $rk['jumlah_terlambat_cepat'] }}</td>
                         <td style="text-align: center;">{{ $rk['jumlah_alpha'] }}</td>
+                        <td style="text-align: center;">{{ $rk['jumlah_kegiatan_luar'] ?? 0 }}</td>
                         <td style="text-align: center;"><strong>{{ $rk['persentase_kehadiran'] }}%</strong></td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" style="text-align: center;">Tidak ada data statistik kehadiran.</td>
+                        <td colspan="10" style="text-align: center;">Tidak ada data statistik kehadiran.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -492,16 +501,6 @@
             </tbody>
         </table>
     @endif
-
-    <div class="footer">
-        <div class="signature-box">
-            <p>Kendal, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</p>
-            <p>Penanggung Jawab / Admin Instansi,</p>
-            <br><br><br>
-            <p><strong>( ........................................ )</strong></p>
-        </div>
-        <div class="clear"></div>
-    </div>
 
 </body>
 </html>

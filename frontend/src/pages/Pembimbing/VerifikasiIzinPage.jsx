@@ -72,12 +72,9 @@ const VerifikasiIzinPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">Verifikasi Izin / Sakit</h2>
-        <p className="text-slate-500 text-xs mt-0.5">
-          Tinjau permohonan ketidakhadiran peserta bimbingan dan tentukan persetujuan.
-        </p>
       </div>
 
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />

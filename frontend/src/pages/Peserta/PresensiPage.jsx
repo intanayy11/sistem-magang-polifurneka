@@ -84,10 +84,10 @@ const PresensiPage = () => {
 
   const handleCheckIn = async () => {
     const now = new Date();
-    if (now.getHours() >= 11) {
+    if (now.getHours() >= 9) {
       setAlert({
         type: 'warning',
-        message: 'Batas waktu presensi masuk hari ini telah berakhir (maksimal pukul 11:00 WIB).',
+        message: 'Batas waktu presensi masuk hari ini telah berakhir (maksimal pukul 09:00 WIB).',
       });
       return;
     }
@@ -172,8 +172,8 @@ const PresensiPage = () => {
     const currentMinute = new Date().getMinutes();
 
     if (luarAksi === 'masuk') {
-      if (currentHour >= 11) {
-        setLuarError('Batas waktu presensi masuk hari ini telah berakhir (maksimal pukul 11:00 WIB).');
+      if (currentHour >= 9) {
+        setLuarError('Batas waktu presensi masuk hari ini telah berakhir (maksimal pukul 09:00 WIB).');
         return;
       }
     } else {
@@ -237,17 +237,14 @@ const PresensiPage = () => {
   const isLibur = liburInfo?.is_libur || isWeekend;
   const isFriday = new Date().getDay() === 5;
   const hariTeks = isFriday ? "Jum'at" : "Senin s.d. Kamis";
-  const jamMasukTeks = '07.30 - 11.00 WIB';
+  const jamMasukTeks = '07.30 - 09.00 WIB';
   const jamPulangTeks = isFriday ? '16.30 - 22.00 WIB' : '16.00 - 22.00 WIB';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">Presensi Harian Magang</h2>
-          <p className="text-slate-500 text-xs mt-0.5">
-            Lakukan presensi masuk dan presensi pulang sesuai jam kerja.
-          </p>
         </div>
         <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold self-start sm:self-auto">
           <Calendar size={14} className="text-amber-600" />

@@ -172,13 +172,10 @@ const Profile = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-4 max-w-6xl mx-auto">
       {/* Header Title */}
       <div>
         <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Profil Saya</h2>
-        <p className="text-slate-500 text-xs md:text-sm mt-0.5">
-          Kelola data kontak pribadi, foto profil, serta perbarui kata sandi akun Anda.
-        </p>
       </div>
 
       <DovetailDivider className="my-2" />

@@ -75,7 +75,7 @@ const Login = () => {
           <img src={logoImg} alt="Logo Polifurneka" className="h-12 lg:h-14 w-auto object-contain shrink-0 drop-shadow-sm" />
           <div>
             <h2 className="font-extrabold text-lg md:text-xl text-slate-900 leading-tight tracking-tight drop-shadow-2xs">
-              Sistem Monitoring Kegiatan Magang
+              SIMONIKA
             </h2>
             <p className="text-xs text-amber-900 font-bold tracking-wide">
               Politeknik Industri Furnitur dan Pengolahan Kayu
@@ -105,7 +105,7 @@ const Login = () => {
           <img src={logoImg} alt="Logo Polifurneka" className="h-10 w-auto object-contain shrink-0 drop-shadow-xs" />
           <div>
             <h2 className="font-extrabold text-xs sm:text-sm text-slate-900 leading-tight tracking-tight">
-              Sistem Monitoring Kegiatan Magang
+              SIMONIKA
             </h2>
             <p className="text-[10px] text-amber-800 font-bold tracking-wide">
               Politeknik Industri Furnitur dan Pengolahan Kayu
@@ -298,7 +298,7 @@ const Login = () => {
                   <div>
                     <strong className="text-slate-800">Peserta Magang:</strong>
                     <p className="text-[11px] text-slate-500">
-                      Check-in presensi (07.00 - 11.00 WIB), Check-out (mulai 16.00 WIB), isi Logbook kegiatan harian, serta kumpulkan Tugas Magang.
+                      Check-in presensi (07.00 - 09.00 WIB), Check-out (mulai 16.00 WIB), isi Logbook kegiatan harian, serta kumpulkan Tugas Magang.
                     </p>
                   </div>
                 </div>

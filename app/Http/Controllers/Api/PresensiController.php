@@ -89,12 +89,12 @@ class PresensiController extends Controller
         }
 
         $now = Carbon::now();
-        $maxJamMasuk = Carbon::parse($today . ' 11:00:00');
+        $maxJamMasuk = Carbon::parse($today . ' 09:00:00');
 
         if ($now->greaterThan($maxJamMasuk)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Batas waktu presensi masuk hari ini telah berakhir (maksimal pukul 11:00 WIB).'
+                'message' => 'Batas waktu presensi masuk hari ini telah berakhir (maksimal pukul 09:00 WIB).'
             ], 400);
         }
 

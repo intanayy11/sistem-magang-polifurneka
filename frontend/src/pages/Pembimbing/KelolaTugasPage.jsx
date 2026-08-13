@@ -148,13 +148,10 @@ const KelolaTugasPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">Kelola & Review Tugas Magang</h2>
-          <p className="text-slate-500 text-xs mt-0.5">
-            Buat penugasan proyek/tugas baru untuk peserta bimbingan dan evaluasi hasil pengumpulan kerja.
-          </p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}

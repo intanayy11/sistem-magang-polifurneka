@@ -122,14 +122,11 @@ const LogbookPage = () => {
   const paginatedLogbooks = filteredLogbooks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Top Header with Primary Action Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">Logbook Kegiatan Harian</h2>
-          <p className="text-slate-500 text-xs mt-0.5">
-            Catat aktivitas harian dan upload foto bukti kegiatan magang Anda. Klik baris tabel untuk melihat detail.
-          </p>
         </div>
         <button
           onClick={() => setShowModal(true)}

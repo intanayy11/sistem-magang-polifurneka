@@ -192,7 +192,9 @@ class LaporanController extends Controller
                     'peserta:user_id,nama,nim_nis,asal_instansi,jurusan,posisi_magang',
                     'pembimbing:user_id,nama',
                     'pengumpulanTerakhir'
-                ])->whereIn('peserta_id', $pesertaIds);
+                ])
+                ->withCount('pengumpulan as pengumpulan_count')
+                ->whereIn('peserta_id', $pesertaIds);
 
                 if ($tanggalMulai) $q->whereDate('deadline', '>=', $tanggalMulai);
                 if ($tanggalSelesai) $q->whereDate('deadline', '<=', $tanggalSelesai);
@@ -202,8 +204,11 @@ class LaporanController extends Controller
             }
 
             if ($includeIzin) {
-                $q = Izin::with('peserta:user_id,nama,nim_nis,asal_instansi,jurusan,posisi_magang')
-                    ->whereIn('peserta_id', $pesertaIds);
+                $q = Izin::with([
+                    'peserta:user_id,nama,nim_nis,asal_instansi,jurusan,posisi_magang',
+                    'pembimbing:user_id,nama'
+                ])
+                ->whereIn('peserta_id', $pesertaIds);
 
                 if ($tanggalMulai) $q->whereDate('tanggal_mulai', '>=', $tanggalMulai);
                 if ($tanggalSelesai) $q->whereDate('tanggal_selesai', '<=', $tanggalSelesai);
@@ -315,6 +320,7 @@ class LaporanController extends Controller
         // ═════════════════════════════════════════════════════════════════════
         if ($kategoriLaporan === 'data_pembimbing') {
             $query = User::where('role', 'pembimbing')
+                ->with(['plottingAsPembimbing.peserta:user_id,nama'])
                 ->withCount('plottingAsPembimbing as total_bimbingan');
 
             if ($pembimbingId && $pembimbingId !== 'semua') {
@@ -326,7 +332,14 @@ class LaporanController extends Controller
                 $query->where('jabatan', $jabatan);
             }
 
-            $pembimbingList = $query->orderBy('nama', 'asc')->get();
+            $pembimbingList = $query->orderBy('nama', 'asc')->get()->map(function ($p) {
+                $p->daftar_peserta_bimbingan = $p->plottingAsPembimbing
+                    ->map(fn($item) => $item->peserta?->nama)
+                    ->filter()
+                    ->values()
+                    ->implode(', ');
+                return $p;
+            });
 
             return [
                 'kategori_laporan' => 'data_pembimbing',
@@ -368,6 +381,7 @@ class LaporanController extends Controller
                 $jumlahHadir = $presensiData->where('status', 'Hadir')->count();
                 $jumlahTerlambatCepat = $presensiData->whereIn('status', ['Terlambat', 'Pulang Cepat'])->count();
                 $jumlahAlpha = $presensiData->where('status', 'Alpha')->count();
+                $jumlahKegiatanLuar = $presensiData->where('lokasi_tipe', 'luar')->count();
 
                 $persentase = $totalHari > 0 ? round(($jumlahHadir / $totalHari) * 100, 1) : 0;
 
@@ -380,6 +394,7 @@ class LaporanController extends Controller
                     'jumlah_hadir' => $jumlahHadir,
                     'jumlah_terlambat_cepat' => $jumlahTerlambatCepat,
                     'jumlah_alpha' => $jumlahAlpha,
+                    'jumlah_kegiatan_luar' => $jumlahKegiatanLuar,
                     'persentase_kehadiran' => $persentase,
                 ];
             });
@@ -512,6 +527,49 @@ class LaporanController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             'Access-Control-Expose-Headers' => 'Content-Disposition',
         ]);
+    }
+
+    /**
+     * GET /api/laporan/export-excel
+     * Mengunduh file Excel (.xlsx) resmi laporan.
+     */
+    public function exportExcel(Request $request)
+    {
+        Carbon::setLocale('id');
+        $result = $this->getFilteredData($request);
+        $kategori = $result['kategori_laporan'] ?? 'aktivitas_magang';
+        $filename = 'Laporan_' . Str::slug($kategori) . '_' . date('Ymd_His') . '.xlsx';
+
+        if ($kategori === 'aktivitas_magang') {
+            $jenisData = $result['jenis_data'] ?? 'semua';
+            if (is_array($jenisData)) {
+                $jData = count($jenisData) === 1 ? $jenisData[0] : 'semua';
+            } else {
+                $jData = $jenisData;
+            }
+
+            if ($jData === 'semua') {
+                return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\AktivitasMagangMultiSheetExport($result), $filename);
+            } elseif ($jData === 'presensi') {
+                return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\PresensiSheetExport($result['presensi'] ?? collect()), $filename);
+            } elseif ($jData === 'logbook') {
+                return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\LogbookSheetExport($result['logbook'] ?? collect()), $filename);
+            } elseif ($jData === 'tugas') {
+                return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\PenugasanSheetExport($result['tugas'] ?? collect()), $filename);
+            } elseif ($jData === 'izin') {
+                return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\IzinSheetExport($result['izin'] ?? collect()), $filename);
+            }
+        } elseif ($kategori === 'data_peserta') {
+            return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\DataPesertaExport($result['peserta_list'] ?? collect()), $filename);
+        } elseif ($kategori === 'data_pembimbing') {
+            return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\DataPembimbingExport($result['pembimbing_list'] ?? collect()), $filename);
+        } elseif ($kategori === 'rekapitulasi_kehadiran') {
+            return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\RekapitulasiKehadiranExport($result['rekap_kehadiran'] ?? []), $filename);
+        } elseif ($kategori === 'laporan_program_magang') {
+            return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\LaporanProgramMagangExport($result), $filename);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Kategori laporan tidak valid.'], 400);
     }
 }
 

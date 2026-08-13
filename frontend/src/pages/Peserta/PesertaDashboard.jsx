@@ -75,10 +75,10 @@ const PesertaDashboard = () => {
 
   const handleCheckIn = async () => {
     const now = new Date();
-    if (now.getHours() >= 11) {
+    if (now.getHours() >= 9) {
       setAlert({
         type: 'warning',
-        message: 'Batas waktu presensi masuk hari ini telah berakhir (maksimal pukul 11:00 WIB).',
+        message: 'Batas waktu presensi masuk hari ini telah berakhir (maksimal pukul 09:00 WIB).',
       });
       return;
     }

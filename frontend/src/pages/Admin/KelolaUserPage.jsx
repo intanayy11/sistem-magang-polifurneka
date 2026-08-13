@@ -193,10 +193,9 @@ const KelolaUserPage = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">{pageTitle}</h2>
-        <p className="text-slate-500 text-xs mt-0.5">{pageSubtitle}</p>
       </div>
 
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />

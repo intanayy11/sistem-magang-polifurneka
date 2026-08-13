@@ -109,14 +109,11 @@ const MonitorPresensiPage = () => {
   }
 
   return (
-    <div className="space-y-7">
+    <div className="space-y-4">
       {/* Page Title & Refresh */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">Monitor Presensi & Lokasi GPS</h2>
-          <p className="text-slate-500 text-xs mt-0.5">
-            Pantau status kehadiran real-time anak bimbingan Anda hari ini dan riwayat lokasi GPS. Klik baris tabel untuk melihat detail.
-          </p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold">

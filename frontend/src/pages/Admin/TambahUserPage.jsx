@@ -87,14 +87,11 @@ const TambahUserPage = () => {
   );
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
+    <div className="space-y-4 max-w-3xl mx-auto">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">Tambah User Baru</h2>
-          <p className="text-slate-500 text-xs mt-0.5">
-            Isi data lengkap untuk mendaftarkan akun pengguna baru ke sistem SIMONIKA.
-          </p>
         </div>
         <button
           onClick={() => navigate('/admin/kelola-user')}

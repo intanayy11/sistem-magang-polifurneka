@@ -36,7 +36,7 @@ const StatusBadge = ({ status }) => {
   };
 
   return (
-    <span className={`inline-flex items-center text-xs ${getStyle(status)}`}>
+    <span className={`inline-flex items-center text-xs whitespace-nowrap ${getStyle(status)}`}>
       {status || '-'}
     </span>
   );
