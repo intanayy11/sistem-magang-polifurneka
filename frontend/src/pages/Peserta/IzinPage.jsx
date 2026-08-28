@@ -89,22 +89,6 @@ const IzinPage = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Pengajuan Izin / Sakit</h2>
-        </div>
-        <button
-          onClick={() => setShowModal(true)}
-          disabled={magangSelesai}
-          className="flex items-center justify-center gap-2 btn-poli-primary disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2.5 rounded-xl transition-all text-xs uppercase tracking-wider shrink-0 shadow-xs"
-        >
-          <Plus size={16} />
-          <span>Buat Pengajuan Izin</span>
-        </button>
-      </div>
-
-      <DovetailDivider className="my-2" />
-
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
       {/* Banner Masa Magang Selesai */}
@@ -120,8 +104,23 @@ const IzinPage = () => {
 
       {/* Permission Table */}
       <div className="card-clean overflow-hidden">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="font-bold text-slate-900 text-base">Daftar Pengajuan Saya</h3>
+        <div className="p-4 sm:p-5 border-b border-slate-100 bg-white">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+                <FileText size={22} className="text-[#E8A800]" />
+                <span>Pengajuan Izin & Sakit</span>
+              </h2>
+            </div>
+            <button
+              onClick={() => setShowModal(true)}
+              disabled={magangSelesai}
+              className="flex items-center justify-center gap-2 btn-poli-primary disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2 rounded-xl transition-all text-xs uppercase tracking-wider font-extrabold shrink-0 shadow-2xs cursor-pointer"
+            >
+              <Plus size={16} />
+              <span>Buat Pengajuan Izin</span>
+            </button>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -197,8 +196,8 @@ const IzinPage = () => {
                   onChange={(e) => setForm({ ...form, jenis: e.target.value })}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
                 >
-                  <option value="Izin">Izin (Keperluan Pribadi / Acara)</option>
-                  <option value="Sakit">Sakit (Surat Dokter / Sakit)</option>
+                  <option value="Izin">Izin </option>
+                  <option value="Sakit">Sakit </option>
                 </select>
               </div>
 
@@ -237,13 +236,16 @@ const IzinPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Berkas Lampiran / Surat Dokter (Maks 5MB)</label>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Lampiran</label>
                 <input
                   type="file"
                   accept="image/jpeg,image/png,image/jpg,application/pdf"
                   onChange={(e) => setForm({ ...form, file_bukti: e.target.files[0] })}
-                  className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200"
+                  className="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-100 file:text-amber-900 hover:file:bg-amber-200 cursor-pointer"
                 />
+                <p className="text-[11px] text-slate-400 mt-1.5">
+                  * Format file yang didukung: <span className="font-semibold text-slate-600">PDF, JPG, JPEG, PNG</span> (Maks. 5MB)
+                </p>
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-3">

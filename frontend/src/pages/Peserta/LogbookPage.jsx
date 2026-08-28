@@ -3,7 +3,7 @@ import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import DovetailDivider from '../../components/DovetailDivider';
-import { Plus, BookOpen, Image as ImageIcon, X, Calendar, FileText, ExternalLink, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
+import { Plus, BookOpen, Image as ImageIcon, X, Calendar, FileText, ExternalLink, ChevronLeft, ChevronRight, AlertTriangle, Search } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
 import { getStorageUrl } from '../../utils/url';
@@ -29,7 +29,12 @@ const LogbookPage = () => {
   const [alert, setAlert] = useState(null);
   const [dateNote, setDateNote] = useState('');
   const [activeFilter, setActiveFilter] = useState('Semua');
+  const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeFilter, searchQuery]);
 
   useScrollLock(showModal || !!selectedLogbook);
 
@@ -113,9 +118,18 @@ const LogbookPage = () => {
     );
   }
 
-  const filteredLogbooks = activeFilter === 'Semua'
-    ? logbooks
-    : logbooks.filter(l => l.status === activeFilter);
+  const filteredLogbooks = logbooks.filter((l) => {
+    const matchesStatus = activeFilter === 'Semua' || l.status === activeFilter;
+    const q = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      (l.judul_kegiatan && l.judul_kegiatan.toLowerCase().includes(q)) ||
+      (l.deskripsi && l.deskripsi.toLowerCase().includes(q)) ||
+      (l.kendala && l.kendala.toLowerCase().includes(q)) ||
+      (l.catatan_pembimbing && l.catatan_pembimbing.toLowerCase().includes(q)) ||
+      (l.tanggal && l.tanggal.includes(q));
+    return matchesStatus && matchesSearch;
+  });
 
   const totalPages = Math.ceil(filteredLogbooks.length / ITEMS_PER_PAGE) || 1;
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -123,23 +137,6 @@ const LogbookPage = () => {
 
   return (
     <div className="space-y-4">
-      {/* Top Header with Primary Action Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Logbook Kegiatan Harian</h2>
-        </div>
-        <button
-          onClick={() => setShowModal(true)}
-          disabled={magangSelesai}
-          className="btn-poli-primary disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2.5 rounded-xl text-xs uppercase tracking-wider font-extrabold flex items-center justify-center gap-2 shadow-xs shrink-0 self-start sm:self-auto"
-        >
-          <Plus size={16} />
-          <span>Tambah Logbook Baru</span>
-        </button>
-      </div>
-
-      <DovetailDivider className="my-2" />
-
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
       {/* Banner Masa Magang Selesai */}
@@ -153,186 +150,228 @@ const LogbookPage = () => {
         </div>
       )}
 
-      {/* Interactive Filter Tabs */}
-      <div className="flex flex-wrap gap-2">
-        {LOGBOOK_FILTERS.map((f) => {
-          const count = f.value === 'Semua'
-            ? logbooks.length
-            : logbooks.filter(l => l.status === f.value).length;
-          const isActive = activeFilter === f.value;
-          return (
-            <button
-              key={f.value}
-              onClick={() => setActiveFilter(f.value)}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                isActive
-                  ? 'bg-[#E8A800] text-white border-[#E8A800] shadow-sm'
-                  : 'bg-white text-slate-600 border-slate-200 hover:border-amber-300 hover:text-amber-900'
-              }`}
-            >
-              {f.label}
-              <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${
-                isActive ? 'bg-white/30 text-white' : 'bg-slate-100 text-slate-500'
-              }`}>
-                {count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Bento Table View */}
-      {filteredLogbooks.length === 0 ? (
-        <div className="card-clean p-12 text-center">
-          <BookOpen size={40} className="mx-auto text-slate-300 mb-3" />
-          <p className="text-slate-700 font-bold text-sm">
-            {activeFilter === 'Semua' ? 'Belum Ada Logbook' : `Tidak ada logbook dengan status "${LOGBOOK_FILTERS.find(f => f.value === activeFilter)?.label}"`}
-          </p>
-          <p className="text-xs text-slate-400 mt-1">
-            {activeFilter === 'Semua' ? "Klik tombol 'Tambah Logbook Baru' di kanan atas untuk mengisi catatan harian." : 'Coba pilih tab filter lain.'}
-          </p>
-        </div>
-      ) : (
-        <div className="card-clean overflow-hidden">
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-            <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-              <FileText size={16} className="text-[#E8A800]" />
-              <span>Daftar Logbook Kegiatan</span>
-            </h3>
+      {/* Bento Table Card Container */}
+      <div className="card-clean overflow-hidden">
+        {/* Table Top Header: Title (Logbook Kegiatan Harian diperbesar) + Sejajar: Search -> Filter -> Button Tambah */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3.5">
+          {/* Judul Utama Logbook Kegiatan Harian (Diperbesar) */}
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+              <FileText size={22} className="text-[#E8A800]" />
+              <span>Logbook Kegiatan Harian</span>
+            </h2>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
-              <thead className="bg-slate-50 text-slate-700 font-semibold uppercase tracking-wider border-b border-slate-200">
-                <tr>
-                  <th className="px-5 py-3.5 w-32">Tanggal</th>
-                  <th className="px-5 py-3.5">Judul & Aktivitas</th>
-                  <th className="px-5 py-3.5 max-w-xs">Kendala / Catatan Pembimbing</th>
-                  <th className="px-5 py-3.5 w-32">Foto Bukti</th>
-                  <th className="px-5 py-3.5 w-28 text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {paginatedLogbooks.map((log) => (
-                  <tr
-                    key={log.logbook_id}
-                    onClick={() => setSelectedLogbook(log)}
-                    className="hover:bg-amber-50/50 cursor-pointer transition-colors group"
-                    title="Klik untuk melihat detail logbook"
+          {/* Baris Kontrol Sejajar Horizontal: Search Box -> Filter Pills -> Button Tambah Logbook */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-2 border-t border-slate-100">
+            
+            {/* Sisi Kiri: Search Input Box + Filter Pills Sejajar */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1 min-w-0">
+              {/* 1. Search Input Box (Paling Kiri) */}
+              <div className="relative w-full sm:w-60 shrink-0">
+                <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Cari logbook, tanggal..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-8 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all font-medium"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded-full"
+                    title="Bersihkan pencarian"
                   >
-                    
-                    {/* Column 1: Tanggal */}
-                    <td className="px-5 py-4 align-top">
-                      <span className="text-xs font-bold text-slate-800 font-mono whitespace-nowrap bg-slate-100 group-hover:bg-amber-100/70 px-2.5 py-1 rounded-md inline-flex items-center gap-1.5 transition-colors">
-                        <Calendar size={12} className="text-amber-600 shrink-0" />
-                        {new Date(log.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
-                      </span>
-                    </td>
+                    <X size={12} />
+                  </button>
+                )}
+              </div>
 
-                    {/* Column 2: Judul & Deskripsi */}
-                    <td className="px-5 py-4 align-top">
-                      <div className="font-bold text-slate-900 text-sm mb-1 group-hover:text-amber-900 transition-colors">{log.judul_kegiatan}</div>
-                      <p className="text-slate-600 text-xs whitespace-pre-line leading-relaxed line-clamp-2 max-w-xl">
-                        {log.deskripsi}
-                      </p>
-                    </td>
-
-                    {/* Column 3: Kendala & Catatan Pembimbing */}
-                    <td className="px-5 py-4 align-top max-w-xs space-y-2">
-                      {log.kendala && (
-                        <div className="text-[11px] text-slate-700">
-                          <span className="font-bold text-slate-900">Kendala: </span>
-                          <span className="text-slate-600 line-clamp-2">{log.kendala}</span>
-                        </div>
-                      )}
-
-                      {log.catatan_pembimbing && (
-                        <div className="text-[11px] text-slate-700 mt-1">
-                          <span className="font-bold text-slate-900">Catatan Pembimbing: </span>
-                          <span className="text-slate-600 line-clamp-2">{log.catatan_pembimbing}</span>
-                        </div>
-                      )}
-
-                      {!log.kendala && !log.catatan_pembimbing && (
-                        <span className="text-slate-400 italic text-[11px]">-</span>
-                      )}
-                    </td>
-
-                    {/* Column 4: Foto Bukti */}
-                    <td className="px-5 py-4 align-top whitespace-nowrap">
-                      {log.foto_bukti ? (
-                        <a
-                          href={getStorageUrl(log.foto_bukti)}
-                          target="_blank"
-                          rel="noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors"
-                        >
-                          <ImageIcon size={13} className="text-slate-500" />
-                          <span>Lihat Foto</span>
-                        </a>
-                      ) : (
-                        <span className="text-slate-400 italic text-[11px]">-</span>
-                      )}
-                    </td>
-
-                    {/* Column 5: Status */}
-                    <td className="px-5 py-4 align-top text-center whitespace-nowrap">
-                      <StatusBadge status={log.status} />
-                    </td>
-
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination Controls Footer */}
-          {filteredLogbooks.length > 0 && (
-            <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50 text-xs">
-              <span className="text-slate-500 font-medium">
-                Menampilkan <strong className="text-slate-800 font-mono">{startIndex + 1}</strong>–<strong className="text-slate-800 font-mono">{Math.min(startIndex + ITEMS_PER_PAGE, filteredLogbooks.length)}</strong> dari <strong className="text-slate-800 font-mono">{filteredLogbooks.length}</strong> logbook
-              </span>
-
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold flex items-center gap-1"
-                >
-                  <ChevronLeft size={14} />
-                  <span>Sebelumnya</span>
-                </button>
-
-                <div className="flex items-center gap-1 px-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+              {/* 2. Filter Pills (Samping Search) */}
+              <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                {LOGBOOK_FILTERS.map((f) => {
+                  const count = f.value === 'Semua'
+                    ? logbooks.length
+                    : logbooks.filter(l => l.status === f.value).length;
+                  const isActive = activeFilter === f.value;
+                  return (
                     <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`w-7 h-7 rounded-lg text-xs font-bold transition-all ${
-                        currentPage === pageNum
-                          ? 'bg-[#E8A800] text-slate-950 shadow-xs'
-                          : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                      key={f.value}
+                      onClick={() => setActiveFilter(f.value)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shrink-0 cursor-pointer ${
+                        isActive
+                          ? 'bg-[#E8A800] text-slate-950 border-[#E8A800] shadow-2xs font-extrabold'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-amber-300 hover:text-slate-900'
                       }`}
                     >
-                      {pageNum}
+                      {f.label}
+                      <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${
+                        isActive ? 'bg-slate-950/15 text-slate-950' : 'bg-slate-200/70 text-slate-600'
+                      }`}>
+                        {count}
+                      </span>
                     </button>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold flex items-center gap-1"
-                >
-                  <span>Berikutnya</span>
-                  <ChevronRight size={14} />
-                </button>
+                  );
+                })}
               </div>
             </div>
-          )}
+
+            {/* 3. Button Tambah Logbook Baru (Samping Kanan Filter) */}
+            <button
+              onClick={() => setShowModal(true)}
+              disabled={magangSelesai}
+              className="btn-poli-primary disabled:opacity-40 disabled:cursor-not-allowed px-4 py-2 rounded-xl text-xs uppercase tracking-wider font-extrabold flex items-center justify-center gap-2 shadow-2xs shrink-0 cursor-pointer"
+            >
+              <Plus size={16} />
+              <span>Tambah Logbook Baru</span>
+            </button>
+          </div>
         </div>
-      )}
+
+        {/* Table Body or Empty State */}
+        {filteredLogbooks.length === 0 ? (
+          <div className="p-12 text-center">
+            <BookOpen size={40} className="mx-auto text-slate-300 mb-3" />
+            <p className="text-slate-700 font-bold text-sm">
+              {activeFilter === 'Semua' ? 'Belum Ada Logbook' : `Tidak ada logbook dengan status "${LOGBOOK_FILTERS.find(f => f.value === activeFilter)?.label}"`}
+            </p>
+            <p className="text-xs text-slate-400 mt-1">
+              {activeFilter === 'Semua' ? "Klik tombol 'Tambah Logbook Baru' di atas untuk mengisi catatan harian." : 'Coba pilih tab filter lain.'}
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-600">
+                <thead className="bg-slate-50 text-slate-700 font-semibold uppercase tracking-wider border-b border-slate-200">
+                  <tr>
+                    <th className="px-5 py-3.5 w-32">Tanggal</th>
+                    <th className="px-5 py-3.5">Judul & Aktivitas</th>
+                    <th className="px-5 py-3.5 max-w-xs">Kendala / Catatan Pembimbing</th>
+                    <th className="px-5 py-3.5 w-32">Foto Bukti</th>
+                    <th className="px-5 py-3.5 w-28 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {paginatedLogbooks.map((log) => (
+                    <tr
+                      key={log.logbook_id}
+                      onClick={() => setSelectedLogbook(log)}
+                      className="hover:bg-amber-50/50 cursor-pointer transition-colors group"
+                      title="Klik untuk melihat detail logbook"
+                    >
+                      {/* Column 1: Tanggal */}
+                      <td className="px-5 py-4 align-top whitespace-nowrap">
+                        <div className="font-mono font-bold text-slate-800">
+                          {new Date(log.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </div>
+                      </td>
+
+                      {/* Column 2: Judul & Deskripsi */}
+                      <td className="px-5 py-4 align-top max-w-md">
+                        <div className="font-bold text-slate-900 group-hover:text-amber-900 transition-colors text-xs mb-1">
+                          {log.judul_kegiatan}
+                        </div>
+                        <div className="text-slate-600 leading-relaxed text-xs line-clamp-3">
+                          {log.deskripsi}
+                        </div>
+                      </td>
+
+                      {/* Column 3: Kendala & Catatan Pembimbing */}
+                      <td className="px-5 py-4 align-top max-w-xs space-y-1.5">
+                        {log.kendala ? (
+                          <div className="text-slate-600 italic">
+                            <span className="font-semibold not-italic text-slate-700">Kendala: </span>
+                            {log.kendala}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 font-normal italic">-</span>
+                        )}
+
+                        {log.catatan_pembimbing && (
+                          <div className="mt-1 p-2 rounded-xl bg-amber-50 border border-amber-200/80 text-[11px] text-amber-900 font-medium">
+                            <span className="font-bold">Pembimbing: </span>
+                            {log.catatan_pembimbing}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Column 4: Foto Bukti */}
+                      <td className="px-5 py-4 align-top whitespace-nowrap">
+                        {log.foto_bukti ? (
+                          <a
+                            href={getStorageUrl(log.foto_bukti)}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-900 hover:text-amber-950 bg-amber-50 hover:bg-amber-100/80 px-2.5 py-1.5 rounded-lg border border-amber-200/80 transition-all shadow-2xs"
+                          >
+                            <ImageIcon size={13} className="text-amber-900" />
+                            <span>Foto Bukti</span>
+                          </a>
+                        ) : (
+                          <span className="text-slate-400 font-normal italic">-</span>
+                        )}
+                      </td>
+
+                      {/* Column 5: Status */}
+                      <td className="px-5 py-4 align-top text-center whitespace-nowrap">
+                        <StatusBadge status={log.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls Footer */}
+            {filteredLogbooks.length > 0 && (
+              <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50 text-xs">
+                <span className="text-slate-500 font-medium">
+                  Menampilkan <strong className="text-slate-800 font-mono">{startIndex + 1}</strong>–<strong className="text-slate-800 font-mono">{Math.min(startIndex + ITEMS_PER_PAGE, filteredLogbooks.length)}</strong> dari <strong className="text-slate-800 font-mono">{filteredLogbooks.length}</strong> logbook
+                </span>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold flex items-center gap-1 cursor-pointer"
+                  >
+                    <ChevronLeft size={14} />
+                    <span>Sebelumnya</span>
+                  </button>
+
+                  <div className="flex items-center gap-1 px-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-7 h-7 rounded-lg text-xs font-extrabold flex items-center justify-center transition-all cursor-pointer ${
+                          currentPage === pageNum
+                            ? 'bg-[#E8A800] text-slate-950 shadow-2xs'
+                            : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Berikutnya</span>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       {/* Modal Detail Logbook */}
       {selectedLogbook && (

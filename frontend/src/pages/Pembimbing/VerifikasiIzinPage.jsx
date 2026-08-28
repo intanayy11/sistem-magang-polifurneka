@@ -4,10 +4,14 @@ import StatusBadge from '../../components/StatusBadge';
 import { FileText, AlertCircle, X } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
+import Pagination from '../../components/Pagination';
+
+const ITEMS_PER_PAGE = 10;
 
 const VerifikasiIzinPage = () => {
   const [izinList, setIzinList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedIzin, setSelectedIzin] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -73,17 +77,20 @@ const VerifikasiIzinPage = () => {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Verifikasi Izin / Sakit</h2>
-      </div>
-
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
       {/* Permission List Table */}
       <div className="card-clean overflow-hidden">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="font-bold text-slate-900 text-base">Daftar Pengajuan Ketidakhadiran</h3>
-          <span className="text-xs text-slate-500 font-medium">{izinList.length} Pengajuan</span>
+        {/* Header: Judul + Count */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3.5">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+            <FileText size={22} className="text-[#E8A800]" />
+            <span>Verifikasi Izin / Sakit</span>
+          </h2>
+          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+            <p className="text-xs text-slate-500 font-medium">Daftar Pengajuan Ketidakhadiran</p>
+            <span className="text-xs text-slate-500 font-medium bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">{izinList.length} Pengajuan</span>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -107,7 +114,9 @@ const VerifikasiIzinPage = () => {
                   </td>
                 </tr>
               ) : (
-                izinList.map((item) => (
+                izinList
+                  .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                  .map((item) => (
                   <tr key={item.izin_id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="font-bold text-slate-900">{item.peserta?.nama || '-'}</div>
@@ -139,7 +148,7 @@ const VerifikasiIzinPage = () => {
                     <td className="px-5 py-3.5 text-right">
                       <button
                         onClick={() => handleOpenVerifikasi(item)}
-                        className="bg-[#F5C42E] hover:bg-[#E8A800] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs shadow-2xs border border-amber-300/80 transition-all cursor-pointer"
+                        className="btn-poli-primary px-3.5 py-1.5 rounded-xl text-xs shadow-2xs transition-all cursor-pointer"
                       >
                         Verifikasi
                       </button>
@@ -150,6 +159,15 @@ const VerifikasiIzinPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Footer Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={izinList.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+          itemLabel="pengajuan"
+        />
       </div>
 
       {/* Modal Verifikasi */}

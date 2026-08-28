@@ -22,7 +22,7 @@ class PeriodeMagangService
             $peserta = User::find($peserta);
         }
 
-        if (!$peserta || $peserta->role !== 'peserta') {
+        if (!$peserta || ($peserta->role !== null && $peserta->role !== 'peserta')) {
             return false;
         }
 

@@ -101,7 +101,7 @@ class LogbookController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'status' => 'required|in:Approve,Revisi',
+            'status' => 'required|in:Disetujui,Approve,Revisi',
             'catatan_pembimbing' => 'nullable|string',
         ]);
 

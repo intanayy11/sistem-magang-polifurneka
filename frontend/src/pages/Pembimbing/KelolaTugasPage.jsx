@@ -7,16 +7,21 @@ import {
   AlertCircle,
   X,
   History,
-  Link as LinkIcon
+  Link as LinkIcon,
+  ClipboardList
 } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
 import { isTaskOverdue } from '../../utils/dateHelpers';
+import Pagination from '../../components/Pagination';
+
+const ITEMS_PER_PAGE = 10;
 
 const KelolaTugasPage = () => {
   const [tugasList, setTugasList] = useState([]);
   const [pesertaOptions, setPesertaOptions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
   const [alert, setAlert] = useState(null);
 
   // Modal Create Task
@@ -149,26 +154,26 @@ const KelolaTugasPage = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Kelola & Review Tugas Magang</h2>
-        </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="flex items-center justify-center gap-2 btn-poli-primary px-4 py-2.5 rounded-xl transition-all text-xs uppercase tracking-wider shrink-0 shadow-xs"
-        >
-          <Plus size={16} />
-          <span>Buat Tugas Baru</span>
-        </button>
-      </div>
-
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
       {/* Task List Table */}
       <div className="card-clean overflow-hidden">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="font-bold text-slate-900 text-base">Daftar Tugas Dibuat</h3>
-          <span className="text-xs text-slate-500 font-medium">{tugasList.length} Tugas</span>
+        {/* Header: Judul + Tombol Buat Tugas */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3.5">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+            <ClipboardList size={22} className="text-[#E8A800]" />
+            <span>Kelola & Review Tugas Magang</span>
+          </h2>
+          <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+            <span className="text-xs text-slate-500 font-medium bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">{tugasList.length} Tugas</span>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="flex items-center justify-center gap-2 btn-poli-primary px-4 py-2 rounded-xl transition-all text-xs uppercase tracking-wider shrink-0 shadow-xs"
+            >
+              <Plus size={16} />
+              <span>Buat Tugas Baru</span>
+            </button>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -191,7 +196,9 @@ const KelolaTugasPage = () => {
                   </td>
                 </tr>
               ) : (
-                tugasList.map((tugas) => (
+                tugasList
+                  .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                  .map((tugas) => (
                   <tr key={tugas.tugas_id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="font-bold text-slate-900">{tugas.peserta?.nama || '-'}</div>
@@ -220,7 +227,7 @@ const KelolaTugasPage = () => {
                     <td className="px-5 py-3.5 text-right">
                       <button
                         onClick={() => handleOpenReview(tugas.tugas_id)}
-                        className="bg-[#F5C42E] hover:bg-[#E8A800] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs shadow-2xs border border-amber-300/80 transition-all cursor-pointer"
+                        className="btn-poli-primary px-3.5 py-1.5 rounded-xl text-xs shadow-2xs transition-all cursor-pointer"
                       >
                         Review Hasil
                       </button>
@@ -231,6 +238,15 @@ const KelolaTugasPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Footer Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={tugasList.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+          itemLabel="tugas"
+        />
       </div>
 
       {/* Modal Create Task */}
@@ -383,7 +399,7 @@ const KelolaTugasPage = () => {
                     <div key={p.pengumpulan_id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-amber-900 bg-amber-100 px-2 py-0.5 rounded text-[11px]">
-                          Versi #{p.versi_ke}
+                          Versi {p.versi_ke}
                         </span>
                         <span className="text-slate-400 font-mono text-[11px]">
                           Submit: {new Date(p.tanggal_submit).toLocaleString('id-ID')}

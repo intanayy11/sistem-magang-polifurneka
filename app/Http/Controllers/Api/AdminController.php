@@ -46,7 +46,7 @@ class AdminController extends Controller
             'nama' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users,email',
             'password' => 'required|string|min:6',
-            'role' => 'required|in:peserta,pembimbing,admin',
+            'role' => 'required|in:peserta,pembimbing',
             'nim_nis' => 'nullable|string',
             'asal_instansi' => 'nullable|string',
             'jurusan' => 'nullable|string|max:255',
@@ -84,10 +84,17 @@ class AdminController extends Controller
     {
         $user = User::findOrFail($id);
 
+        if ($user->role === 'admin') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akun Administrator Utama Sistem tidak dapat diubah role-nya.'
+            ], 403);
+        }
+
         $request->validate([
             'nama' => 'required|string|max:255',
             'email' => 'required|string|email|unique:users,email,' . $id . ',user_id',
-            'role' => 'required|in:peserta,pembimbing,admin',
+            'role' => 'required|in:peserta,pembimbing',
             'nim_nis' => 'nullable|string',
             'asal_instansi' => 'nullable|string',
             'jurusan' => 'nullable|string|max:255',
@@ -122,6 +129,14 @@ class AdminController extends Controller
     public function toggleUserStatus(Request $request, $id)
     {
         $user = User::findOrFail($id);
+
+        if ($user->role === 'admin') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akun Administrator Utama Sistem tidak dapat dinonaktifkan.'
+            ], 403);
+        }
+
         $user->update([
             'status_aktif' => ! $user->status_aktif
         ]);
@@ -137,11 +152,12 @@ class AdminController extends Controller
 
     public function resetPassword(Request $request, $id)
     {
+        $user = User::findOrFail($id);
+
         $request->validate([
             'password' => 'required|string|min:6',
         ]);
 
-        $user = User::findOrFail($id);
         $user->update([
             'password' => Hash::make($request->password)
         ]);
@@ -152,9 +168,17 @@ class AdminController extends Controller
         ]);
     }
 
-    public function deleteUser($id)
+    public function deleteUser(Request $request, $id)
     {
         $user = User::findOrFail($id);
+
+        if ($user->role === 'admin') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Akun Administrator Utama Sistem tidak dapat dihapus.'
+            ], 403);
+        }
+
         $user->delete();
 
         return response()->json([
@@ -189,7 +213,7 @@ class AdminController extends Controller
 
     public function getPlotting()
     {
-        $plotting = PlottingBimbingan::with(['peserta:user_id,nama,nim_nis,email,tanggal_mulai_magang,tanggal_selesai_magang,status_aktif', 'pembimbing:user_id,nama,email'])
+        $plotting = PlottingBimbingan::with(['peserta:user_id,role,nama,nim_nis,jurusan,email,tanggal_mulai_magang,tanggal_selesai_magang,status_aktif', 'pembimbing:user_id,nama,email,jabatan,posisi_magang'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($item) {
@@ -225,6 +249,24 @@ class AdminController extends Controller
             'message' => 'Plotting bimbingan berhasil disimpan.',
             'data' => $plotting
         ], 201);
+    }
+
+    public function updatePlotting(Request $request, $id)
+    {
+        $request->validate([
+            'pembimbing_id' => 'required|exists:users,user_id',
+        ]);
+
+        $plotting = PlottingBimbingan::findOrFail($id);
+        $plotting->update([
+            'pembimbing_id' => $request->pembimbing_id,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Pembimbing bimbingan berhasil diperbarui.',
+            'data' => $plotting->load(['peserta', 'pembimbing'])
+        ]);
     }
 
     public function deletePlotting($id)

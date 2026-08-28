@@ -35,9 +35,14 @@ const StatusBadge = ({ status }) => {
     }
   };
 
+  const getLabel = (val) => {
+    if (val === 'Approve') return 'Disetujui';
+    return val || '-';
+  };
+
   return (
     <span className={`inline-flex items-center text-xs whitespace-nowrap ${getStyle(status)}`}>
-      {status || '-'}
+      {getLabel(status)}
     </span>
   );
 };

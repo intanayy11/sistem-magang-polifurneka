@@ -1,32 +1,51 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
-import StatusBadge from '../../components/StatusBadge';
-import { BookOpen, Image as ImageIcon, AlertCircle, X } from 'lucide-react';
-import useScrollLock from '../../hooks/useScrollLock';
-import AlertBanner from '../../components/AlertBanner';
 import { getStorageUrl } from '../../utils/url';
+import {
+  BookOpen,
+  CheckCircle,
+  XCircle,
+  Clock,
+  AlertCircle,
+  FileText,
+  Image as ImageIcon,
+  X
+} from 'lucide-react';
+import AlertBanner from '../../components/AlertBanner';
+import StatusBadge from '../../components/StatusBadge';
+import useScrollLock from '../../hooks/useScrollLock';
+import Pagination from '../../components/Pagination';
+
+const ITEMS_PER_PAGE = 10;
 
 const ReviewLogbookPage = () => {
   const [logbooks, setLogbooks] = useState([]);
-  const [filterStatus, setFilterStatus] = useState('Semua');
   const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('Semua'); // Semua, Menunggu, Disetujui, Revisi
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedLogbook, setSelectedLogbook] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [alert, setAlert] = useState(null);
 
-  useScrollLock(showModal);
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus]);
 
   const [reviewData, setReviewData] = useState({
-    status: 'Approve',
+    status: 'Disetujui',
     catatan_pembimbing: '',
   });
+
+  const [alert, setAlert] = useState(null);
+
+  // Lock body scroll when modal open
+  useScrollLock(showModal);
 
   const fetchLogbooks = async () => {
     try {
       const res = await api.get('/logbook');
       if (res.data.status === 'success') {
-        setLogbooks(res.data.data);
+        setLogbooks(res.data.data || []);
       }
     } catch (err) {
       console.error(err);
@@ -42,7 +61,7 @@ const ReviewLogbookPage = () => {
   const handleOpenReview = (logbook) => {
     setSelectedLogbook(logbook);
     setReviewData({
-      status: logbook.status === 'Menunggu' ? 'Approve' : logbook.status,
+      status: (logbook.status === 'Menunggu' || logbook.status === 'Approve') ? 'Disetujui' : logbook.status,
       catatan_pembimbing: logbook.catatan_pembimbing || '',
     });
     setShowModal(true);
@@ -57,26 +76,28 @@ const ReviewLogbookPage = () => {
 
     try {
       const res = await api.put(`/logbook/${selectedLogbook.logbook_id}/review`, reviewData);
-      if (res.data.status === 'success') {
-        setAlert({ type: 'success', message: res.data.message });
-        setShowModal(false);
-        fetchLogbooks();
-      }
+      setAlert({ type: 'success', message: res.data.message });
+      setShowModal(false);
+      fetchLogbooks();
     } catch (err) {
-      setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal menyimpan review.' });
+      setAlert({
+        type: 'error',
+        message: err.response?.data?.message || 'Gagal menyimpan review logbook.'
+      });
     } finally {
       setSubmitting(false);
     }
   };
 
-  const filteredLogbooks = logbooks.filter((item) => {
+  const filteredLogbooks = logbooks.filter((log) => {
     if (filterStatus === 'Semua') return true;
-    return item.status === filterStatus;
+    if (filterStatus === 'Disetujui') return log.status === 'Disetujui' || log.status === 'Approve';
+    return log.status === filterStatus;
   });
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
+      <div className="flex items-center justify-center min-h-[300px]">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
       </div>
     );
@@ -84,34 +105,32 @@ const ReviewLogbookPage = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Review Logbook Mahasiswa</h2>
-        </div>
-
-        {/* Status Filter */}
-        <div className="flex bg-slate-200/60 p-1 rounded-xl text-xs font-semibold self-start sm:self-auto border border-slate-200">
-          {['Semua', 'Menunggu', 'Approve', 'Revisi'].map((st) => (
-            <button
-              key={st}
-              onClick={() => setFilterStatus(st)}
-              className={`px-3 py-1.5 rounded-lg transition-all ${
-                filterStatus === st ? 'bg-white text-slate-900 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {st}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
       {/* Logbook List Table */}
       <div className="card-clean overflow-hidden">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="font-bold text-slate-900 text-base">Daftar Logbook ({filterStatus})</h3>
-          <span className="text-xs text-slate-500 font-medium">{filteredLogbooks.length} Logbook</span>
+        {/* Header: Judul + Filter Status */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3.5">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+            <BookOpen size={22} className="text-[#E8A800]" />
+            <span>Review Logbook Mahasiswa</span>
+          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+            <div className="flex bg-slate-100/80 p-1 rounded-xl text-xs font-semibold border border-slate-200">
+              {['Semua', 'Menunggu', 'Disetujui', 'Revisi'].map((st) => (
+                <button
+                  key={st}
+                  onClick={() => setFilterStatus(st)}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    filterStatus === st ? 'bg-[#E8A800] text-slate-950 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
+            <span className="text-xs text-slate-500 font-medium bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">{filteredLogbooks.length} Logbook</span>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -134,7 +153,9 @@ const ReviewLogbookPage = () => {
                   </td>
                 </tr>
               ) : (
-                filteredLogbooks.map((log) => (
+                filteredLogbooks
+                  .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                  .map((log) => (
                   <tr key={log.logbook_id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="font-bold text-slate-900">{log.peserta?.nama || '-'}</div>
@@ -156,13 +177,13 @@ const ReviewLogbookPage = () => {
                           href={getStorageUrl(log.foto_bukti)}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-amber-700 hover:underline flex items-center gap-1 font-medium"
+                          className="inline-flex items-center gap-1 text-amber-700 hover:text-amber-800 font-bold hover:underline"
                         >
                           <ImageIcon size={14} />
                           <span>Lihat Foto</span>
                         </a>
                       ) : (
-                        <span className="text-slate-400">-</span>
+                        <span className="text-slate-400 text-xs">-</span>
                       )}
                     </td>
                     <td className="px-5 py-3.5">
@@ -171,7 +192,7 @@ const ReviewLogbookPage = () => {
                     <td className="px-5 py-3.5 text-right">
                       <button
                         onClick={() => handleOpenReview(log)}
-                        className="bg-[#F5C42E] hover:bg-[#E8A800] text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs shadow-2xs border border-amber-300/80 transition-all cursor-pointer"
+                        className="btn-poli-primary px-3.5 py-1.5 rounded-xl text-xs shadow-2xs transition-all cursor-pointer"
                       >
                         Review
                       </button>
@@ -182,6 +203,15 @@ const ReviewLogbookPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Footer Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredLogbooks.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+          itemLabel="logbook"
+        />
       </div>
 
       {/* Review Modal */}
@@ -209,9 +239,9 @@ const ReviewLogbookPage = () => {
                 <select
                   value={reviewData.status}
                   onChange={(e) => setReviewData({ ...reviewData, status: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 font-medium"
                 >
-                  <option value="Approve">Approve (Disetujui)</option>
+                  <option value="Disetujui">Disetujui</option>
                   <option value="Revisi">Revisi (Perlu Perbaikan)</option>
                 </select>
               </div>
@@ -240,7 +270,7 @@ const ReviewLogbookPage = () => {
                   disabled={submitting}
                   className="btn-poli-primary px-5 py-2 rounded-xl text-xs uppercase tracking-wider disabled:opacity-50"
                 >
-                  {submitting ? 'Simpan...' : 'Simpan Review'}
+                  {submitting ? 'Menyimpan...' : 'Simpan Keputusan'}
                 </button>
               </div>
             </form>

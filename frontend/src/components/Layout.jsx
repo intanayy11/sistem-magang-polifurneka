@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import api from '../api/axios';
 import { getStorageUrl } from '../utils/url';
 import {
   LayoutDashboard,
@@ -26,7 +27,10 @@ import {
   FileText,
   History,
   BarChart3,
-  PieChart
+  PieChart,
+  Bell,
+  CheckCheck,
+  Trash2
 } from 'lucide-react';
 
 import logoImg from '../assets/logo-polifurneka.png';
@@ -40,6 +44,72 @@ const Layout = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [dataMasterOpen, setDataMasterOpen] = useState(true);
   const [laporanCentralOpen, setLaporanCentralOpen] = useState(true);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [readNotifIds, setReadNotifIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`read_notifs_${user?.user_id}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const fetchNotifications = async () => {
+    if (!user || user.role === 'admin') {
+      setNotifications([]);
+      return;
+    }
+    try {
+      const res = await api.get('/notifications');
+      if (res.data.status === 'success') {
+        const rawNotifs = res.data.data || [];
+        const mapped = rawNotifs.map((n) => ({
+          ...n,
+          unread: !readNotifIds.includes(n.id)
+        }));
+        setNotifications(mapped);
+      }
+    } catch (err) {
+      console.error('Gagal memuat notifikasi:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [user]);
+
+  const unreadNotifCount = notifications.filter((n) => n.unread).length;
+
+  const handleMarkAllNotifRead = () => {
+    const allIds = notifications.map((n) => n.id);
+    setReadNotifIds(allIds);
+    try {
+      localStorage.setItem(`read_notifs_${user?.user_id}`, JSON.stringify(allIds));
+    } catch (e) {}
+    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+  };
+
+  const handleClearReadNotif = () => {
+    setNotifications((prev) => prev.filter((n) => n.unread));
+  };
+
+  const handleNotifClick = (notif) => {
+    if (!readNotifIds.includes(notif.id)) {
+      const newRead = [...readNotifIds, notif.id];
+      setReadNotifIds(newRead);
+      try {
+        localStorage.setItem(`read_notifs_${user?.user_id}`, JSON.stringify(newRead));
+      } catch (e) {}
+    }
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notif.id ? { ...n, unread: false } : n))
+    );
+    setNotifOpen(false);
+    if (notif.link) {
+      navigate(notif.link);
+    }
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -50,7 +120,7 @@ const Layout = () => {
     const badges = {
       peserta: { bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-200', label: 'Peserta Magang' },
       pembimbing: { bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200', label: 'Pembimbing Lapangan' },
-      admin: { bg: 'bg-purple-50', text: 'text-purple-800', border: 'border-purple-200', label: 'Admin Instansi' },
+      admin: { bg: 'bg-purple-50 text-purple-900 border-purple-300 font-bold', text: 'text-purple-900', border: 'border-purple-300', label: 'Administrator Sistem 👑' },
     };
     const b = badges[role];
     if (!b) return null;
@@ -326,31 +396,6 @@ const Layout = () => {
                     );
                   }}
                 </NavLink>
-
-                {/* Sub-menu 5: Laporan Program Magang */}
-                <NavLink
-                  to="/admin/laporan?kategori=laporan_program_magang"
-                  onClick={closeMobile}
-                  className={() => {
-                    const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=laporan_program_magang');
-                    return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
-                      isAktif
-                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
-                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
-                    }`;
-                  }}
-                  title="Laporan Program Magang"
-                >
-                  {() => {
-                    const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=laporan_program_magang');
-                    return (
-                      <>
-                        <PieChart size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                        <span className="flex-1 truncate">Laporan Program Magang</span>
-                      </>
-                    );
-                  }}
-                </NavLink>
               </div>
             )}
           </div>
@@ -469,24 +514,144 @@ const Layout = () => {
                 <h1 className="font-bold text-slate-900 text-xs sm:text-sm md:text-base leading-tight tracking-tight truncate sm:whitespace-normal">
                   SIMONIKA
                 </h1>
-                
               </div>
             </div>
           </div>
+                 {/* Right: Notification Bell (Khusus Peserta & Pembimbing) + Compact User Profile Menu Dropdown */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Notification Bell (Khusus Role Peserta & Pembimbing) */}
+            {user?.role !== 'admin' && (
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setNotifOpen(!notifOpen);
+                    setProfileOpen(false);
+                  }}
+                  className="relative p-2 rounded-full text-slate-600 hover:text-amber-900 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 transition-all cursor-pointer shadow-2xs"
+                  title="Pemberitahuan & Notifikasi Pengingat"
+                >
+                  <Bell size={18} />
+                  {unreadNotifCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-black text-white shadow-xs animate-pulse">
+                      {unreadNotifCount}
+                    </span>
+                  )}
+                </button>
 
-          {/* Right: Compact User Profile Menu Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center gap-1.5 p-1 rounded-full hover:bg-amber-50 border border-slate-200 hover:border-amber-300 transition-all cursor-pointer shadow-2xs"
-              title={user?.nama || 'Profil User'}
-            >
-              {getAvatar(user, 'h-8 w-8 text-xs font-bold', 'rounded-full')}
-              <ChevronDown size={14} className={`text-slate-400 mr-1 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
-            </button>
+                {/* Notification Popover Dropdown */}
+                {notifOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+                    <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl p-4 z-50 animate-in fade-in zoom-in duration-150">
+                      <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+                        <div className="flex items-center gap-2">
+                          <Bell size={16} className="text-amber-600" />
+                          <h4 className="font-bold text-sm text-slate-900">Pemberitahuan</h4>
+                          {unreadNotifCount > 0 ? (
+                            <span className="text-[10px] font-extrabold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full">
+                              {unreadNotifCount} baru
+                            </span>
+                          ) : notifications.length > 0 ? (
+                            <span className="text-[10px] font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                              ✓ Terpantau
+                            </span>
+                          ) : null}
+                        </div>
+                        {unreadNotifCount > 0 ? (
+                          <button
+                            onClick={handleMarkAllNotifRead}
+                            className="flex items-center gap-1 text-[11px] font-semibold text-amber-800 hover:text-amber-950 transition-colors"
+                            title="Tandai semua sebagai dibaca"
+                          >
+                            <CheckCheck size={14} />
+                            <span>Tandai Dibaca</span>
+                          </button>
+                        ) : notifications.length > 0 ? (
+                          <button
+                            onClick={handleClearReadNotif}
+                            className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800 transition-colors"
+                            title="Sembunyikan notifikasi yang sudah dibaca"
+                          >
+                            <Trash2 size={13} />
+                            <span>Bersihkan Dibaca</span>
+                          </button>
+                        ) : null}
+                      </div>
 
-            {/* Profile Dropdown Popover */}
-            {profileOpen && (
+                      <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                        {notifications.length === 0 ? (
+                          <div className="py-8 px-4 text-center space-y-2">
+                            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100">
+                              <CheckCheck size={20} />
+                            </div>
+                            <p className="text-xs font-bold text-slate-800">Tidak ada pemberitahuan baru</p>
+                            <p className="text-[11px] text-slate-400">
+                              Semua tugas, presensi, dan logbook Anda sudah terpantau dengan baik.
+                            </p>
+                          </div>
+                        ) : (
+                          notifications.map((n) => (
+                            <div
+                              key={n.id}
+                              onClick={() => handleNotifClick(n)}
+                              className={`p-3 rounded-xl border text-xs transition-all cursor-pointer flex gap-3 items-start ${
+                                n.unread
+                                  ? 'bg-amber-50/70 border-amber-200/90 shadow-2xs hover:bg-amber-100/70'
+                                  : 'bg-slate-50/40 border-slate-100 opacity-60 hover:opacity-100 hover:bg-slate-100/70 text-slate-500'
+                              }`}
+                            >
+                              <div className="mt-0.5 shrink-0">
+                                {n.unread ? (
+                                  n.type === 'danger' ? <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-2xs mt-1 animate-pulse" /> :
+                                  n.type === 'success' ? <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-2xs mt-1 animate-pulse" /> :
+                                  n.type === 'info' ? <div className="w-2.5 h-2.5 rounded-full bg-sky-500 shadow-2xs mt-1 animate-pulse" /> :
+                                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-2xs mt-1 animate-pulse" />
+                                ) : (
+                                  <div className="w-2.5 h-2.5 rounded-full bg-slate-300 mt-1" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-1 mb-0.5">
+                                  <p className={`font-bold truncate ${n.unread ? 'text-slate-900' : 'text-slate-600'}`}>
+                                    {n.title}
+                                  </p>
+                                  <span className="text-[10px] text-slate-400 shrink-0">{n.time}</span>
+                                </div>
+                                <p className={`text-[11px] leading-relaxed line-clamp-2 ${n.unread ? 'text-slate-700' : 'text-slate-500'}`}>
+                                  {n.message}
+                                </p>
+                                {!n.unread && (
+                                  <span className="inline-block mt-1 text-[9px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                                    Sudah dibaca
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Compact User Profile Menu Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setProfileOpen(!profileOpen);
+                  setNotifOpen(false);
+                }}
+                className="flex items-center gap-1.5 p-1 rounded-full hover:bg-amber-50 border border-slate-200 hover:border-amber-300 transition-all cursor-pointer shadow-2xs"
+                title={user?.nama || 'Profil User'}
+              >
+                {getAvatar(user, 'h-8 w-8 text-xs font-bold', 'rounded-full')}
+                <ChevronDown size={14} className={`text-slate-400 mr-1 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Profile Dropdown Popover */}
+              {profileOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
                 <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl p-4 z-50 animate-in fade-in zoom-in duration-150">
@@ -524,7 +689,8 @@ const Layout = () => {
             )}
           </div>
         </div>
-      </header>
+      </div>
+    </header>
 
       <div className="flex flex-1 relative">
         {/* Mobile Sidebar Overlay */}

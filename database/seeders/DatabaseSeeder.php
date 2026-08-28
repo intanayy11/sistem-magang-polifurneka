@@ -78,25 +78,16 @@ class DatabaseSeeder extends Seeder
         }
 
         // ═════════════════════════════════════════════════════════════════════
-        // 2. USERS: ADMIN (2 Akun)
+        // 2. USERS: ADMINISTRATOR SISTEM UTAMA (Single Sovereign Account)
         // ═════════════════════════════════════════════════════════════════════
         $admin1 = User::create([
-            'nama'          => 'Administrator Sistem',
+            'nama'          => 'Administrator Utama Sistem',
             'email'         => 'admin@poltek-furnitur.ac.id',
             'password'      => Hash::make('password123'),
             'role'          => 'admin',
             'nim_nis'       => 'ADM-001',
+            'jabatan'       => 'Kepala Pengelola IT & Admin Sistem',
             'no_hp'         => '081234567890',
-            'status_aktif'  => true,
-        ]);
-
-        $admin2 = User::create([
-            'nama'          => 'Siti Rahmawati S.Sos (Admin HR)',
-            'email'         => 'admin2@poltek-furnitur.ac.id',
-            'password'      => Hash::make('password123'),
-            'role'          => 'admin',
-            'nim_nis'       => 'ADM-002',
-            'no_hp'         => '081234567891',
             'status_aktif'  => true,
         ]);
 

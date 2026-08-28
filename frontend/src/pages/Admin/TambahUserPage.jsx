@@ -88,21 +88,6 @@ const TambahUserPage = () => {
 
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Tambah User Baru</h2>
-        </div>
-        <button
-          onClick={() => navigate('/admin/kelola-user')}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3.5 py-2 rounded-xl transition-all self-start sm:self-auto"
-        >
-          <ArrowLeft size={15} />
-          <span>Kembali ke Daftar User</span>
-        </button>
-      </div>
-
-      <DovetailDivider className="my-2" />
 
       {/* Alert Banner */}
       {alert && (
@@ -129,8 +114,24 @@ const TambahUserPage = () => {
       )}
 
       {/* Form Card */}
-      <div className="card-clean p-6 sm:p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="card-clean overflow-hidden">
+        {/* Header: Judul */}
+        <div className="p-5 border-b border-slate-100 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+            <UserPlus size={22} className="text-[#E8A800]" />
+            <span>Tambah User Baru</span>
+          </h2>
+          <button
+            onClick={() => navigate('/admin/kelola-user')}
+            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3.5 py-2 rounded-xl transition-all self-start sm:self-auto"
+          >
+            <ArrowLeft size={15} />
+            <span>Kembali</span>
+          </button>
+        </div>
+
+        <div className="p-6 sm:p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* ── Section 1: Informasi Akun ── */}
           <div>
@@ -179,7 +180,6 @@ const TambahUserPage = () => {
                 >
                   <option value="peserta">Peserta Magang</option>
                   <option value="pembimbing">Pembimbing Lapangan</option>
-                  <option value="admin">Admin Instansi</option>
                 </select>
               </div>
 
@@ -356,6 +356,7 @@ const TambahUserPage = () => {
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

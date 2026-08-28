@@ -135,6 +135,11 @@ class LaporanController extends Controller
                     if ($posisiMagang && $posisiMagang !== 'semua') {
                         $queryUsers->where('posisi_magang', $posisiMagang);
                     }
+                    if ($pembimbingId && $pembimbingId !== 'semua') {
+                        $queryUsers->whereHas('plottingAsPeserta', function ($q) use ($pembimbingId) {
+                            $q->where('pembimbing_id', $pembimbingId);
+                        });
+                    }
                     $pesertaIds = $queryUsers->pluck('user_id')->toArray();
                 }
             }
@@ -158,7 +163,6 @@ class LaporanController extends Controller
 
             // Filter Spesifik
             $statusPresensi = $request->input('status_presensi', 'semua');
-            $lokasiTipe     = $request->input('lokasi_tipe', 'semua');
             $statusLogbook  = $request->input('status_logbook', 'semua');
             $statusTugas    = $request->input('status_tugas', 'semua');
             $jenisIzin      = $request->input('jenis_izin', 'semua');
@@ -171,7 +175,6 @@ class LaporanController extends Controller
                 if ($tanggalMulai) $q->whereDate('tanggal', '>=', $tanggalMulai);
                 if ($tanggalSelesai) $q->whereDate('tanggal', '<=', $tanggalSelesai);
                 if ($statusPresensi && $statusPresensi !== 'semua') $q->where('status', $statusPresensi);
-                if ($lokasiTipe && $lokasiTipe !== 'semua') $q->where('lokasi_tipe', $lokasiTipe);
 
                 $presensi = $q->orderBy('tanggal', 'desc')->get();
             }
@@ -182,7 +185,13 @@ class LaporanController extends Controller
 
                 if ($tanggalMulai) $q->whereDate('tanggal', '>=', $tanggalMulai);
                 if ($tanggalSelesai) $q->whereDate('tanggal', '<=', $tanggalSelesai);
-                if ($statusLogbook && $statusLogbook !== 'semua') $q->where('status', $statusLogbook);
+                if ($statusLogbook && $statusLogbook !== 'semua') {
+                    if ($statusLogbook === 'Disetujui' || $statusLogbook === 'Approve') {
+                        $q->whereIn('status', ['Disetujui', 'Approve']);
+                    } else {
+                        $q->where('status', $statusLogbook);
+                    }
+                }
 
                 $logbook = $q->orderBy('tanggal', 'desc')->get();
             }
@@ -196,8 +205,17 @@ class LaporanController extends Controller
                 ->withCount('pengumpulan as pengumpulan_count')
                 ->whereIn('peserta_id', $pesertaIds);
 
-                if ($tanggalMulai) $q->whereDate('deadline', '>=', $tanggalMulai);
-                if ($tanggalSelesai) $q->whereDate('deadline', '<=', $tanggalSelesai);
+                if ($tanggalMulai) {
+                    $q->where(function ($query) use ($tanggalMulai) {
+                        $query->whereDate('created_at', '>=', $tanggalMulai)
+                              ->orWhereDate('deadline', '>=', $tanggalMulai);
+                    });
+                }
+                if ($tanggalSelesai) {
+                    $q->where(function ($query) use ($tanggalSelesai) {
+                        $query->whereDate('created_at', '<=', $tanggalSelesai);
+                    });
+                }
                 if ($statusTugas && $statusTugas !== 'semua') $q->where('status', $statusTugas);
 
                 $tugas = $q->orderBy('created_at', 'desc')->get();
@@ -258,8 +276,21 @@ class LaporanController extends Controller
                 ->with(['plottingAsPeserta.pembimbing:user_id,nama']);
 
             if ($pesertaId && $pesertaId !== 'semua') $query->where('user_id', $pesertaId);
-            if ($tanggalMulai) $query->whereDate('created_at', '>=', $tanggalMulai);
-            if ($tanggalSelesai) $query->whereDate('created_at', '<=', $tanggalSelesai);
+
+            // Irisan tanggal periode magang peserta (bukan created_at)
+            if ($tanggalMulai) {
+                $query->where(function ($q) use ($tanggalMulai) {
+                    $q->whereNull('tanggal_selesai_magang')
+                      ->orWhereDate('tanggal_selesai_magang', '>=', $tanggalMulai);
+                });
+            }
+            if ($tanggalSelesai) {
+                $query->where(function ($q) use ($tanggalSelesai) {
+                    $q->whereNull('tanggal_mulai_magang')
+                      ->orWhereDate('tanggal_mulai_magang', '<=', $tanggalSelesai);
+                });
+            }
+
             if ($jurusan && $jurusan !== 'semua') $query->where('jurusan', $jurusan);
             if ($posisiMagang && $posisiMagang !== 'semua') $query->where('posisi_magang', $posisiMagang);
             if ($pembimbingId && $pembimbingId !== 'semua') {
@@ -326,8 +357,6 @@ class LaporanController extends Controller
             if ($pembimbingId && $pembimbingId !== 'semua') {
                 $query->where('user_id', $pembimbingId);
             }
-            if ($tanggalMulai) $query->whereDate('created_at', '>=', $tanggalMulai);
-            if ($tanggalSelesai) $query->whereDate('created_at', '<=', $tanggalSelesai);
             if ($jabatan && $jabatan !== 'semua') {
                 $query->where('jabatan', $jabatan);
             }
@@ -381,7 +410,6 @@ class LaporanController extends Controller
                 $jumlahHadir = $presensiData->where('status', 'Hadir')->count();
                 $jumlahTerlambatCepat = $presensiData->whereIn('status', ['Terlambat', 'Pulang Cepat'])->count();
                 $jumlahAlpha = $presensiData->where('status', 'Alpha')->count();
-                $jumlahKegiatanLuar = $presensiData->where('lokasi_tipe', 'luar')->count();
 
                 $persentase = $totalHari > 0 ? round(($jumlahHadir / $totalHari) * 100, 1) : 0;
 
@@ -394,7 +422,6 @@ class LaporanController extends Controller
                     'jumlah_hadir' => $jumlahHadir,
                     'jumlah_terlambat_cepat' => $jumlahTerlambatCepat,
                     'jumlah_alpha' => $jumlahAlpha,
-                    'jumlah_kegiatan_luar' => $jumlahKegiatanLuar,
                     'persentase_kehadiran' => $persentase,
                 ];
             });
@@ -517,7 +544,9 @@ class LaporanController extends Controller
             'generatedAt' => now()->translatedFormat('d F Y H:i:s'),
         ]));
 
-        $pdf->setPaper('A4', 'portrait');
+        // Khusus Laporan Data Peserta menggunakan A4 Landscape, laporan lainnya tetap A4 Portrait
+        $orientation = ($result['kategori_laporan'] ?? '') === 'data_peserta' ? 'landscape' : 'portrait';
+        $pdf->setPaper('A4', $orientation);
 
         $kategoriSlug = Str::slug($result['kategori_laporan'] ?? 'laporan');
         $filename = 'Laporan_' . $kategoriSlug . '_' . date('Ymd_His') . '.pdf';

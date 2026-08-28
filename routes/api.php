@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\LaporanController;
+use App\Http\Controllers\Api\NotificationController;
 
 // Public Auth route
 Route::post('/login', [AuthController::class, 'login']);
@@ -19,6 +20,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::get('/notifications', [NotificationController::class, 'index']);
 
     // Profile Management (All roles)
     Route::get('/profile', [ProfileController::class, 'show']);
@@ -64,7 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/presensi/peserta/{peserta_id}', [PresensiController::class, 'presensiPeserta']);
     });
 
-    // Role: Admin
+    // Role: Admin (Single Sovereign)
     Route::middleware('role:admin')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
         Route::get('/dashboard/admin', [DashboardController::class, 'adminDashboard']);
@@ -81,6 +83,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/admin/options', [AdminController::class, 'getOptionsList']);
         Route::get('/admin/plotting', [AdminController::class, 'getPlotting']);
         Route::post('/admin/plotting', [AdminController::class, 'storePlotting']);
+        Route::put('/admin/plotting/{id}', [AdminController::class, 'updatePlotting']);
         Route::delete('/admin/plotting/{id}', [AdminController::class, 'deletePlotting']);
     });
 });

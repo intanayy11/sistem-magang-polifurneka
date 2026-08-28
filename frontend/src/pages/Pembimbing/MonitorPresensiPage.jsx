@@ -4,6 +4,9 @@ import StatusBadge from '../../components/StatusBadge';
 import MapModal from '../../components/MapModal';
 import DovetailDivider from '../../components/DovetailDivider';
 import { MapPin, Users, Clock, Calendar, CheckCircle2, AlertCircle, Search, Filter, RefreshCw, X } from 'lucide-react';
+import Pagination from '../../components/Pagination';
+
+const ITEMS_PER_PAGE = 10;
 
 const MonitorPresensiPage = () => {
   const [pesertaList, setPesertaList] = useState([]);
@@ -11,6 +14,11 @@ const MonitorPresensiPage = () => {
   const [selectedPesertaId, setSelectedPesertaId] = useState('all');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedPesertaId, searchQuery]);
 
   const [selectedPresensi, setSelectedPresensi] = useState(null);
   const [mapModal, setMapModal] = useState({ open: false, lat: null, lng: null, title: '', timestamp: '' });
@@ -110,24 +118,27 @@ const MonitorPresensiPage = () => {
 
   return (
     <div className="space-y-4">
-      {/* Page Title & Refresh */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Monitor Presensi & Lokasi GPS</h2>
-        </div>
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold">
-            <Calendar size={14} className="text-amber-600" />
-            <span>{new Date().toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}</span>
+      {/* Page Title Card */}
+      <div className="card-clean p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+            <MapPin size={22} className="text-[#E8A800]" />
+            <span>Monitor Presensi & Lokasi GPS</span>
+          </h2>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold">
+              <Calendar size={14} className="text-amber-600" />
+              <span>{new Date().toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}</span>
+            </div>
+            <button
+              onClick={fetchAllData}
+              disabled={loading}
+              className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors border border-slate-200"
+              title="Refresh data presensi"
+            >
+              <RefreshCw size={15} className={loading ? "animate-spin text-amber-600" : ""} />
+            </button>
           </div>
-          <button
-            onClick={fetchAllData}
-            disabled={loading}
-            className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors border border-slate-200"
-            title="Refresh data presensi"
-          >
-            <RefreshCw size={15} className={loading ? "animate-spin text-amber-600" : ""} />
-          </button>
         </div>
       </div>
 
@@ -173,7 +184,6 @@ const MonitorPresensiPage = () => {
               <Clock size={16} className="text-amber-600" />
               <h3 className="font-bold text-slate-900 text-sm">Status Presensi Anak Bimbingan Hari Ini</h3>
             </div>
-            <span className="text-[11px] text-slate-400 font-medium">Klik baris untuk detail</span>
           </div>
 
           <div className="overflow-x-auto">
@@ -244,11 +254,6 @@ const MonitorPresensiPage = () => {
                           ) : (
                             <span className="text-rose-700 font-bold text-xs">Belum Absen</span>
                           )}
-                          {item.record?.lokasi_tipe === 'luar' && (
-                            <span className="inline-flex items-center gap-0.5 text-[10px] font-extrabold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-md shrink-0">
-                              Kegiatan Luar
-                            </span>
-                          )}
                         </div>
                       </td>
                       <td className="px-5 py-3.5 text-center">
@@ -314,7 +319,7 @@ const MonitorPresensiPage = () => {
         <div className="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
           <div>
             <h3 className="font-bold text-slate-900 text-base">Riwayat Presensi Historis</h3>
-            <p className="text-xs text-slate-500 mt-0.5">Filter dan lihat rekaman tanggal presensi terdahulu per peserta magang. Klik baris untuk detail.</p>
+            <p className="text-xs text-slate-500 mt-0.5">Filter dan lihat rekaman tanggal presensi terdahulu per peserta magang.</p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -359,7 +364,6 @@ const MonitorPresensiPage = () => {
                 <th className="px-5 py-3.5">Tanggal</th>
                 <th className="px-5 py-3.5">Jam Masuk</th>
                 <th className="px-5 py-3.5">Jam Pulang</th>
-                <th className="px-5 py-3.5">Tipe Lokasi</th>
                 <th className="px-5 py-3.5">Status</th>
                 <th className="px-5 py-3.5 text-center">Peta GPS</th>
               </tr>
@@ -367,18 +371,20 @@ const MonitorPresensiPage = () => {
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan="8" className="px-5 py-8 text-center text-slate-400 text-xs">
+                  <td colSpan="7" className="px-5 py-8 text-center text-slate-400 text-xs">
                     Memuat riwayat historis...
                   </td>
                 </tr>
               ) : displayHistory.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="px-5 py-8 text-center text-slate-400 text-xs italic">
+                  <td colSpan="7" className="px-5 py-8 text-center text-slate-400 text-xs italic">
                     Tidak ada rekaman riwayat presensi yang cocok dengan filter.
                   </td>
                 </tr>
               ) : (
-                displayHistory.map((item, idx) => (
+                displayHistory
+                  .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                  .map((item, idx) => (
                   <tr
                     key={`${item.presensi_id}-${idx}`}
                     onClick={() => {
@@ -402,7 +408,9 @@ const MonitorPresensiPage = () => {
                     className="hover:bg-amber-50/60 cursor-pointer transition-colors group"
                     title="Klik untuk melihat detail presensi ini"
                   >
-                    <td className="px-5 py-3.5 font-medium text-slate-900">{idx + 1}</td>
+                    <td className="px-5 py-3.5 font-medium text-slate-900">
+                      {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
+                    </td>
                     <td className="px-5 py-3.5">
                       <div className="font-semibold text-slate-900 group-hover:text-amber-900 transition-colors">{item.namaPeserta}</div>
                       <div className="text-[11px] text-slate-400 font-mono">{item.nimPeserta || '-'}</div>
@@ -412,20 +420,6 @@ const MonitorPresensiPage = () => {
                     </td>
                     <td className="px-5 py-3.5 font-mono text-slate-700 font-semibold">{item.jam_masuk || '-'}</td>
                     <td className="px-5 py-3.5 font-mono text-slate-700 font-semibold">{item.jam_pulang || '-'}</td>
-                    <td className="px-5 py-3.5">
-                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
-                        item.lokasi_tipe === 'luar'
-                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                          : 'bg-slate-100 text-slate-700 border border-slate-200'
-                      }`}>
-                        {item.lokasi_tipe || 'instansi'}
-                      </span>
-                      {item.lokasi_tipe === 'luar' && item.keterangan_luar && (
-                        <p className="text-[10px] text-slate-500 italic mt-0.5 max-w-[140px] truncate" title={item.keterangan_luar}>
-                          {item.keterangan_luar}
-                        </p>
-                      )}
-                    </td>
                     <td className="px-5 py-3.5">
                       <StatusBadge status={item.status} />
                     </td>
@@ -482,6 +476,15 @@ const MonitorPresensiPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Footer Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={displayHistory.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+          itemLabel="rekaman"
+        />
       </div>
 
       {/* ── DETAIL PRESENSI MODAL (SERUPA PESERTA) ── */}
@@ -515,22 +518,6 @@ const MonitorPresensiPage = () => {
               </div>
 
               {/* Status Kehadiran */}
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                <span className="font-bold text-slate-600">Status Kehadiran:</span>
-                <StatusBadge status={selectedPresensi.status} />
-              </div>
-
-              {selectedPresensi.lokasi_tipe === 'luar' && (
-                <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-1">
-                  <div className="flex items-center gap-1.5 text-amber-900 font-extrabold text-[10px] uppercase tracking-wider">
-                    <MapPin size={13} className="text-amber-700" />
-                    <span>Kegiatan Luar Instansi</span>
-                  </div>
-                  <p className="text-slate-800 font-medium text-xs pt-1 leading-relaxed">
-                    {selectedPresensi.keterangan_luar || '-'}
-                  </p>
-                </div>
-              )}
 
               {/* Presensi Masuk Box */}
               <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2">

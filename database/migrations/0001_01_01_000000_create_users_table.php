@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama');
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('role', ['peserta', 'pembimbing', 'admin']);
+            $table->string('role')->default('peserta');
             $table->string('nim_nis')->nullable();
             $table->string('asal_instansi')->nullable();
             $table->string('no_hp')->nullable();
