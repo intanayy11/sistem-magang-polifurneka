@@ -144,13 +144,6 @@ const KelolaTugasPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
@@ -189,7 +182,13 @@ const KelolaTugasPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {tugasList.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="px-5 py-8 text-center text-slate-400 text-xs font-medium">
+                    Memuat data tugas...
+                  </td>
+                </tr>
+              ) : tugasList.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="px-5 py-8 text-center text-slate-400 text-xs">
                     Belum ada tugas yang dibuat.

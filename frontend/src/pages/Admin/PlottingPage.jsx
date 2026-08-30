@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
-import { Plus, Trash2, Pencil, X, GitBranch } from 'lucide-react';
+import { Plus, Trash2, Pencil, X, GitBranch, Search } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
 import Pagination from '../../components/Pagination';
@@ -17,10 +17,11 @@ const PlottingPage = () => {
   // Tab State: 'semua' | 'aktif' | 'selesai'
   const [activeTab, setActiveTab] = useState('semua');
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab]);
+  }, [activeTab, searchQuery]);
 
   // Modal Create Plotting
   const [showModal, setShowModal] = useState(false);
@@ -135,18 +136,18 @@ const PlottingPage = () => {
   const selesaiCount = plottingList.filter((i) => i.peserta?.is_magang_selesai).length;
 
   const displayList = plottingList.filter((item) => {
-    if (activeTab === 'aktif') return !item.peserta?.is_magang_selesai;
-    if (activeTab === 'selesai') return item.peserta?.is_magang_selesai;
+    if (activeTab === 'aktif' && item.peserta?.is_magang_selesai) return false;
+    if (activeTab === 'selesai' && !item.peserta?.is_magang_selesai) return false;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const pesertaNama = (item.peserta?.nama || '').toLowerCase();
+      const pembimbingNama = (item.pembimbing?.nama || '').toLowerCase();
+      const jurusan = (item.peserta?.jurusan || '').toLowerCase();
+      if (!pesertaNama.includes(q) && !pembimbingNama.includes(q) && !jurusan.includes(q)) return false;
+    }
     return true;
   });
 
-  if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
@@ -154,38 +155,33 @@ const PlottingPage = () => {
 
       {/* Plotting Table Card */}
       <div className="card-clean overflow-hidden">
-        {/* Header: Judul + Tambah Button + Tabs */}
+        {/* Toolbar: Judul + Search + Filter Tabs + Tambah */}
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3.5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-              <GitBranch size={22} className="text-[#E8A800]" />
-              <span>Plotting Bimbingan Magang</span>
-            </h2>
-            <button
-              onClick={() => setShowModal(true)}
-              className="flex items-center justify-center gap-2 btn-poli-primary px-4 py-2 rounded-xl transition-all text-xs uppercase tracking-wider shrink-0 shadow-xs self-start sm:self-auto"
-            >
-              <Plus size={16} />
-              <span>Tambah Plotting Pasangan</span>
-            </button>
-          </div>
-
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-2 border-t border-slate-100">
-            <div>
-              <p className="text-xs text-slate-500 font-medium">
-                {activeTab === 'semua' && 'Daftar Plotting Bimbingan Magang'}
-                {activeTab === 'aktif' && 'Daftar Plotting Aktif'}
-                {activeTab === 'selesai' && 'Daftar Plotting Selesai Magang'}
-              </p>
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
+            <GitBranch size={22} className="text-[#E8A800]" />
+            <span>Plotting Bimbingan Magang</span>
+          </h2>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            {/* Search */}
+            <div className="relative flex-1">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Cari peserta atau pembimbing..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-amber-400 transition-all"
+              />
             </div>
-            
-            <div className="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl shrink-0 self-start sm:self-auto border border-slate-200/60">
+
+            {/* Filter Tabs */}
+            <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl shrink-0 border border-slate-200/60">
               <button
                 onClick={() => setActiveTab('semua')}
                 className={`px-3 py-1.5 rounded-lg text-xs transition-all ${
                   activeTab === 'semua'
-                    ? 'bg-amber-500 text-slate-950 shadow-2xs font-extrabold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 font-medium'
+                    ? 'bg-white text-slate-900 shadow-sm font-semibold'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 font-medium'
                 }`}
               >
                 Semua ({plottingList.length})
@@ -194,8 +190,8 @@ const PlottingPage = () => {
                 onClick={() => setActiveTab('aktif')}
                 className={`px-3 py-1.5 rounded-lg text-xs transition-all ${
                   activeTab === 'aktif'
-                    ? 'bg-amber-500 text-slate-950 shadow-2xs font-extrabold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 font-medium'
+                    ? 'bg-white text-slate-900 shadow-sm font-semibold'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 font-medium'
                 }`}
               >
                 Aktif ({activeCount})
@@ -204,13 +200,22 @@ const PlottingPage = () => {
                 onClick={() => setActiveTab('selesai')}
                 className={`px-3 py-1.5 rounded-lg text-xs transition-all ${
                   activeTab === 'selesai'
-                    ? 'bg-amber-500 text-slate-950 shadow-2xs font-extrabold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 font-medium'
+                    ? 'bg-white text-slate-900 shadow-sm font-semibold'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/60 font-medium'
                 }`}
               >
                 Selesai ({selesaiCount})
               </button>
             </div>
+
+            {/* Tambah Button */}
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center justify-center gap-2 btn-poli-primary px-4 py-2 rounded-xl transition-all text-xs uppercase tracking-wider shrink-0 shadow-xs"
+            >
+              <Plus size={15} />
+              <span>Tambah</span>
+            </button>
           </div>
         </div>
 
@@ -227,7 +232,13 @@ const PlottingPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {displayList.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="px-5 py-8 text-center text-slate-400 text-xs font-medium">
+                    Memuat data bimbingan...
+                  </td>
+                </tr>
+              ) : displayList.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="px-5 py-8 text-center text-slate-400 text-xs italic">
                     {activeTab === 'aktif' && 'Tidak ada peserta magang yang sedang aktif.'}
@@ -250,7 +261,7 @@ const PlottingPage = () => {
                         <div className="text-[11px] text-slate-500 font-medium">{item.peserta?.jurusan || '-'}</div>
                       </td>
                       <td className="px-5 py-3.5">
-                        <div className="font-bold text-amber-900">{item.pembimbing?.nama || '-'}</div>
+                        <div className="font-bold text-slate-900">{item.pembimbing?.nama || '-'}</div>
                         <div className="text-[11px] text-slate-500 font-medium">{item.pembimbing?.jabatan || item.pembimbing?.posisi_magang || '-'}</div>
                       </td>
                       <td className="px-5 py-3.5 font-mono text-slate-700">

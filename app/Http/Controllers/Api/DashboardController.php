@@ -189,19 +189,87 @@ class DashboardController extends Controller
             ->values()
             ->take(4);
 
+        // 2. Statistik Kehadiran & Kedisiplinan
+        $totalPresensi = Presensi::count();
+        $hadirTepatWaktu = Presensi::where('status', 'Hadir')->count();
+        $terlambat = Presensi::where('status', 'Terlambat')->count();
+        $izinSakit = Presensi::whereIn('status', ['Izin', 'Sakit'])->count();
+        $alpha = Presensi::where('status', 'Alpha')->count();
+        $persentaseKehadiran = $totalPresensi > 0 ? round((($hadirTepatWaktu + $terlambat) / $totalPresensi) * 100, 1) : 0;
+
+        // 3. Statistik Progres Aktivitas Magang (Logbook & Tugas)
+        $totalLogbook = Logbook::count();
+        $logbookDisetujui = Logbook::where('status', 'Disetujui')->count();
+        $logbookMenunggu = Logbook::where('status', 'Menunggu')->count();
+        $logbookRevisi = Logbook::where('status', 'Revisi')->count();
+
+        $totalTugas = Tugas::count();
+        $tugasSelesai = Tugas::where('status', 'Selesai')->count();
+        $tugasMenungguReview = Tugas::where('status', 'Menunggu Review')->count();
+        $tugasPerluRevisi = Tugas::where('status', 'Perlu Revisi')->count();
+        $tugasBelumDikerjakan = Tugas::where('status', 'Belum Dikerjakan')->count();
+
+        // 4. Beban Bimbingan per Pembimbing (Mentor Workload)
+        $totalPeserta = User::where('role', 'peserta')->count();
+        $totalPembimbing = User::where('role', 'pembimbing')->count();
+        $totalPlotting = PlottingBimbingan::count();
+        $rataRataBimbingan = $totalPembimbing > 0 ? round($totalPlotting / $totalPembimbing, 1) : 0;
+        
+        $plottedPesertaIds = PlottingBimbingan::pluck('peserta_id');
+        $pesertaBelumPlotting = User::where('role', 'peserta')->whereNotIn('user_id', $plottedPesertaIds)->count();
+
+        $pembimbingWorkload = User::where('role', 'pembimbing')
+            ->select('user_id', 'nama', 'jabatan', 'email')
+            ->withCount('plottingAsPembimbing as total_bimbingan')
+            ->orderBy('total_bimbingan', 'desc')
+            ->take(6)
+            ->get();
+
         return response()->json([
             'status' => 'success',
             'data' => [
                 'total_users' => User::count(),
-                'total_peserta' => User::where('role', 'peserta')->count(),
-                'total_pembimbing' => User::where('role', 'pembimbing')->count(),
+                'total_peserta' => $totalPeserta,
+                'total_pembimbing' => $totalPembimbing,
                 'total_admin' => User::where('role', 'admin')->count(),
-                'total_plotting' => PlottingBimbingan::count(),
+                'total_plotting' => $totalPlotting,
                 'presensi_hari_ini' => Presensi::where('tanggal', $today)->count(),
                 'logbook_hari_ini' => Logbook::where('tanggal', $today)->count(),
                 'izin_pending' => Izin::where('status', 'Menunggu')->count(),
                 'tugas_aktif' => Tugas::whereIn('status', ['Belum Dikerjakan', 'Menunggu Review', 'Perlu Revisi'])->count(),
                 'recent_activities' => $recentActivities,
+                
+                // Statistik Tambahan 1: Kehadiran
+                'presensi_stats' => [
+                    'total' => $totalPresensi,
+                    'hadir_tepat_waktu' => $hadirTepatWaktu,
+                    'terlambat' => $terlambat,
+                    'izin_sakit' => $izinSakit,
+                    'alpha' => $alpha,
+                    'persentase_kehadiran' => $persentaseKehadiran,
+                ],
+
+                // Statistik Tambahan 2: Logbook & Tugas
+                'logbook_stats' => [
+                    'total' => $totalLogbook,
+                    'disetujui' => $logbookDisetujui,
+                    'menunggu' => $logbookMenunggu,
+                    'revisi' => $logbookRevisi,
+                ],
+                'tugas_stats' => [
+                    'total' => $totalTugas,
+                    'selesai' => $tugasSelesai,
+                    'menunggu_review' => $tugasMenungguReview,
+                    'perlu_revisi' => $tugasPerluRevisi,
+                    'belum_dikerjakan' => $tugasBelumDikerjakan,
+                ],
+
+                // Statistik Tambahan 3: Beban Bimbingan Pembimbing
+                'mentor_workload' => [
+                    'rata_rata' => $rataRataBimbingan,
+                    'peserta_belum_plotting' => $pesertaBelumPlotting,
+                    'list' => $pembimbingWorkload,
+                ],
             ]
         ]);
     }

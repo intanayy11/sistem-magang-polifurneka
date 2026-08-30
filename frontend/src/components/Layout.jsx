@@ -28,9 +28,7 @@ import {
   History,
   BarChart3,
   PieChart,
-  Bell,
-  CheckCheck,
-  Trash2
+  Bell
 } from 'lucide-react';
 
 import logoImg from '../assets/logo-polifurneka.png';
@@ -79,20 +77,19 @@ const Layout = () => {
     fetchNotifications();
   }, [user]);
 
+  // Auto-mark all as read when panel closes
+  useEffect(() => {
+    if (!notifOpen && notifications.some((n) => n.unread)) {
+      const allIds = notifications.map((n) => n.id);
+      setReadNotifIds(allIds);
+      try {
+        localStorage.setItem(`read_notifs_${user?.user_id}`, JSON.stringify(allIds));
+      } catch (e) {}
+      setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    }
+  }, [notifOpen]);
+
   const unreadNotifCount = notifications.filter((n) => n.unread).length;
-
-  const handleMarkAllNotifRead = () => {
-    const allIds = notifications.map((n) => n.id);
-    setReadNotifIds(allIds);
-    try {
-      localStorage.setItem(`read_notifs_${user?.user_id}`, JSON.stringify(allIds));
-    } catch (e) {}
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
-  };
-
-  const handleClearReadNotif = () => {
-    setNotifications((prev) => prev.filter((n) => n.unread));
-  };
 
   const handleNotifClick = (notif) => {
     if (!readNotifIds.includes(notif.id)) {
@@ -399,26 +396,6 @@ const Layout = () => {
               </div>
             )}
           </div>
-
-          {/* Profil Saya */}
-          <NavLink
-            to="/profil"
-            onClick={closeMobile}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
-                isActive
-                  ? 'bg-amber-50/80 text-amber-900 font-bold'
-                  : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <User size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                <span className="flex-1 truncate">Profil Saya</span>
-              </>
-            )}
-          </NavLink>
         </div>
       );
     }
@@ -474,17 +451,12 @@ const Layout = () => {
         { to: '/pembimbing/monitor-presensi',  label: 'Monitor Presensi & GPS', icon: MapPin },
         { to: '/pembimbing/laporan',           label: 'Laporan & Rekap',        icon: FileText },
       ];
-    } else if (user?.role === 'admin') {
-      links = [
-        { to: '/admin/dashboard',    label: 'Dashboard',           icon: LayoutDashboard },
-        { to: '/admin/kelola-user',  label: 'Kelola User (Master)',icon: Users },
-        { to: '/admin/plotting',     label: 'Plotting Bimbingan',  icon: UserCheck },
-        { to: '/admin/laporan',      label: 'Laporan Central',     icon: FileText },
-      ];
     }
 
-    // Add Profil Saya for all roles
-    links.push({ to: '/profil', label: 'Profil Saya', icon: User });
+    // Add Profil Saya only for non-admin roles (Peserta & Pembimbing)
+    if (user?.role !== 'admin') {
+      links.push({ to: '/profil', label: 'Profil Saya', icon: User });
+    }
     return links;
   };
 
@@ -532,7 +504,7 @@ const Layout = () => {
                 >
                   <Bell size={18} />
                   {unreadNotifCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-black text-white shadow-xs animate-pulse">
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-black text-white shadow-xs">
                       {unreadNotifCount}
                     </span>
                   )}
@@ -543,91 +515,53 @@ const Layout = () => {
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
                     <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl p-4 z-50 animate-in fade-in zoom-in duration-150">
-                      <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-                        <div className="flex items-center gap-2">
-                          <Bell size={16} className="text-amber-600" />
-                          <h4 className="font-bold text-sm text-slate-900">Pemberitahuan</h4>
-                          {unreadNotifCount > 0 ? (
-                            <span className="text-[10px] font-extrabold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full">
-                              {unreadNotifCount} baru
-                            </span>
-                          ) : notifications.length > 0 ? (
-                            <span className="text-[10px] font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
-                              ✓ Terpantau
-                            </span>
-                          ) : null}
-                        </div>
-                        {unreadNotifCount > 0 ? (
-                          <button
-                            onClick={handleMarkAllNotifRead}
-                            className="flex items-center gap-1 text-[11px] font-semibold text-amber-800 hover:text-amber-950 transition-colors"
-                            title="Tandai semua sebagai dibaca"
-                          >
-                            <CheckCheck size={14} />
-                            <span>Tandai Dibaca</span>
-                          </button>
-                        ) : notifications.length > 0 ? (
-                          <button
-                            onClick={handleClearReadNotif}
-                            className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800 transition-colors"
-                            title="Sembunyikan notifikasi yang sudah dibaca"
-                          >
-                            <Trash2 size={13} />
-                            <span>Bersihkan Dibaca</span>
-                          </button>
-                        ) : null}
+                      <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-3">
+                        <Bell size={16} className="text-amber-600" />
+                        <h4 className="font-bold text-sm text-slate-900">Pemberitahuan</h4>
+                        {unreadNotifCount > 0 && (
+                          <span className="text-[10px] font-extrabold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full">
+                            {unreadNotifCount} baru
+                          </span>
+                        )}
                       </div>
 
                       <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                         {notifications.length === 0 ? (
                           <div className="py-8 px-4 text-center space-y-2">
-                            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100">
-                              <CheckCheck size={20} />
+                            <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                              <Bell size={18} />
                             </div>
-                            <p className="text-xs font-bold text-slate-800">Tidak ada pemberitahuan baru</p>
+                            <p className="text-xs font-bold text-slate-800">Semua sudah beres!</p>
                             <p className="text-[11px] text-slate-400">
-                              Semua tugas, presensi, dan logbook Anda sudah terpantau dengan baik.
+                              Tidak ada pengingat aktif saat ini.
                             </p>
                           </div>
                         ) : (
-                          notifications.map((n) => (
-                            <div
-                              key={n.id}
-                              onClick={() => handleNotifClick(n)}
-                              className={`p-3 rounded-xl border text-xs transition-all cursor-pointer flex gap-3 items-start ${
-                                n.unread
-                                  ? 'bg-amber-50/70 border-amber-200/90 shadow-2xs hover:bg-amber-100/70'
-                                  : 'bg-slate-50/40 border-slate-100 opacity-60 hover:opacity-100 hover:bg-slate-100/70 text-slate-500'
-                              }`}
-                            >
-                              <div className="mt-0.5 shrink-0">
-                                {n.unread ? (
-                                  n.type === 'danger' ? <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-2xs mt-1 animate-pulse" /> :
-                                  n.type === 'success' ? <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-2xs mt-1 animate-pulse" /> :
-                                  n.type === 'info' ? <div className="w-2.5 h-2.5 rounded-full bg-sky-500 shadow-2xs mt-1 animate-pulse" /> :
-                                  <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-2xs mt-1 animate-pulse" />
-                                ) : (
-                                  <div className="w-2.5 h-2.5 rounded-full bg-slate-300 mt-1" />
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between gap-1 mb-0.5">
-                                  <p className={`font-bold truncate ${n.unread ? 'text-slate-900' : 'text-slate-600'}`}>
-                                    {n.title}
-                                  </p>
-                                  <span className="text-[10px] text-slate-400 shrink-0">{n.time}</span>
+                          notifications.map((n) => {
+                            const typeStyles = {
+                              danger: 'border-l-4 border-l-rose-500 bg-rose-50/50 border-rose-200/70 hover:bg-rose-100/50',
+                              warning: 'border-l-4 border-l-amber-500 bg-amber-50/50 border-amber-200/70 hover:bg-amber-100/50',
+                              info: 'border-l-4 border-l-sky-500 bg-sky-50/50 border-sky-200/70 hover:bg-sky-100/50',
+                              success: 'border-l-4 border-l-emerald-500 bg-emerald-50/50 border-emerald-200/70 hover:bg-emerald-100/50',
+                            };
+                            const cardStyle = typeStyles[n.type] || 'border-l-4 border-l-slate-400 bg-slate-50/50 border-slate-200 hover:bg-slate-100/50';
+
+                            return (
+                              <div
+                                key={n.id}
+                                onClick={() => handleNotifClick(n)}
+                                className={`p-3 rounded-xl border text-xs transition-all cursor-pointer ${cardStyle}`}
+                              >
+                                <div className="flex items-center justify-between gap-2 mb-1">
+                                  <p className="font-bold text-slate-900 truncate">{n.title}</p>
+                                  <span className="text-[10px] text-slate-400 shrink-0 font-medium">{n.time}</span>
                                 </div>
-                                <p className={`text-[11px] leading-relaxed line-clamp-2 ${n.unread ? 'text-slate-700' : 'text-slate-500'}`}>
+                                <p className="text-[11px] leading-relaxed text-slate-600">
                                   {n.message}
                                 </p>
-                                {!n.unread && (
-                                  <span className="inline-block mt-1 text-[9px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
-                                    Sudah dibaca
-                                  </span>
-                                )}
                               </div>
-                            </div>
-                          ))
+                            );
+                          })
                         )}
                       </div>
                     </div>
@@ -655,35 +589,36 @@ const Layout = () => {
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
                 <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl p-4 z-50 animate-in fade-in zoom-in duration-150">
-                  <div className="flex items-center gap-3 pb-3 border-b border-slate-100 mb-3">
+                  <div className="flex items-center gap-3 pb-3 border-b border-slate-100 mb-2">
                     {getAvatar(user, 'h-10 w-10 text-base font-bold', 'rounded-full')}
                     <div className="overflow-hidden">
                       <p className="font-bold text-sm text-slate-900 truncate">{user?.nama}</p>
                       <p className="text-xs text-slate-500 truncate">{user?.email}</p>
-                      <span className="inline-block mt-0.5 text-[10px] font-extrabold text-amber-900 bg-amber-100 border border-amber-200 px-2 py-0.5 rounded-md uppercase tracking-wider">
-                        {user?.role}
-                      </span>
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => {
-                      setProfileOpen(false);
-                      navigate('/profil');
-                    }}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100/80 hover:bg-slate-200/80 border border-slate-200 transition-all mb-2"
-                  >
-                    <User size={15} />
-                    <span>Profil Saya</span>
-                  </button>
+                  <div className="space-y-1 pt-1">
+                    {user?.role !== 'admin' && (
+                      <button
+                        onClick={() => {
+                          setProfileOpen(false);
+                          navigate('/profil');
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-all text-left cursor-pointer"
+                      >
+                        <User size={15} className="text-slate-400" />
+                        <span>Profil Saya</span>
+                      </button>
+                    )}
 
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 transition-all"
-                  >
-                    <LogOut size={15} />
-                    <span>Keluar</span>
-                  </button>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-all text-left cursor-pointer"
+                    >
+                      <LogOut size={15} className="text-rose-500" />
+                      <span>Keluar</span>
+                    </button>
+                  </div>
                 </div>
               </>
             )}
@@ -703,7 +638,7 @@ const Layout = () => {
 
         {/* ── MOBILE SIDEBAR DRAWER (< lg) ── */}
         <aside
-          className={`fixed top-0 bottom-0 left-0 w-68 bg-white text-slate-800 border-r border-slate-200/90 z-40 transform transition-transform duration-200 ease-in-out flex flex-col justify-between lg:hidden ${
+          className={`fixed top-0 bottom-0 left-0 w-72 bg-white text-slate-800 border-r border-slate-200/90 z-40 transform transition-transform duration-200 ease-in-out flex flex-col justify-between lg:hidden ${
             sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
           }`}
         >
@@ -738,7 +673,7 @@ const Layout = () => {
 
         {/* ── DESKTOP SIDEBAR (>= lg) ── */}
         {!sidebarCollapsed && (
-          <aside className="hidden lg:flex flex-col justify-between w-68 bg-white text-slate-800 border-r border-slate-200/90 relative shrink-0 transition-all duration-200">
+          <aside className="hidden lg:flex flex-col justify-between w-72 bg-white text-slate-800 border-r border-slate-200/90 relative shrink-0 transition-all duration-200">
             {/* Collapse Trigger Arrow Button on Sidebar Right Border */}
             <button
               onClick={() => setSidebarCollapsed(true)}

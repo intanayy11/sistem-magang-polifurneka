@@ -67,13 +67,6 @@ const VerifikasiIzinPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
@@ -107,7 +100,13 @@ const VerifikasiIzinPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {izinList.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="7" className="px-5 py-8 text-center text-slate-400 text-xs font-medium">
+                    Memuat data pengajuan izin...
+                  </td>
+                </tr>
+              ) : izinList.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="px-5 py-8 text-center text-slate-400 text-xs">
                     Belum ada pengajuan izin/sakit dari peserta bimbingan.

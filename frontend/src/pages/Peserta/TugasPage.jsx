@@ -3,7 +3,6 @@ import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import { getStorageUrl } from '../../utils/url';
-import DovetailDivider from '../../components/DovetailDivider';
 import {
   CheckSquare,
   FileText,
@@ -110,13 +109,6 @@ const TugasPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#E8A800] border-t-transparent"></div>
-      </div>
-    );
-  }
 
   const filteredList = activeFilter === 'Semua'
     ? tugasList
@@ -154,13 +146,13 @@ const TugasPage = () => {
                   onClick={() => setActiveFilter(f.value)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shrink-0 cursor-pointer ${
                     isActive
-                      ? 'bg-[#E8A800] text-slate-950 border-[#E8A800] shadow-2xs font-extrabold'
-                      : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-amber-300 hover:text-slate-900'
+                      ? 'bg-white text-slate-900 border-slate-300 shadow-sm font-semibold'
+                      : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-900'
                   }`}
                 >
                   {f.label}
-                  <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${
-                    isActive ? 'bg-slate-950/15 text-slate-950' : 'bg-slate-200/70 text-slate-600'
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                    isActive ? 'bg-slate-200 text-slate-700' : 'bg-slate-200/70 text-slate-600'
                   }`}>
                     {count}
                   </span>
@@ -172,7 +164,11 @@ const TugasPage = () => {
 
         {/* Task Content Grid Inside Unified Card Container */}
         <div className="p-4 sm:p-5 bg-slate-50/40">
-          {filteredList.length === 0 ? (
+          {loading ? (
+            <div className="py-12 px-4 text-center bg-white rounded-2xl border border-slate-200/80">
+              <p className="text-slate-500 font-medium text-xs">Memuat daftar tugas...</p>
+            </div>
+          ) : filteredList.length === 0 ? (
             <div className="py-12 px-4 text-center bg-white rounded-2xl border border-slate-200/80">
               <CheckSquare size={40} className="mx-auto text-slate-300 mb-3" />
               <p className="text-slate-700 font-bold text-sm">
@@ -227,49 +223,13 @@ const TugasPage = () => {
         </div>
 
         {/* Pagination Controls Footer */}
-        {filteredList.length > 0 && (
-          <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-white text-xs">
-            <span className="text-slate-500 font-medium">
-              Menampilkan <strong className="text-slate-800 font-mono">{startIndex + 1}</strong>–<strong className="text-slate-800 font-mono">{Math.min(startIndex + ITEMS_PER_PAGE, filteredList.length)}</strong> dari <strong className="text-slate-800 font-mono">{filteredList.length}</strong> tugas
-            </span>
-
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
-                disabled={currentPage === 1}
-                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold flex items-center gap-1 cursor-pointer"
-              >
-                <ChevronLeft size={14} />
-                <span>Sebelumnya</span>
-              </button>
-
-              <div className="flex items-center gap-1 px-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    className={`w-7 h-7 rounded-lg text-xs font-extrabold flex items-center justify-center transition-all cursor-pointer ${
-                      currentPage === pageNum
-                        ? 'bg-[#E8A800] text-slate-950 shadow-2xs'
-                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold flex items-center gap-1 cursor-pointer"
-              >
-                <span>Berikutnya</span>
-                <ChevronRight size={14} />
-              </button>
-            </div>
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={filteredList.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+          itemLabel="tugas"
+        />
       </div>
 
       {/* Detail & Submission Modal */}

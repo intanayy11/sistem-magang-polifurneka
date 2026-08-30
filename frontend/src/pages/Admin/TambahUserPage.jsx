@@ -250,7 +250,7 @@ const TambahUserPage = () => {
                     <label className={labelClass}>Asal Sekolah / Universitas / Instansi</label>
                     <input
                       type="text"
-                      placeholder="Contoh: Universitas Jenderal Soedirman"
+                      placeholder="Contoh: Politeknik Industri Furnitur dan Pengolahan Kayu"
                       value={form.asal_instansi}
                       onChange={(e) => handleChange('asal_instansi', e.target.value)}
                       className={inputClass}

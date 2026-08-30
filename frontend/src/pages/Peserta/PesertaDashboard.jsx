@@ -4,7 +4,6 @@ import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import MapModal from '../../components/MapModal';
-import DovetailDivider from '../../components/DovetailDivider';
 import {
   Clock,
   BookOpen,
@@ -384,7 +383,6 @@ const PesertaDashboard = () => {
 
       </div>
 
-      <DovetailDivider className="my-2" />
 
       {/* ── SECTION 2: SIDE-BY-SIDE WIDGETS (3 ITEMS MAX FOR TUGAS & LOGBOOK) ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">

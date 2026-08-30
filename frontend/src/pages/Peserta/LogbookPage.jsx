@@ -110,13 +110,6 @@ const LogbookPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#E8A800] border-t-transparent"></div>
-      </div>
-    );
-  }
 
   const filteredLogbooks = logbooks.filter((l) => {
     const matchesStatus = activeFilter === 'Semua' || l.status === activeFilter;
@@ -201,13 +194,13 @@ const LogbookPage = () => {
                       onClick={() => setActiveFilter(f.value)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shrink-0 cursor-pointer ${
                         isActive
-                          ? 'bg-[#E8A800] text-slate-950 border-[#E8A800] shadow-2xs font-extrabold'
-                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:border-amber-300 hover:text-slate-900'
+                          ? 'bg-white text-slate-900 border-slate-300 shadow-sm font-semibold'
+                          : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-900'
                       }`}
                     >
                       {f.label}
-                      <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${
-                        isActive ? 'bg-slate-950/15 text-slate-950' : 'bg-slate-200/70 text-slate-600'
+                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                        isActive ? 'bg-slate-200 text-slate-700' : 'bg-slate-200/70 text-slate-600'
                       }`}>
                         {count}
                       </span>
@@ -230,7 +223,11 @@ const LogbookPage = () => {
         </div>
 
         {/* Table Body or Empty State */}
-        {filteredLogbooks.length === 0 ? (
+        {loading ? (
+          <div className="p-12 text-center">
+            <p className="text-slate-500 font-medium text-xs">Memuat data logbook...</p>
+          </div>
+        ) : filteredLogbooks.length === 0 ? (
           <div className="p-12 text-center">
             <BookOpen size={40} className="mx-auto text-slate-300 mb-3" />
             <p className="text-slate-700 font-bold text-sm">

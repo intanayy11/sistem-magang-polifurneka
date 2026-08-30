@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import AlertBanner from '../components/AlertBanner';
-import DovetailDivider from '../components/DovetailDivider';
 import {
   Phone,
   KeyRound,
@@ -15,6 +14,7 @@ import {
   Calendar,
   Info
 } from 'lucide-react';
+import { isMagangSelesai } from '../utils/dateHelpers';
 
 const formatDateIndo = (dateStr) => {
   if (!dateStr) return '-';
@@ -28,11 +28,11 @@ const formatDateIndo = (dateStr) => {
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
-  const [profileData, setProfileData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState(user || null);
+  const [loading, setLoading] = useState(!user);
 
   // Form states
-  const [noHp, setNoHp] = useState('');
+  const [noHp, setNoHp] = useState(user?.no_hp || '');
   const [submittingProfile, setSubmittingProfile] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [profileAlert, setProfileAlert] = useState(null);
@@ -154,13 +154,6 @@ const Profile = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
-      </div>
-    );
-  }
 
   const getRoleLabel = (role) => {
     const roles = {
@@ -172,157 +165,142 @@ const Profile = () => {
   };
 
   return (
-    <div className="space-y-4 max-w-6xl mx-auto">
-      {/* Header Title */}
-      <div>
-        <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Profil Saya</h2>
-      </div>
+    <div className="space-y-4 max-w-3xl mx-auto">
+      {/* ── UNIFIED PROFILE CARD ── */}
+      <div className="card-clean overflow-hidden">
 
-      <DovetailDivider className="my-2" />
-
-      {/* ── ROW 1: AVATAR CARD (LEFT) & ACCOUNT INFO READ-ONLY (RIGHT) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        
-        {/* Left Card: Avatar & Role Badge (4-span on desktop) */}
-        <div className="lg:col-span-4 card-clean p-6 flex flex-col items-center text-center justify-center space-y-4">
-          <div className="relative group">
-            <div className="h-28 w-28 rounded-full overflow-hidden border-4 border-amber-100 shadow-md bg-amber-50 flex items-center justify-center shrink-0">
-              {profileData?.foto_profil ? (
-                <img
-                  src={profileData.foto_profil}
-                  alt={profileData.nama}
-                  className="h-full w-full object-cover"
+        {/* Top Banner: Avatar + Name + Role Badge */}
+        <div className="p-6 pb-5 border-b border-slate-100 bg-gradient-to-r from-amber-50/60 to-white">
+          <div className="flex items-center gap-5">
+            {/* Avatar with camera button */}
+            <div className="relative shrink-0">
+              <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-amber-100 shadow-md bg-amber-50 flex items-center justify-center">
+                {profileData?.foto_profil ? (
+                  <img
+                    src={profileData.foto_profil}
+                    alt={profileData.nama}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span className="text-3xl font-extrabold text-amber-900">
+                    {profileData?.nama ? profileData.nama.charAt(0).toUpperCase() : 'U'}
+                  </span>
+                )}
+              </div>
+              <label
+                htmlFor="foto-upload"
+                className="absolute bottom-0 right-0 bg-[#E8A800] hover:bg-[#D49800] text-slate-950 p-1.5 rounded-full shadow-lg cursor-pointer transition-transform hover:scale-110 flex items-center justify-center"
+                title="Ganti Foto Profil"
+              >
+                {uploadingPhoto ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Camera size={14} />
+                )}
+                <input
+                  id="foto-upload"
+                  type="file"
+                  accept="image/png, image/jpeg, image/jpg"
+                  onChange={handlePhotoChange}
+                  className="hidden"
+                  disabled={uploadingPhoto}
                 />
-              ) : (
-                <span className="text-3xl font-extrabold text-amber-900">
-                  {profileData?.nama ? profileData.nama.charAt(0).toUpperCase() : 'U'}
-                </span>
-              )}
+              </label>
             </div>
 
-            {/* Photo Upload Overlay Button */}
-            <label
-              htmlFor="foto-upload"
-              className="absolute bottom-0 right-0 bg-[#E8A800] hover:bg-[#D49800] text-slate-950 p-2 rounded-full shadow-lg cursor-pointer transition-transform hover:scale-110 flex items-center justify-center"
-              title="Ganti Foto Profil"
-            >
-              {uploadingPhoto ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <Camera size={16} />
-              )}
-              <input
-                id="foto-upload"
-                type="file"
-                accept="image/png, image/jpeg, image/jpg"
-                onChange={handlePhotoChange}
-                className="hidden"
-                disabled={uploadingPhoto}
-              />
-            </label>
+            {/* Name, email, role */}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-slate-900 text-lg leading-tight truncate">{profileData?.nama}</h3>
+              <p className="text-xs text-slate-500 mt-0.5 truncate">{profileData?.email}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                {profileData?.role === 'peserta' ? (
+                  (profileData?.is_magang_selesai ?? isMagangSelesai(profileData)) ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold tracking-wide">
+                      Selesai Magang
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold tracking-wide">
+                      Aktif Magang
+                    </span>
+                  )
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold tracking-wide">
+                    Aktif
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
-
-          <div>
-            <h3 className="font-bold text-slate-900 text-base leading-tight">{profileData?.nama}</h3>
-            <p className="text-xs text-slate-500 mt-1">{profileData?.email}</p>
-          </div>
-
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold uppercase tracking-wider">
-            <BadgeCheck size={14} className="text-amber-600" />
-            <span>{getRoleLabel(profileData?.role)}</span>
-          </div>
-
-          <p className="text-[11px] text-slate-400">
-            Format foto: JPG, PNG (Maks 2MB)
-          </p>
         </div>
 
-        {/* Right Card: Read-Only Account Info (8-span on desktop) */}
-        <div className="lg:col-span-8 card-clean p-6 flex flex-col justify-between space-y-4">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-              <Shield size={18} className="text-amber-600" />
-              <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider">Informasi Akun</h3>
+        {/* Info Read-Only Grid */}
+        <div className="p-6 space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+            <Shield size={18} className="text-amber-600" />
+            <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider">Informasi Akun</h3>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+              <span className="text-slate-400 font-medium block">Nama Lengkap</span>
+              <span className="font-bold text-slate-800 text-sm mt-0.5 block break-words">{profileData?.nama}</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
-                <span className="text-slate-400 font-medium block">Nama Lengkap</span>
-                <span className="font-bold text-slate-800 text-sm mt-0.5 block break-words">{profileData?.nama}</span>
-              </div>
-
-              <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
-                <span className="text-slate-400 font-medium block">Email Terdaftar</span>
-                <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-all">{profileData?.email}</span>
-              </div>
-
-              <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
-                <span className="text-slate-400 font-medium block">Peran / Role System</span>
-                <span className="font-semibold text-slate-800 text-sm mt-0.5 block capitalize">{profileData?.role}</span>
-              </div>
-
-              {profileData?.nim_nis && (
-                <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
-                  <span className="text-slate-400 font-medium block">NIM / NIS / NIP</span>
-                  <span className="font-mono font-bold text-slate-800 text-sm mt-0.5 block break-all">{profileData.nim_nis}</span>
-                </div>
-              )}
-
-              {profileData?.asal_instansi && (
-                <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
-                  <span className="text-slate-400 font-medium block">Asal Sekolah / Universitas</span>
-                  <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.asal_instansi}</span>
-                </div>
-              )}
-
-              {profileData?.jurusan && (
-                <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
-                  <span className="text-slate-400 font-medium block">Jurusan / Program Studi</span>
-                  <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.jurusan}</span>
-                </div>
-              )}
-
-              {profileData?.posisi_magang && (
-                <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
-                  <span className="text-slate-400 font-medium block">Posisi / Divisi Magang</span>
-                  <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.posisi_magang}</span>
-                </div>
-              )}
-
-              {profileData?.role === 'peserta' && (
-                <div className="bg-amber-50/90 p-4 rounded-xl border border-amber-200/80 sm:col-span-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <span className="text-amber-900/80 font-bold block text-[11px] uppercase tracking-wider flex items-center gap-1.5">
-                      <Calendar size={15} className="text-amber-600" />
-                      Periode Pelaksanaan Magang
-                    </span>
-                    <span className="font-extrabold text-slate-900 text-sm mt-1 block">
-                      {profileData.tanggal_mulai_magang ? formatDateIndo(profileData.tanggal_mulai_magang) : 'Belum diatur'}
-                      {' s/d '}
-                      {profileData.tanggal_selesai_magang ? formatDateIndo(profileData.tanggal_selesai_magang) : 'Sekarang'}
-                    </span>
-                  </div>
-                  <div className="shrink-0">
-                    {profileData.is_magang_selesai ? (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs">
-                        Selesai Magang
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 shadow-2xs">
-                        Periode Aktif
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {profileData?.jabatan && (
-                <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
-                  <span className="text-slate-400 font-medium block">Jabatan Pembimbing</span>
-                  <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.jabatan}</span>
-                </div>
-              )}
+            <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+              <span className="text-slate-400 font-medium block">Email Terdaftar</span>
+              <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-all">{profileData?.email}</span>
             </div>
+
+            <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+              <span className="text-slate-400 font-medium block">Peran / Role System</span>
+              <span className="font-semibold text-slate-800 text-sm mt-0.5 block capitalize">{profileData?.role}</span>
+            </div>
+
+            {profileData?.nim_nis && (
+              <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+                <span className="text-slate-400 font-medium block">NIM / NIS / NIP</span>
+                <span className="font-mono font-bold text-slate-800 text-sm mt-0.5 block break-all">{profileData.nim_nis}</span>
+              </div>
+            )}
+
+            {profileData?.asal_instansi && (
+              <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+                <span className="text-slate-400 font-medium block">Asal Sekolah / Universitas</span>
+                <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.asal_instansi}</span>
+              </div>
+            )}
+
+            {profileData?.jurusan && (
+              <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+                <span className="text-slate-400 font-medium block">Jurusan / Program Studi</span>
+                <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.jurusan}</span>
+              </div>
+            )}
+
+            {profileData?.posisi_magang && (
+              <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+                <span className="text-slate-400 font-medium block">Posisi / Divisi Magang</span>
+                <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.posisi_magang}</span>
+              </div>
+            )}
+
+            {profileData?.role === 'peserta' && (
+              <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+                <span className="text-slate-400 font-medium block">Periode Pelaksanaan Magang</span>
+                <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">
+                  {profileData.tanggal_mulai_magang ? formatDateIndo(profileData.tanggal_mulai_magang) : 'Belum diatur'}
+                  {' s/d '}
+                  {profileData.tanggal_selesai_magang ? formatDateIndo(profileData.tanggal_selesai_magang) : 'Sekarang'}
+                </span>
+              </div>
+            )}
+
+            {profileData?.jabatan && (
+              <div className="bg-slate-50/80 p-3.5 rounded-xl border border-slate-100">
+                <span className="text-slate-400 font-medium block">Jabatan Pembimbing</span>
+                <span className="font-semibold text-slate-800 text-sm mt-0.5 block break-words">{profileData.jabatan}</span>
+              </div>
+            )}
           </div>
 
           <p className="text-[11px] text-slate-500 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 font-medium">
@@ -339,11 +317,10 @@ const Profile = () => {
             </span>
           </p>
         </div>
-
       </div>
 
-      {/* ── ROW 2: SIDE-BY-SIDE GRID FOR CONTACT FORM & PASSWORD FORM ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+      {/* ── ROW 2: STACKED FORMS — CONTACT & PASSWORD ── */}
+      <div className="space-y-4">
         
         {/* Left Column: Contact Form (No. HP) */}
         <div className="card-clean p-6 space-y-4">

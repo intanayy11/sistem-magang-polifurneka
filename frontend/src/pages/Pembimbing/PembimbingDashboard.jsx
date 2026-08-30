@@ -14,7 +14,6 @@ import {
   Clock,
   ChevronRight
 } from 'lucide-react';
-import DovetailDivider from '../../components/DovetailDivider';
 
 const PembimbingDashboard = () => {
   const { user } = useAuth();
@@ -91,7 +90,6 @@ const PembimbingDashboard = () => {
 
       </div>
 
-      <DovetailDivider className="my-2" />
 
       {/* ── BENTO CARD 2: SUMMARY METRICS GRID (4 CARDS) ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

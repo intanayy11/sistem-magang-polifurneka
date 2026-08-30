@@ -7,12 +7,16 @@ import { Plus, FileText, AlertCircle, X, AlertTriangle } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
 import { isMagangSelesai } from '../../utils/dateHelpers';
+import Pagination from '../../components/Pagination';
+
+const ITEMS_PER_PAGE = 10;
 
 const IzinPage = () => {
   const { user } = useAuth();
   const magangSelesai = isMagangSelesai(user);
   const [izinList, setIzinList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
@@ -79,13 +83,6 @@ const IzinPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
@@ -136,16 +133,26 @@ const IzinPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {izinList.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="px-5 py-8 text-center text-slate-400 text-xs font-medium">
+                    Memuat data pengajuan...
+                  </td>
+                </tr>
+              ) : izinList.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="px-5 py-8 text-center text-slate-400 text-xs">
                     Belum ada pengajuan izin/sakit.
                   </td>
                 </tr>
               ) : (
-                izinList.map((item, idx) => (
+                izinList
+                  .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                  .map((item, idx) => (
                   <tr key={item.izin_id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="px-5 py-3.5 font-medium text-slate-900">{idx + 1}</td>
+                    <td className="px-5 py-3.5 font-medium text-slate-900">
+                      {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
+                    </td>
                     <td className="px-5 py-3.5 font-semibold text-slate-800">{item.jenis}</td>
                     <td className="px-5 py-3.5 font-mono text-slate-700">
                       {item.tanggal_mulai} s/d {item.tanggal_selesai}
@@ -175,6 +182,15 @@ const IzinPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Footer Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalItems={izinList.length}
+          itemsPerPage={ITEMS_PER_PAGE}
+          onPageChange={setCurrentPage}
+          itemLabel="pengajuan"
+        />
       </div>
 
       {/* Modal Form Izin */}

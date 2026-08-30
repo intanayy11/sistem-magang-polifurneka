@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
 import StatusBadge from '../../components/StatusBadge';
 import MapModal from '../../components/MapModal';
-import DovetailDivider from '../../components/DovetailDivider';
 import { MapPin, Users, Clock, Calendar, CheckCircle2, AlertCircle, Search, Filter, RefreshCw, X } from 'lucide-react';
 import Pagination from '../../components/Pagination';
 
@@ -312,7 +311,6 @@ const MonitorPresensiPage = () => {
         </div>
       </div>
 
-      <DovetailDivider className="my-3" />
 
       {/* ── BAGIAN 2 (BAWAH): RIWAYAT PRESENSI HISTORIS & FILTER PER PESERTA ── */}
       <div className="card-clean overflow-hidden space-y-0">

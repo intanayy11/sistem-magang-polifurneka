@@ -47,7 +47,7 @@ class NotificationController extends Controller
             if (!$presensiHariIni && !Carbon::today()->isWeekend()) {
                 $notifications[] = [
                     'id' => 'presensi_masuk_' . $today,
-                    'title' => '⏰ Pengingat Presensi Masuk',
+                    'title' => 'Pengingat Presensi Masuk',
                     'message' => 'Anda belum melakukan presensi masuk hari ini. Silakan catat presensi sebelum jam kerja berakhir.',
                     'time' => 'Hari ini',
                     'unread' => true,
@@ -58,7 +58,7 @@ class NotificationController extends Controller
                 // 2. Pengingat Presensi Pulang
                 $notifications[] = [
                     'id' => 'presensi_pulang_' . $today,
-                    'title' => '🔔 Pengingat Presensi Pulang',
+                    'title' => 'Pengingat Presensi Pulang',
                     'message' => 'Sudah memasuki jam pulang kerja. Jangan lupa catat presensi pulang Anda.',
                     'time' => 'Hari ini',
                     'unread' => true,
@@ -76,11 +76,11 @@ class NotificationController extends Controller
             foreach ($tugasRevisi as $t) {
                 $notifications[] = [
                     'id' => 'tugas_revisi_' . $t->tugas_id,
-                    'title' => '⚠️ Tugas Perlu Revisi',
+                    'title' => 'Tugas Perlu Revisi',
                     'message' => "Tugas '" . $t->judul . "' memerlukan perbaikan. Cek catatan revisi dari Pembimbing.",
                     'time' => $t->updated_at ? Carbon::parse($t->updated_at)->diffForHumans() : 'Baru saja',
                     'unread' => true,
-                    'type' => 'warning',
+                    'type' => 'danger',
                     'link' => '/peserta/tugas'
                 ];
             }
@@ -96,7 +96,7 @@ class NotificationController extends Controller
                 $deadlineText = $t->deadline ? Carbon::parse($t->deadline)->format('d M Y H:i') : '-';
                 $notifications[] = [
                     'id' => 'tugas_baru_' . $t->tugas_id,
-                    'title' => '📌 Tugas Magang Baru',
+                    'title' => 'Tugas Magang Baru',
                     'message' => "Pembimbing memberikan tugas '" . $t->judul . "'. Deadline: " . $deadlineText,
                     'time' => $t->created_at ? Carbon::parse($t->created_at)->diffForHumans() : 'Baru saja',
                     'unread' => true,
@@ -116,32 +116,12 @@ class NotificationController extends Controller
                 $tglStr = Carbon::parse($l->tanggal)->format('d M Y');
                 $notifications[] = [
                     'id' => 'logbook_revisi_' . $l->logbook_id,
-                    'title' => '📝 Logbook Perlu Perbaikan',
+                    'title' => 'Logbook Perlu Perbaikan',
                     'message' => "Catatan kegiatan harian tanggal " . $tglStr . " memerlukan revisi dari Pembimbing.",
                     'time' => $l->updated_at ? Carbon::parse($l->updated_at)->diffForHumans() : 'Baru saja',
                     'unread' => true,
-                    'type' => 'warning',
+                    'type' => 'danger',
                     'link' => '/peserta/logbook'
-                ];
-            }
-
-            // 6. Status Pengajuan Izin (Disetujui / Ditolak)
-            $izinProcessed = Izin::where('peserta_id', $user->user_id)
-                ->whereIn('status', ['Disetujui', 'Ditolak'])
-                ->orderBy('updated_at', 'desc')
-                ->take(3)
-                ->get();
-
-            foreach ($izinProcessed as $iz) {
-                $statusType = $iz->status === 'Disetujui' ? 'success' : 'danger';
-                $notifications[] = [
-                    'id' => 'izin_status_' . $iz->izin_id,
-                    'title' => ($iz->status === 'Disetujui' ? '✅' : '❌') . " Izin " . $iz->status,
-                    'message' => "Pengajuan " . $iz->jenis . " (" . Carbon::parse($iz->tanggal_mulai)->format('d/m') . ") telah " . strtolower($iz->status) . " Pembimbing.",
-                    'time' => $iz->updated_at ? Carbon::parse($iz->updated_at)->diffForHumans() : 'Baru saja',
-                    'unread' => true,
-                    'type' => $statusType,
-                    'link' => '/peserta/izin'
                 ];
             }
         }
@@ -163,7 +143,7 @@ class NotificationController extends Controller
             if ($logbookPendingCount > 0) {
                 $notifications[] = [
                     'id' => 'pembimbing_logbook_pending',
-                    'title' => '📑 Logbook Menunggu Verifikasi',
+                    'title' => 'Logbook Menunggu Verifikasi',
                     'message' => $logbookPendingCount . ' logbook harian dari peserta bimbingan Anda memerlukan peninjauan.',
                     'time' => 'Hari ini',
                     'unread' => true,
@@ -181,7 +161,7 @@ class NotificationController extends Controller
             foreach ($tugasPending as $t) {
                 $notifications[] = [
                     'id' => 'pembimbing_tugas_review_' . $t->tugas_id,
-                    'title' => '📥 Pengumpulan Tugas Baru',
+                    'title' => 'Pengumpulan Tugas Baru',
                     'message' => ($t->peserta?->nama ?? 'Peserta') . " mengumpulkan tugas '" . $t->judul . "' untuk ditinjau.",
                     'time' => $t->updated_at ? Carbon::parse($t->updated_at)->diffForHumans() : 'Baru saja',
                     'unread' => true,
@@ -198,7 +178,7 @@ class NotificationController extends Controller
             if ($izinPendingCount > 0) {
                 $notifications[] = [
                     'id' => 'pembimbing_izin_pending',
-                    'title' => '✉️ Pengajuan Izin Baru',
+                    'title' => 'Pengajuan Izin Baru',
                     'message' => $izinPendingCount . ' pengajuan izin/sakit dari peserta bimbingan Anda menunggu persetujuan.',
                     'time' => 'Hari ini',
                     'unread' => true,

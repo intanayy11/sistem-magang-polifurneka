@@ -7,7 +7,7 @@ const StatusBadge = ({ status }) => {
       case 'Hadir':
         return 'text-emerald-700 font-bold';
       case 'Terlambat':
-        return 'text-amber-800 font-bold';
+        return 'text-rose-500 font-bold';
       case 'Alpha':
         return 'text-rose-700 font-bold';
 
@@ -22,7 +22,7 @@ const StatusBadge = ({ status }) => {
         return 'text-rose-700 font-bold';
       case 'Revisi':
       case 'Perlu Revisi':
-        return 'text-amber-900 font-bold';
+        return 'text-rose-600 font-bold';
 
       // Tugas Status
       case 'Belum Dikerjakan':

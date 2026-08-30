@@ -84,8 +84,8 @@ function App() {
             </Route>
           </Route>
 
-          {/* Shared Profile Route (All Logged-in Roles) */}
-          <Route element={<ProtectedRoute allowedRoles={['peserta', 'pembimbing', 'admin']} />}>
+          {/* Shared Profile Route (Khusus Peserta & Pembimbing) */}
+          <Route element={<ProtectedRoute allowedRoles={['peserta', 'pembimbing']} />}>
             <Route element={<Layout />}>
               <Route path="/profil" element={<Profile />} />
             </Route>

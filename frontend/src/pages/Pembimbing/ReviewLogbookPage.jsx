@@ -95,13 +95,6 @@ const ReviewLogbookPage = () => {
     return log.status === filterStatus;
   });
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[300px]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
@@ -122,7 +115,7 @@ const ReviewLogbookPage = () => {
                   key={st}
                   onClick={() => setFilterStatus(st)}
                   className={`px-3 py-1.5 rounded-lg transition-all ${
-                    filterStatus === st ? 'bg-[#E8A800] text-slate-950 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-slate-900'
+                    filterStatus === st ? 'bg-white text-slate-900 shadow-sm font-semibold' : 'text-slate-500 hover:text-slate-900'
                   }`}
                 >
                   {st}
@@ -146,7 +139,13 @@ const ReviewLogbookPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredLogbooks.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="6" className="px-5 py-8 text-center text-slate-400 text-xs font-medium">
+                    Memuat data logbook...
+                  </td>
+                </tr>
+              ) : filteredLogbooks.length === 0 ? (
                 <tr>
                   <td colSpan="6" className="px-5 py-8 text-center text-slate-400 text-xs">
                     Tidak ada data logbook untuk kategori status ini.
