@@ -73,7 +73,7 @@ const PembimbingDashboard = () => {
         <div className="relative z-10 space-y-3">
           <div className="flex items-center justify-end">
             <span className="text-xs font-semibold text-slate-500 font-mono bg-white/80 backdrop-blur-xs px-3 py-1 rounded-xl border border-slate-200/80">
-              {new Date().toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
+              {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}
             </span>
           </div>
 
@@ -116,7 +116,7 @@ const PembimbingDashboard = () => {
 
         {/* Card 2: Logbook Pending */}
         <div
-          onClick={() => navigate('/pembimbing/review-logbook')}
+          onClick={() => navigate('/pembimbing/review-logbook?status=Menunggu')}
           className="card-bento p-5 flex flex-col justify-between bg-gradient-to-br from-white to-amber-50/40 hover:border-amber-300 transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">

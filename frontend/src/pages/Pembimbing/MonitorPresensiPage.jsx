@@ -127,7 +127,7 @@ const MonitorPresensiPage = () => {
           <div className="flex items-center gap-2 self-start sm:self-auto">
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold">
               <Calendar size={14} className="text-amber-600" />
-              <span>{new Date().toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}</span>
+              <span>{new Date().toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}</span>
             </div>
             <button
               onClick={fetchAllData}
@@ -414,7 +414,7 @@ const MonitorPresensiPage = () => {
                       <div className="text-[11px] text-slate-400 font-mono">{item.nimPeserta || '-'}</div>
                     </td>
                     <td className="px-5 py-3.5 font-semibold text-slate-800 whitespace-nowrap">
-                      {new Date(item.tanggal).toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
+                      {new Date(item.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
                     <td className="px-5 py-3.5 font-mono text-slate-700 font-semibold">{item.jam_masuk || '-'}</td>
                     <td className="px-5 py-3.5 font-mono text-slate-700 font-semibold">{item.jam_pulang || '-'}</td>

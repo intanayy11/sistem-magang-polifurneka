@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../api/axios';
 import { getStorageUrl } from '../../utils/url';
 import {
@@ -21,11 +22,29 @@ const ITEMS_PER_PAGE = 10;
 const ReviewLogbookPage = () => {
   const [logbooks, setLogbooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState('Semua'); // Semua, Menunggu, Disetujui, Revisi
+  const [searchParams] = useSearchParams();
+  const urlStatus = searchParams.get('status');
+
+  const getInitialFilter = () => {
+    if (urlStatus === 'Menunggu') return 'Menunggu';
+    if (urlStatus === 'Disetujui' || urlStatus === 'Approve') return 'Disetujui';
+    if (urlStatus === 'Revisi' || urlStatus === 'Perlu Revisi') return 'Revisi';
+    return 'Semua';
+  };
+
+  const [filterStatus, setFilterStatus] = useState(getInitialFilter);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLogbook, setSelectedLogbook] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (urlStatus) {
+      if (urlStatus === 'Menunggu') setFilterStatus('Menunggu');
+      else if (urlStatus === 'Disetujui' || urlStatus === 'Approve') setFilterStatus('Disetujui');
+      else if (urlStatus === 'Revisi' || urlStatus === 'Perlu Revisi') setFilterStatus('Revisi');
+    }
+  }, [urlStatus]);
 
   useEffect(() => {
     setCurrentPage(1);

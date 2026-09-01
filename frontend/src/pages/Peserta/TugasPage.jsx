@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
@@ -39,8 +40,28 @@ const TugasPage = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
-  const [activeFilter, setActiveFilter] = useState('Semua');
+  const [searchParams] = useSearchParams();
+  const urlStatus = searchParams.get('status');
+
+  const getInitialFilter = () => {
+    if (urlStatus === 'Perlu Revisi' || urlStatus === 'Revisi') return 'Perlu Revisi';
+    if (urlStatus === 'Menunggu Review' || urlStatus === 'Menunggu') return 'Menunggu Review';
+    if (urlStatus === 'Belum Dikerjakan') return 'Belum Dikerjakan';
+    if (urlStatus === 'Selesai') return 'Selesai';
+    return 'Semua';
+  };
+
+  const [activeFilter, setActiveFilter] = useState(getInitialFilter);
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    if (urlStatus) {
+      if (urlStatus === 'Perlu Revisi' || urlStatus === 'Revisi') setActiveFilter('Perlu Revisi');
+      else if (urlStatus === 'Menunggu Review' || urlStatus === 'Menunggu') setActiveFilter('Menunggu Review');
+      else if (urlStatus === 'Belum Dikerjakan') setActiveFilter('Belum Dikerjakan');
+      else if (urlStatus === 'Selesai') setActiveFilter('Selesai');
+    }
+  }, [urlStatus]);
 
   useScrollLock(showDetailModal);
 

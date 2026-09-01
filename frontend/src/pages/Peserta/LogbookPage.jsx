@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
@@ -12,7 +13,7 @@ import { nearestWorkdayOnOrBefore, isWeekend, todayLocalISO, isMagangSelesai } f
 const LOGBOOK_FILTERS = [
   { label: 'Semua', value: 'Semua' },
   { label: 'Menunggu', value: 'Menunggu' },
-  { label: 'Disetujui', value: 'Approve' },
+  { label: 'Disetujui', value: 'Disetujui' },
   { label: 'Perlu Revisi', value: 'Revisi' },
 ];
 
@@ -28,9 +29,27 @@ const LogbookPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
   const [dateNote, setDateNote] = useState('');
-  const [activeFilter, setActiveFilter] = useState('Semua');
+  const [searchParams] = useSearchParams();
+  const urlStatus = searchParams.get('status');
+
+  const getInitialFilter = () => {
+    if (urlStatus === 'Menunggu') return 'Menunggu';
+    if (urlStatus === 'Revisi' || urlStatus === 'Perlu Revisi') return 'Revisi';
+    if (urlStatus === 'Disetujui' || urlStatus === 'Approve') return 'Disetujui';
+    return 'Semua';
+  };
+
+  const [activeFilter, setActiveFilter] = useState(getInitialFilter);
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    if (urlStatus) {
+      if (urlStatus === 'Menunggu') setActiveFilter('Menunggu');
+      else if (urlStatus === 'Revisi' || urlStatus === 'Perlu Revisi') setActiveFilter('Revisi');
+      else if (urlStatus === 'Disetujui' || urlStatus === 'Approve') setActiveFilter('Disetujui');
+    }
+  }, [urlStatus]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -112,7 +131,11 @@ const LogbookPage = () => {
 
 
   const filteredLogbooks = logbooks.filter((l) => {
-    const matchesStatus = activeFilter === 'Semua' || l.status === activeFilter;
+    const matchesStatus =
+      activeFilter === 'Semua' ||
+      l.status === activeFilter ||
+      (activeFilter === 'Disetujui' && (l.status === 'Disetujui' || l.status === 'Approve')) ||
+      (activeFilter === 'Revisi' && (l.status === 'Revisi' || l.status === 'Perlu Revisi'));
     const q = searchQuery.toLowerCase().trim();
     const matchesSearch =
       !q ||
@@ -186,7 +209,7 @@ const LogbookPage = () => {
                 {LOGBOOK_FILTERS.map((f) => {
                   const count = f.value === 'Semua'
                     ? logbooks.length
-                    : logbooks.filter(l => l.status === f.value).length;
+                    : logbooks.filter(l => l.status === f.value || (f.value === 'Disetujui' && (l.status === 'Disetujui' || l.status === 'Approve')) || (f.value === 'Revisi' && (l.status === 'Revisi' || l.status === 'Perlu Revisi'))).length;
                   const isActive = activeFilter === f.value;
                   return (
                     <button

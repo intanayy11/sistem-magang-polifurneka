@@ -163,7 +163,7 @@ const RiwayatPresensiPage = () => {
                       {(currentPage - 1) * ITEMS_PER_PAGE + idx + 1}
                     </td>
                     <td className="px-5 py-3.5 font-semibold text-slate-800 group-hover:text-amber-900 transition-colors whitespace-nowrap">
-                      {new Date(item.tanggal).toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
+                      {new Date(item.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
                     <td className="px-5 py-3.5 font-mono text-slate-700 font-semibold">{item.jam_masuk || '-'}</td>
                     <td className="px-5 py-3.5 font-mono text-slate-700 font-semibold">{item.jam_pulang || '-'}</td>

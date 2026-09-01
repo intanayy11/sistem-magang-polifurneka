@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
@@ -362,22 +362,22 @@ const PesertaDashboard = () => {
           </div>
 
           <div className="w-full grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100 font-medium text-slate-600">
-            <a
-              href="/peserta/logbook"
+            <Link
+              to="/peserta/logbook?status=Menunggu"
               className="bg-slate-50 hover:bg-amber-50/80 p-2.5 rounded-xl border border-slate-100 hover:border-amber-200 block transition-all group cursor-pointer text-center"
-              title="Buka halaman Logbook Kegiatan"
+              title="Buka halaman Logbook Kegiatan (Filter: Menunggu)"
             >
               <span className="text-[10px] text-slate-400 group-hover:text-amber-800 transition-colors block">Logbook Pending</span>
               <span className="font-bold text-amber-800 text-sm group-hover:scale-110 transition-transform inline-block">{logbook_pending_count}</span>
-            </a>
-            <a
-              href="/peserta/tugas"
+            </Link>
+            <Link
+              to="/peserta/tugas?status=Perlu Revisi"
               className="bg-slate-50 hover:bg-rose-50/80 p-2.5 rounded-xl border border-slate-100 hover:border-rose-200 block transition-all group cursor-pointer text-center"
-              title="Buka halaman Tugas Magang"
+              title="Buka halaman Tugas Magang (Filter: Perlu Revisi)"
             >
               <span className="text-[10px] text-slate-400 group-hover:text-rose-800 transition-colors block">Tugas Revisi</span>
               <span className="font-bold text-rose-700 text-sm group-hover:scale-110 transition-transform inline-block">{tugas_stats.perlu_revisi}</span>
-            </a>
+            </Link>
           </div>
         </div>
 

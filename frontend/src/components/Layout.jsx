@@ -11,23 +11,18 @@ import {
   CheckSquare,
   Users,
   UserCheck,
-  UserCog,
   UserPlus,
-  GraduationCap,
   Link2,
   Database,
   LogOut,
   Menu,
   X,
-  ChevronLeft,
-  ChevronRight,
   ChevronDown,
   MapPin,
   User,
   FileText,
   History,
   BarChart3,
-  PieChart,
   Bell
 } from 'lucide-react';
 
@@ -38,7 +33,6 @@ const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [dataMasterOpen, setDataMasterOpen] = useState(true);
   const [laporanCentralOpen, setLaporanCentralOpen] = useState(true);
@@ -113,22 +107,14 @@ const Layout = () => {
     navigate('/login');
   };
 
-  const getRoleBadge = (role) => {
-    const badges = {
-      peserta: { bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-200', label: 'Peserta Magang' },
-      pembimbing: { bg: 'bg-emerald-50', text: 'text-emerald-800', border: 'border-emerald-200', label: 'Pembimbing Lapangan' },
-      admin: { bg: 'bg-purple-50 text-purple-900 border-purple-300 font-bold', text: 'text-purple-900', border: 'border-purple-300', label: 'Administrator Sistem 👑' },
-    };
-    const b = badges[role];
-    if (!b) return null;
-    return (
-      <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium border ${b.bg} ${b.text} ${b.border}`}>
-        {b.label}
-      </span>
-    );
+  const getRoleLabel = (role) => {
+    if (role === 'peserta') return 'Peserta Magang';
+    if (role === 'pembimbing') return 'Pembimbing Lapangan';
+    if (role === 'admin') return 'Administrator Sistem';
+    return 'Pengguna';
   };
 
-  const getAvatar = (userObj, sizeClass = 'h-8 w-8 text-xs', roundClass = 'rounded-full') => {
+  const getAvatar = (userObj, sizeClass = 'h-9 w-9 text-xs', roundClass = 'rounded-full') => {
     if (userObj?.foto_profil) {
       return (
         <img
@@ -156,40 +142,40 @@ const Layout = () => {
         location.pathname === '/admin/tambah-user';
 
       return (
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           {/* Dashboard */}
           <NavLink
             to="/admin/dashboard"
             onClick={closeMobile}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
                 isActive
-                  ? 'bg-amber-50/80 text-amber-900 font-bold'
-                  : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                  ? 'bg-[#E8A800] text-slate-950 font-bold shadow-xs'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <LayoutDashboard size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                <LayoutDashboard size={18} className={`shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
                 <span className="flex-1 truncate">Dashboard</span>
               </>
             )}
           </NavLink>
 
-          {/* Collapsible Data Master Group */}
+          {/* Collapsible Kelola User Group */}
           <div>
             <button
               type="button"
               onClick={() => setDataMasterOpen(!dataMasterOpen)}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 cursor-pointer ${
                 isDataMasterChildActive
-                  ? 'bg-amber-50/50 text-amber-950 font-bold'
-                  : 'text-slate-700 hover:bg-slate-100/70'
+                  ? 'bg-slate-100/80 text-slate-900 font-bold'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <Database size={18} className={`shrink-0 ${isDataMasterChildActive ? 'text-[#E8A800]' : 'text-slate-500'}`} />
+                <Database size={18} className={`shrink-0 ${isDataMasterChildActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
                 <span className="truncate">Kelola User</span>
               </div>
               <ChevronDown
@@ -199,7 +185,7 @@ const Layout = () => {
             </button>
 
             {dataMasterOpen && (
-              <div className="ml-3 pl-3 pt-1 pb-0.5 space-y-1 border-l-2 border-slate-100">
+              <div className="ml-4 pl-3 pt-1.5 pb-1 space-y-1 border-l-2 border-slate-100">
                 {/* Sub-menu 1: Semua User */}
                 <NavLink
                   to="/admin/kelola-user"
@@ -208,8 +194,8 @@ const Layout = () => {
                     const isAllUserActive = location.pathname === '/admin/kelola-user';
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isAllUserActive
-                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
-                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                        ? 'bg-[#E8A800] text-slate-950 font-bold shadow-xs'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     }`;
                   }}
                   title="Daftar Semua User"
@@ -218,7 +204,7 @@ const Layout = () => {
                     const isAllUserActive = location.pathname === '/admin/kelola-user';
                     return (
                       <>
-                        <Users size={16} className={`shrink-0 ${isAllUserActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <Users size={16} className={`shrink-0 ${isAllUserActive ? 'text-slate-950' : 'text-slate-400'}`} />
                         <span className="flex-1 truncate">Daftar Semua User</span>
                       </>
                     );
@@ -232,15 +218,15 @@ const Layout = () => {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isActive
-                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
-                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                        ? 'bg-[#E8A800] text-slate-950 font-bold shadow-xs'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     }`
                   }
                   title="Tambah User"
                 >
                   {({ isActive }) => (
                     <>
-                      <UserPlus size={16} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                      <UserPlus size={16} className={`shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
                       <span className="flex-1 truncate">Tambah User</span>
                     </>
                   )}
@@ -249,39 +235,39 @@ const Layout = () => {
             )}
           </div>
 
-          {/* Menu Utama: Plotting Bimbingan */}
+          {/* Plotting Bimbingan */}
           <NavLink
             to="/admin/plotting"
             onClick={closeMobile}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
                 isActive
-                  ? 'bg-amber-50/80 text-amber-900 font-bold'
-                  : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                  ? 'bg-[#E8A800] text-slate-950 font-bold shadow-xs'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <Link2 size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                <Link2 size={18} className={`shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
                 <span className="flex-1 truncate">Plotting Bimbingan</span>
               </>
             )}
           </NavLink>
 
-          {/* Collapsible Laporan Central Group */}
+          {/* Collapsible Rekapitulasi & Laporan Group */}
           <div>
             <button
               type="button"
               onClick={() => setLaporanCentralOpen(!laporanCentralOpen)}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 cursor-pointer ${
                 location.pathname === '/admin/laporan'
-                  ? 'bg-amber-50/50 text-amber-950 font-bold'
-                  : 'text-slate-700 hover:bg-slate-100/70'
+                  ? 'bg-slate-100/80 text-slate-900 font-bold'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <FileText size={18} className={`shrink-0 ${location.pathname === '/admin/laporan' ? 'text-[#E8A800]' : 'text-slate-500'}`} />
+                <FileText size={18} className={`shrink-0 ${location.pathname === '/admin/laporan' ? 'text-[#E8A800]' : 'text-slate-400'}`} />
                 <span className="truncate">Rekapitulasi & Laporan</span>
               </div>
               <ChevronDown
@@ -291,8 +277,7 @@ const Layout = () => {
             </button>
 
             {laporanCentralOpen && (
-              <div className="ml-3 pl-3 pt-1 pb-0.5 space-y-1 border-l-2 border-slate-100">
-                {/* Sub-menu 1: Aktivitas Magang */}
+              <div className="ml-4 pl-3 pt-1.5 pb-1 space-y-1 border-l-2 border-slate-100">
                 <NavLink
                   to="/admin/laporan?kategori=aktivitas_magang"
                   onClick={closeMobile}
@@ -301,8 +286,8 @@ const Layout = () => {
                       (location.search.includes('kategori=aktivitas_magang') || !location.search.includes('kategori='));
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isAktif
-                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
-                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                        ? 'bg-[#E8A800] text-slate-950 font-bold shadow-xs'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     }`;
                   }}
                   title="Laporan Aktivitas Magang"
@@ -312,14 +297,13 @@ const Layout = () => {
                       (location.search.includes('kategori=aktivitas_magang') || !location.search.includes('kategori='));
                     return (
                       <>
-                        <BookOpen size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <BookOpen size={16} className={`shrink-0 ${isAktif ? 'text-slate-950' : 'text-slate-400'}`} />
                         <span className="flex-1 truncate">Laporan Aktivitas Magang</span>
                       </>
                     );
                   }}
                 </NavLink>
 
-                {/* Sub-menu 2: Data Peserta */}
                 <NavLink
                   to="/admin/laporan?kategori=data_peserta"
                   onClick={closeMobile}
@@ -327,8 +311,8 @@ const Layout = () => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=data_peserta');
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isAktif
-                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
-                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                        ? 'bg-[#E8A800] text-slate-950 font-bold shadow-xs'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     }`;
                   }}
                   title="Laporan Data Peserta"
@@ -337,14 +321,13 @@ const Layout = () => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=data_peserta');
                     return (
                       <>
-                        <Users size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <Users size={16} className={`shrink-0 ${isAktif ? 'text-slate-950' : 'text-slate-400'}`} />
                         <span className="flex-1 truncate">Laporan Data Peserta</span>
                       </>
                     );
                   }}
                 </NavLink>
 
-                {/* Sub-menu 3: Data Pembimbing */}
                 <NavLink
                   to="/admin/laporan?kategori=data_pembimbing"
                   onClick={closeMobile}
@@ -352,8 +335,8 @@ const Layout = () => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=data_pembimbing');
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isAktif
-                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
-                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                        ? 'bg-[#E8A800] text-slate-950 font-bold shadow-xs'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     }`;
                   }}
                   title="Laporan Data Pembimbing"
@@ -362,14 +345,13 @@ const Layout = () => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=data_pembimbing');
                     return (
                       <>
-                        <UserCheck size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <UserCheck size={16} className={`shrink-0 ${isAktif ? 'text-slate-950' : 'text-slate-400'}`} />
                         <span className="flex-1 truncate">Laporan Data Pembimbing</span>
                       </>
                     );
                   }}
                 </NavLink>
 
-                {/* Sub-menu 4: Rekapitulasi Kehadiran */}
                 <NavLink
                   to="/admin/laporan?kategori=rekapitulasi_kehadiran"
                   onClick={closeMobile}
@@ -377,8 +359,8 @@ const Layout = () => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=rekapitulasi_kehadiran');
                     return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
                       isAktif
-                        ? 'bg-amber-50/90 text-amber-950 font-bold border border-amber-200/80 shadow-2xs'
-                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                        ? 'bg-[#E8A800] text-slate-950 font-bold shadow-xs'
+                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     }`;
                   }}
                   title="Rekapitulasi Kehadiran"
@@ -387,7 +369,7 @@ const Layout = () => {
                     const isAktif = location.pathname === '/admin/laporan' && location.search.includes('kategori=rekapitulasi_kehadiran');
                     return (
                       <>
-                        <BarChart3 size={16} className={`shrink-0 ${isAktif ? 'text-[#E8A800]' : 'text-slate-400'}`} />
+                        <BarChart3 size={16} className={`shrink-0 ${isAktif ? 'text-slate-950' : 'text-slate-400'}`} />
                         <span className="flex-1 truncate">Rekapitulasi Kehadiran</span>
                       </>
                     );
@@ -400,6 +382,7 @@ const Layout = () => {
       );
     }
 
+    // Role Peserta & Pembimbing Nav Links
     return (
       <div className="space-y-1.5">
         {getNavLinks().map((link) => {
@@ -412,15 +395,15 @@ const Layout = () => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
                   isActive
-                    ? 'bg-amber-50/80 text-amber-900 font-bold'
-                    : 'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900'
+                    ? 'bg-[#E8A800] text-slate-950 font-bold shadow-xs'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  <Icon size={18} className={`shrink-0 ${isActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                  <span className="flex-1 whitespace-nowrap">{link.label}</span>
+                  <Icon size={18} className={`shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
+                  <span className="flex-1 truncate">{link.label}</span>
                 </>
               )}
             </NavLink>
@@ -453,7 +436,6 @@ const Layout = () => {
       ];
     }
 
-    // Add Profil Saya only for non-admin roles (Peserta & Pembimbing)
     if (user?.role !== 'admin') {
       links.push({ to: '/profil', label: 'Profil Saya', icon: User });
     }
@@ -461,260 +443,242 @@ const Layout = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8F9FB] font-inter text-slate-800">
+    <div className="h-screen flex bg-[#F8F9FB] font-inter text-slate-800 overflow-hidden relative">
 
-      {/* ── Top Navbar ── */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-        {/* Top Gold Accent Line */}
-        <div className="h-1 bg-gradient-to-r from-[#E8A800] via-[#F5C42E] to-[#E8A800]" />
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-slate-950/30 backdrop-blur-xs z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
-        <div className="px-3 sm:px-6 py-2.5 md:py-3 flex items-center justify-between">
-          {/* Left: Mobile Toggle + Unified Brand Title */}
-          <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-1.5 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
-              aria-label="Toggle menu"
-            >
-              {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-
-            <div className="flex items-center gap-2 sm:gap-3 overflow-hidden">
-              {/* Brand Badge Logo */}
-              <img src={logoImg} alt="Logo Polifurneka" className="h-8 sm:h-9 md:h-11 w-auto object-contain shrink-0 drop-shadow-2xs" />
-              <div className="overflow-hidden">
-                <h1 className="font-bold text-slate-900 text-xs sm:text-sm md:text-base leading-tight tracking-tight truncate sm:whitespace-normal">
+      {/* ── 1. SIDEBAR (FULL HEIGHT LEFT PANEL - STICKY/FIXED) ── */}
+      <aside
+        className={`fixed top-0 bottom-0 left-0 w-72 h-screen bg-white text-slate-800 border-r border-slate-200 z-50 transform transition-transform duration-200 ease-in-out flex flex-col justify-between shrink-0 lg:sticky lg:top-0 lg:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+        }`}
+      >
+        {/* Top: Brand Header in Sidebar */}
+        <div className="p-5 border-b border-slate-100">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src={logoImg} alt="Logo Polifurneka" className="h-10 w-auto object-contain shrink-0 drop-shadow-2xs" />
+              <div>
+                <h1 className="font-bold text-slate-900 text-base leading-tight tracking-tight">
                   SIMONIKA
                 </h1>
+                <p className="text-[10px] font-medium text-slate-400 leading-tight">
+                  Politeknik Industri Furnitur
+                </p>
               </div>
             </div>
+
+            {/* Mobile Close Button */}
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-1.5 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+            >
+              <X size={18} />
+            </button>
           </div>
-                 {/* Right: Notification Bell (Khusus Peserta & Pembimbing) + Compact User Profile Menu Dropdown */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Notification Bell (Khusus Role Peserta & Pembimbing) */}
-            {user?.role !== 'admin' && (
+        </div>
+
+        {/* Middle: Navigation Links */}
+        <div className="p-4 flex-1 overflow-y-auto">
+          <nav className="space-y-1.5">
+            {renderSidebarNav(sidebarOpen)}
+          </nav>
+        </div>
+
+        {/* Bottom Section: Dedicated Logout Link in Sidebar */}
+        <div className="p-4 border-t border-slate-100 bg-slate-50/60">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-all text-left cursor-pointer"
+          >
+            <LogOut size={18} className="text-rose-500 shrink-0" />
+            <span className="flex-1 truncate">Keluar</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* ── 2. RIGHT CONTAINER (TOPBAR + MAIN CONTENT SCROLLABLE) ── */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+        
+        {/* ── TOPBAR (STICKY AT TOP) ── */}
+        <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs h-16 flex items-center px-4 sm:px-6 md:px-8 shrink-0">
+          <div className="flex items-center justify-between w-full gap-4">
+            
+            {/* Left: Mobile Sidebar Toggle (Hidden on Desktop) */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors shrink-0"
+                aria-label="Toggle menu"
+              >
+                <Menu size={20} />
+              </button>
+            </div>
+
+            {/* Right: Notifications + User Profile Widget */}
+            <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+              
+              {/* Notification Bell (Peserta & Pembimbing) */}
+              {user?.role !== 'admin' && (
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      setNotifOpen(!notifOpen);
+                      setProfileOpen(false);
+                    }}
+                    className="relative p-2 rounded-full text-slate-600 hover:text-amber-900 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 transition-all cursor-pointer shadow-2xs"
+                    title="Pemberitahuan"
+                  >
+                    <Bell size={18} />
+                    {unreadNotifCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-black text-white shadow-xs">
+                        {unreadNotifCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Notification Popover */}
+                  {notifOpen && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+                      <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl p-4 z-50 animate-in fade-in zoom-in duration-150">
+                        <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-3">
+                          <Bell size={16} className="text-amber-600" />
+                          <h4 className="font-bold text-sm text-slate-900">Pemberitahuan</h4>
+                          {unreadNotifCount > 0 && (
+                            <span className="text-[10px] font-extrabold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full">
+                              {unreadNotifCount} baru
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                          {notifications.length === 0 ? (
+                            <div className="py-8 px-4 text-center space-y-2">
+                              <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                                <Bell size={18} />
+                              </div>
+                              <p className="text-xs font-bold text-slate-800">Semua sudah beres!</p>
+                              <p className="text-[11px] text-slate-400">
+                                Tidak ada pengingat aktif saat ini.
+                              </p>
+                            </div>
+                          ) : (
+                            notifications.map((n) => {
+                              const typeStyles = {
+                                danger: 'border-l-4 border-l-rose-500 bg-rose-50/50 border-rose-200/70 hover:bg-rose-100/50',
+                                warning: 'border-l-4 border-l-amber-500 bg-amber-50/50 border-amber-200/70 hover:bg-amber-100/50',
+                                info: 'border-l-4 border-l-sky-500 bg-sky-50/50 border-sky-200/70 hover:bg-sky-100/50',
+                                success: 'border-l-4 border-l-emerald-500 bg-emerald-50/50 border-emerald-200/70 hover:bg-emerald-100/50',
+                              };
+                              const cardStyle = typeStyles[n.type] || 'border-l-4 border-l-slate-400 bg-slate-50/50 border-slate-200 hover:bg-slate-100/50';
+
+                              return (
+                                <div
+                                  key={n.id}
+                                  onClick={() => handleNotifClick(n)}
+                                  className={`p-3 rounded-xl border text-xs transition-all cursor-pointer ${cardStyle}`}
+                                >
+                                  <div className="flex items-center justify-between gap-2 mb-1">
+                                    <p className="font-bold text-slate-900 truncate">{n.title}</p>
+                                    <span className="text-[10px] text-slate-400 shrink-0 font-medium">{n.time}</span>
+                                  </div>
+                                  <p className="text-[11px] leading-relaxed text-slate-600">
+                                    {n.message}
+                                  </p>
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* User Profile Widget in Topbar (Avatar + Name & Role) */}
               <div className="relative">
                 <button
                   onClick={() => {
-                    setNotifOpen(!notifOpen);
-                    setProfileOpen(false);
+                    setProfileOpen(!profileOpen);
+                    setNotifOpen(false);
                   }}
-                  className="relative p-2 rounded-full text-slate-600 hover:text-amber-900 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 transition-all cursor-pointer shadow-2xs"
-                  title="Pemberitahuan & Notifikasi Pengingat"
+                  className="flex items-center gap-2.5 p-1 sm:p-1.5 rounded-2xl hover:bg-slate-100/80 transition-all cursor-pointer text-left"
+                  title={user?.nama || 'Profil Pengguna'}
                 >
-                  <Bell size={18} />
-                  {unreadNotifCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] font-black text-white shadow-xs">
-                      {unreadNotifCount}
-                    </span>
-                  )}
+                  {getAvatar(user, 'h-9 w-9 text-xs font-bold', 'rounded-full')}
+                  <div className="hidden sm:block text-left min-w-0">
+                    <p className="text-xs font-bold text-slate-900 truncate max-w-[140px] md:max-w-[180px]">
+                      Halo, {user?.nama?.split(' ')[0] || 'User'}
+                    </p>
+                    <p className="text-[10px] font-medium text-slate-400 truncate max-w-[140px] md:max-w-[180px]">
+                      {getRoleLabel(user?.role)}
+                    </p>
+                  </div>
                 </button>
 
-                {/* Notification Popover Dropdown */}
-                {notifOpen && (
+                {/* Profile Dropdown Popover */}
+                {profileOpen && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-                    <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl p-4 z-50 animate-in fade-in zoom-in duration-150">
-                      <div className="flex items-center gap-2 pb-3 border-b border-slate-100 mb-3">
-                        <Bell size={16} className="text-amber-600" />
-                        <h4 className="font-bold text-sm text-slate-900">Pemberitahuan</h4>
-                        {unreadNotifCount > 0 && (
-                          <span className="text-[10px] font-extrabold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full">
-                            {unreadNotifCount} baru
+                    <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
+                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl p-4 z-50 animate-in fade-in zoom-in duration-150">
+                      <div className="flex items-center gap-3 pb-3 border-b border-slate-100 mb-2">
+                        {getAvatar(user, 'h-10 w-10 text-base font-bold', 'rounded-full')}
+                        <div className="overflow-hidden">
+                          <p className="font-bold text-sm text-slate-900 truncate">{user?.nama}</p>
+                          <p className="text-xs text-slate-500 truncate">{user?.email}</p>
+                          <span className="inline-block text-[10px] font-semibold text-amber-900 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full mt-1">
+                            {getRoleLabel(user?.role)}
                           </span>
-                        )}
+                        </div>
                       </div>
 
-                      <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
-                        {notifications.length === 0 ? (
-                          <div className="py-8 px-4 text-center space-y-2">
-                            <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                              <Bell size={18} />
-                            </div>
-                            <p className="text-xs font-bold text-slate-800">Semua sudah beres!</p>
-                            <p className="text-[11px] text-slate-400">
-                              Tidak ada pengingat aktif saat ini.
-                            </p>
-                          </div>
-                        ) : (
-                          notifications.map((n) => {
-                            const typeStyles = {
-                              danger: 'border-l-4 border-l-rose-500 bg-rose-50/50 border-rose-200/70 hover:bg-rose-100/50',
-                              warning: 'border-l-4 border-l-amber-500 bg-amber-50/50 border-amber-200/70 hover:bg-amber-100/50',
-                              info: 'border-l-4 border-l-sky-500 bg-sky-50/50 border-sky-200/70 hover:bg-sky-100/50',
-                              success: 'border-l-4 border-l-emerald-500 bg-emerald-50/50 border-emerald-200/70 hover:bg-emerald-100/50',
-                            };
-                            const cardStyle = typeStyles[n.type] || 'border-l-4 border-l-slate-400 bg-slate-50/50 border-slate-200 hover:bg-slate-100/50';
-
-                            return (
-                              <div
-                                key={n.id}
-                                onClick={() => handleNotifClick(n)}
-                                className={`p-3 rounded-xl border text-xs transition-all cursor-pointer ${cardStyle}`}
-                              >
-                                <div className="flex items-center justify-between gap-2 mb-1">
-                                  <p className="font-bold text-slate-900 truncate">{n.title}</p>
-                                  <span className="text-[10px] text-slate-400 shrink-0 font-medium">{n.time}</span>
-                                </div>
-                                <p className="text-[11px] leading-relaxed text-slate-600">
-                                  {n.message}
-                                </p>
-                              </div>
-                            );
-                          })
+                      <div className="space-y-1 pt-1">
+                        {user?.role !== 'admin' && (
+                          <button
+                            onClick={() => {
+                              setProfileOpen(false);
+                              navigate('/profil');
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-all text-left cursor-pointer"
+                          >
+                            <User size={15} className="text-slate-400" />
+                            <span>Profil Saya</span>
+                          </button>
                         )}
+
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-all text-left cursor-pointer"
+                        >
+                          <LogOut size={15} className="text-rose-500" />
+                          <span>Keluar</span>
+                        </button>
                       </div>
                     </div>
                   </>
                 )}
               </div>
-            )}
 
-            {/* Compact User Profile Menu Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setProfileOpen(!profileOpen);
-                  setNotifOpen(false);
-                }}
-                className="flex items-center gap-1.5 p-1 rounded-full hover:bg-amber-50 border border-slate-200 hover:border-amber-300 transition-all cursor-pointer shadow-2xs"
-                title={user?.nama || 'Profil User'}
-              >
-                {getAvatar(user, 'h-8 w-8 text-xs font-bold', 'rounded-full')}
-                <ChevronDown size={14} className={`text-slate-400 mr-1 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {/* Profile Dropdown Popover */}
-              {profileOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl p-4 z-50 animate-in fade-in zoom-in duration-150">
-                  <div className="flex items-center gap-3 pb-3 border-b border-slate-100 mb-2">
-                    {getAvatar(user, 'h-10 w-10 text-base font-bold', 'rounded-full')}
-                    <div className="overflow-hidden">
-                      <p className="font-bold text-sm text-slate-900 truncate">{user?.nama}</p>
-                      <p className="text-xs text-slate-500 truncate">{user?.email}</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 pt-1">
-                    {user?.role !== 'admin' && (
-                      <button
-                        onClick={() => {
-                          setProfileOpen(false);
-                          navigate('/profil');
-                        }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-all text-left cursor-pointer"
-                      >
-                        <User size={15} className="text-slate-400" />
-                        <span>Profil Saya</span>
-                      </button>
-                    )}
-
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-all text-left cursor-pointer"
-                    >
-                      <LogOut size={15} className="text-rose-500" />
-                      <span>Keluar</span>
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </header>
-
-      <div className="flex flex-1 relative">
-        {/* Mobile Sidebar Overlay */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-slate-950/30 backdrop-blur-xs z-20 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        {/* ── MOBILE SIDEBAR DRAWER (< lg) ── */}
-        <aside
-          className={`fixed top-0 bottom-0 left-0 w-72 bg-white text-slate-800 border-r border-slate-200/90 z-40 transform transition-transform duration-200 ease-in-out flex flex-col justify-between lg:hidden ${
-            sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
-          }`}
-        >
-          {/* Mobile Drawer Top Header with Close Button */}
-          <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <img src={logoImg} alt="Logo" className="h-7 w-auto" />
-              <span className="font-bold text-xs text-slate-900">SIMONIKA</span>
-            </div>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="p-1.5 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
-            >
-              <X size={18} />
-            </button>
-          </div>
-
-            <div className="p-4 flex-1 overflow-y-auto">
-            <nav className="space-y-1.5">
-              <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-2">
-                Menu Utama
-              </p>
-              {renderSidebarNav(true)}
-            </nav>
-          </div>
-
-          <div className="p-4 border-t border-slate-100 text-center bg-slate-50/70">
-            <p className="text-xs text-slate-600 font-mono font-medium">SIMONIKA</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">poltek-furnitur.ac.id</p>
-          </div>
-        </aside>
-
-        {/* ── DESKTOP SIDEBAR (>= lg) ── */}
-        {!sidebarCollapsed && (
-          <aside className="hidden lg:flex flex-col justify-between w-72 bg-white text-slate-800 border-r border-slate-200/90 relative shrink-0 transition-all duration-200">
-            {/* Collapse Trigger Arrow Button on Sidebar Right Border */}
-            <button
-              onClick={() => setSidebarCollapsed(true)}
-              className="absolute -right-3.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white border border-slate-200 shadow-md text-slate-600 hover:text-amber-800 hover:border-amber-400 hover:scale-110 transition-all flex items-center justify-center cursor-pointer z-30 group"
-              title="Tutup / Lipat Sidebar"
-            >
-              <ChevronLeft size={15} className="text-slate-600 group-hover:text-amber-800 transition-colors" />
-            </button>
-
-            <div className="p-3.5 mt-1 flex-1 overflow-y-auto overflow-x-hidden">
-              <nav className="space-y-1.5">
-                <p className="px-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">
-                  Menu Utama
-                </p>
-                {renderSidebarNav(false)}
-              </nav>
             </div>
 
-            <div className="p-4 border-t border-slate-100 text-center bg-slate-50/70">
-              <p className="text-xs text-slate-600 font-mono font-medium whitespace-nowrap">SIMONIKA</p>
-              <p className="text-[10px] text-slate-400 mt-0.5">poltek-furnitur.ac.id</p>
-            </div>
-          </aside>
-        )}
+          </div>
+        </header>
 
-        {/* Floating Expand Trigger Arrow when Desktop Sidebar is Collapsed */}
-        {sidebarCollapsed && (
-          <button
-            onClick={() => setSidebarCollapsed(false)}
-            className="hidden lg:flex fixed left-3 top-1/2 -translate-y-1/2 w-8 h-10 rounded-r-xl bg-white border border-slate-200 border-l-4 border-l-[#E8A800] shadow-lg text-slate-700 hover:text-amber-800 hover:w-9 transition-all items-center justify-center cursor-pointer z-30 group"
-            title="Buka Sidebar"
-          >
-            <ChevronRight size={16} className="text-amber-700 group-hover:scale-110 transition-transform" />
-          </button>
-        )}
-
-        {/* ── Main Content Area ── */}
-        <main className="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
+        {/* ── MAIN CONTENT OUTLET ── */}
+        <main className="flex-1 p-4 sm:p-6 md:p-8 min-w-0">
           <Outlet />
         </main>
+
       </div>
+
     </div>
   );
 };
