@@ -46,17 +46,25 @@ const PresensiPage = () => {
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
         setAlert({
-          type: 'warning',
+          type: 'error',
           message: 'Fitur Geolocation tidak didukung oleh browser Anda.',
         });
         resolve({ latitude: null, longitude: null });
         return;
       }
-      setLocationStatus('Mendapatkan titik lokasi GPS Anda...');
+      setLocationStatus('Mendapatkan titik lokasi GPS akurat perangkat Anda...');
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setLocationStatus('');
-          resolve({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+          const accuracy = Math.round(position.coords.accuracy || 0);
+          if (accuracy > 150) {
+            console.warn(`GPS accuracy low: ${accuracy}m`);
+          }
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy,
+          });
         },
         (error) => {
           setLocationStatus('');
@@ -65,10 +73,15 @@ const PresensiPage = () => {
               type: 'warning',
               message: 'Izin GPS ditolak. Silakan izinkan akses lokasi melalui ikon gembok 🔒 di sebelah URL browser atau aktifkan GPS pada pengaturan perangkat Anda.',
             });
+          } else if (error.code === error.TIMEOUT) {
+            setAlert({
+              type: 'warning',
+              message: 'Pencarian lokasi GPS waktu habis (timeout). Pastikan GPS perangkat Anda aktif dan coba lagi.',
+            });
           }
           resolve({ latitude: null, longitude: null });
         },
-        { timeout: 8000, enableHighAccuracy: true }
+        { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
       );
     });
   };
@@ -99,7 +112,10 @@ const PresensiPage = () => {
         alamat: rec?.alamat_masuk || null,
       });
     } catch (err) {
-      setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal melakukan presensi masuk' });
+      setAlert({
+        type: 'error',
+        message: err.userFriendlyMessage || err.response?.data?.message || 'Gagal melakukan presensi masuk',
+      });
     } finally {
       setActionLoading(false);
     }
@@ -145,7 +161,10 @@ const PresensiPage = () => {
         alamat: rec?.alamat_pulang || null,
       });
     } catch (err) {
-      setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal melakukan presensi pulang' });
+      setAlert({
+        type: 'error',
+        message: err.userFriendlyMessage || err.response?.data?.message || 'Gagal melakukan presensi pulang',
+      });
     } finally {
       setActionLoading(false);
     }

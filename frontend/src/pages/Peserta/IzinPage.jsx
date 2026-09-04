@@ -6,7 +6,9 @@ import DovetailDivider from '../../components/DovetailDivider';
 import { Plus, FileText, AlertCircle, X, AlertTriangle } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
+import { getStorageUrl } from '../../utils/url';
 import { isMagangSelesai } from '../../utils/dateHelpers';
+import { compressImage } from '../../utils/imageCompressor';
 import Pagination from '../../components/Pagination';
 
 const ITEMS_PER_PAGE = 10;
@@ -53,14 +55,19 @@ const IzinPage = () => {
     setSubmitting(true);
     setAlert(null);
 
-    const formData = new FormData();
-    formData.append('jenis', form.jenis);
-    formData.append('tanggal_mulai', form.tanggal_mulai);
-    formData.append('tanggal_selesai', form.tanggal_selesai);
-    if (form.keterangan) formData.append('keterangan', form.keterangan);
-    if (form.file_bukti) formData.append('file_bukti', form.file_bukti);
-
     try {
+      let finalBukti = form.file_bukti;
+      if (finalBukti) {
+        finalBukti = await compressImage(finalBukti);
+      }
+
+      const formData = new FormData();
+      formData.append('jenis', form.jenis);
+      formData.append('tanggal_mulai', form.tanggal_mulai);
+      formData.append('tanggal_selesai', form.tanggal_selesai);
+      if (form.keterangan) formData.append('keterangan', form.keterangan);
+      if (finalBukti) formData.append('file_bukti', finalBukti);
+
       const res = await api.post('/izin', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });

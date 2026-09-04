@@ -83,7 +83,7 @@ class PresensiController extends Controller
                 $distFmt = $distance >= 1000 ? round($distance / 1000, 2) . ' km' : round($distance) . ' meter';
                 return response()->json([
                     'status' => 'error',
-                    'message' => "Anda berada di luar lokasi Polifurneka (Jarak Anda: {$distFmt}, Maksimal: {$allowedRadius} meter). Gunakan Presensi Kegiatan Luar jika sedang bertugas di luar instansi."
+                    'message' => "Anda berada di luar lokasi Polifurneka (Jarak Anda: {$distFmt}, Maksimal radius: {$allowedRadius} meter)."
                 ], 400);
             }
         }
@@ -103,17 +103,24 @@ class PresensiController extends Controller
 
         $alamatMasuk = PresensiService::reverseGeocode($lat, $lng);
 
-        $presensi = Presensi::create([
-            'peserta_id' => $user->user_id,
-            'tanggal' => $today,
-            'jam_masuk' => $jamMasuk,
-            'latitude_masuk' => $lat,
-            'longitude_masuk' => $lng,
-            'alamat_masuk' => $alamatMasuk,
-            'status' => $status,
-            'lokasi_tipe' => $lokasiTipe,
-            'keterangan_luar' => $lokasiTipe === 'luar' ? $keteranganLuar : null,
-        ]);
+        try {
+            $presensi = Presensi::create([
+                'peserta_id' => $user->user_id,
+                'tanggal' => $today,
+                'jam_masuk' => $jamMasuk,
+                'latitude_masuk' => $lat,
+                'longitude_masuk' => $lng,
+                'alamat_masuk' => $alamatMasuk,
+                'status' => $status,
+                'lokasi_tipe' => $lokasiTipe,
+                'keterangan_luar' => $lokasiTipe === 'luar' ? $keteranganLuar : null,
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anda sudah melakukan presensi masuk untuk hari ini.'
+            ], 400);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -220,7 +227,7 @@ class PresensiController extends Controller
                 $distFmt = $distance >= 1000 ? round($distance / 1000, 2) . ' km' : round($distance) . ' meter';
                 return response()->json([
                     'status' => 'error',
-                    'message' => "Anda berada di luar lokasi Polifurneka (Jarak Anda: {$distFmt}, Maksimal: {$allowedRadius} meter). Gunakan Presensi Kegiatan Luar jika sedang bertugas di luar instansi."
+                    'message' => "Anda berada di luar lokasi Polifurneka (Jarak Anda: {$distFmt}, Maksimal radius: {$allowedRadius} meter)."
                 ], 400);
             }
         }

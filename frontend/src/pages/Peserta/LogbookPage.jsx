@@ -9,6 +9,7 @@ import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
 import { getStorageUrl } from '../../utils/url';
 import { nearestWorkdayOnOrBefore, isWeekend, todayLocalISO, isMagangSelesai } from '../../utils/dateHelpers';
+import { compressImage } from '../../utils/imageCompressor';
 
 const LOGBOOK_FILTERS = [
   { label: 'Semua', value: 'Semua' },
@@ -99,14 +100,19 @@ const LogbookPage = () => {
 
     setSubmitting(true);
 
-    const formData = new FormData();
-    formData.append('tanggal', form.tanggal);
-    formData.append('judul_kegiatan', form.judul_kegiatan);
-    formData.append('deskripsi', form.deskripsi);
-    if (form.kendala) formData.append('kendala', form.kendala);
-    if (form.foto_bukti) formData.append('foto_bukti', form.foto_bukti);
-
     try {
+      let finalFoto = form.foto_bukti;
+      if (finalFoto) {
+        finalFoto = await compressImage(finalFoto);
+      }
+
+      const formData = new FormData();
+      formData.append('tanggal', form.tanggal);
+      formData.append('judul_kegiatan', form.judul_kegiatan);
+      formData.append('deskripsi', form.deskripsi);
+      if (form.kendala) formData.append('kendala', form.kendala);
+      if (finalFoto) formData.append('foto_bukti', finalFoto);
+
       const res = await api.post('/logbook', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });

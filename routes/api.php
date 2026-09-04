@@ -7,7 +7,6 @@ use App\Http\Controllers\Api\IzinController;
 use App\Http\Controllers\Api\LogbookController;
 use App\Http\Controllers\Api\TugasController;
 use App\Http\Controllers\Api\DashboardController;
-use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\LaporanController;
@@ -48,7 +47,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logbook', [LogbookController::class, 'store']);
         Route::post('/tugas/{id}/kumpul', [TugasController::class, 'submit']);
         Route::get('/dashboard/peserta', [DashboardController::class, 'pesertaDashboard']);
-        Route::get('/export/rekap-pdf', [ExportController::class, 'exportRekapPdf']);
     });
 
     // Role: Pembimbing

@@ -3,7 +3,11 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return response()->json([
+        'name' => 'SIMONIKA API - Sistem Magang Polifurneka',
+        'status' => 'online',
+        'version' => '1.0.0',
+    ]);
 });
 
 Route::get('/login', function () {

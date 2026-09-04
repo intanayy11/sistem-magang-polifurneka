@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import AlertBanner from '../components/AlertBanner';
+import { compressImage } from '../utils/imageCompressor';
 import {
   Phone,
   KeyRound,
@@ -69,18 +70,14 @@ const Profile = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      setProfileAlert({ type: 'error', message: 'Ukuran foto maksimal 2MB.' });
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('foto_profil', file);
-
     setUploadingPhoto(true);
     setProfileAlert(null);
 
     try {
+      const compressedFile = await compressImage(file, { maxWidth: 800, maxHeight: 800, quality: 0.85 });
+
+      const formData = new FormData();
+      formData.append('foto_profil', compressedFile);
       const res = await api.post('/profile', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });

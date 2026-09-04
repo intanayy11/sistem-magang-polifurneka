@@ -54,6 +54,12 @@ class DashboardController extends Controller
             ->take(5)
             ->get(['tugas_id', 'judul as judul_tugas', 'deadline', 'status']);
 
+        // 6. Data Pembimbing Lapangan (jika sudah di-plot)
+        $plotting = PlottingBimbingan::where('peserta_id', $user->user_id)
+            ->with('pembimbing:user_id,nama,email,no_hp,jabatan')
+            ->first();
+        $pembimbing = $plotting ? $plotting->pembimbing : null;
+
         return response()->json([
             'status' => 'success',
             'data' => [
@@ -67,6 +73,7 @@ class DashboardController extends Controller
                 'jam_sekarang' => $jamSekarang,
                 'recent_logbooks' => $recentLogbooks,
                 'recent_tugas' => $recentTugas,
+                'pembimbing' => $pembimbing,
                 // Status masa magang
                 'is_magang_selesai'      => $user->isMagangSelesai(),
                 'tanggal_selesai_magang' => $user->tanggal_selesai_magang,
