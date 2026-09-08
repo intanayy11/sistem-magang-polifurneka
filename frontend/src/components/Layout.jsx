@@ -616,7 +616,7 @@ const Layout = () => {
                   {getAvatar(user, 'h-9 w-9 text-xs font-bold', 'rounded-full')}
                   <div className="hidden sm:block text-left min-w-0">
                     <p className="text-xs font-bold text-slate-900 truncate max-w-[140px] md:max-w-[180px]">
-                      Halo, {user?.nama?.split(' ')[0] || 'User'}
+                      {user?.nama?.split(' ')[0] || 'User'}
                     </p>
                     <p className="text-[10px] font-medium text-slate-400 truncate max-w-[140px] md:max-w-[180px]">
                       {getRoleLabel(user?.role)}
