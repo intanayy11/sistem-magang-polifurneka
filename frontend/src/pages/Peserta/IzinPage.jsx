@@ -3,7 +3,7 @@ import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import DovetailDivider from '../../components/DovetailDivider';
-import { Plus, FileText, AlertCircle, X, AlertTriangle } from 'lucide-react';
+import { Plus, FileText, AlertCircle, X, AlertTriangle, Loader2 } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
 import { getStorageUrl } from '../../utils/url';
@@ -21,6 +21,7 @@ const IzinPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [downloadingId, setDownloadingId] = useState(null);
   const [alert, setAlert] = useState(null);
 
   useScrollLock(showModal);
@@ -90,6 +91,43 @@ const IzinPage = () => {
     }
   };
 
+
+  const handleDownloadBukti = async (item) => {
+    try {
+      setDownloadingId(item.izin_id);
+      const res = await api.get(`/izin/${item.izin_id}/bukti`, {
+        responseType: 'blob',
+      });
+      const ext = item.file_bukti?.split('.').pop() || 'pdf';
+      const contentType = res.headers['content-type'] || 'application/pdf';
+      const blob = new Blob([res.data], { type: contentType });
+      const url = window.URL.createObjectURL(blob);
+
+      if (contentType.includes('pdf') || contentType.includes('image')) {
+        const newTab = window.open(url, '_blank');
+        if (!newTab) {
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `bukti_izin_${item.izin_id}.${ext}`;
+          link.click();
+        }
+      } else {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `bukti_izin_${item.izin_id}.${ext}`;
+        link.click();
+      }
+      setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+    } catch (err) {
+      console.error(err);
+      setAlert({
+        type: 'error',
+        message: err.response?.data?.message || 'Gagal mengunduh berkas bukti izin.',
+      });
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -167,15 +205,19 @@ const IzinPage = () => {
                     <td className="px-5 py-3.5 max-w-xs truncate">{item.keterangan || '-'}</td>
                     <td className="px-5 py-3.5">
                       {item.file_bukti ? (
-                        <a
-                          href={`/${item.file_bukti}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-amber-700 hover:underline flex items-center gap-1 font-medium"
+                        <button
+                          type="button"
+                          onClick={() => handleDownloadBukti(item)}
+                          disabled={downloadingId === item.izin_id}
+                          className="text-amber-700 hover:underline flex items-center gap-1 font-medium disabled:opacity-50"
                         >
-                          <FileText size={14} />
-                          <span>Unduh Bukti</span>
-                        </a>
+                          {downloadingId === item.izin_id ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <FileText size={14} />
+                          )}
+                          <span>{downloadingId === item.izin_id ? 'Memuat...' : 'Lihat Bukti'}</span>
+                        </button>
                       ) : (
                         <span className="text-slate-400">-</span>
                       )}

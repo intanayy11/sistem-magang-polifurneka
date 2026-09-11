@@ -68,8 +68,7 @@ class IzinController extends Controller
 
         $filePath = null;
         if ($request->hasFile('file_bukti')) {
-            $path = $request->file('file_bukti')->store('izin', 'public');
-            $filePath = 'storage/' . $path;
+            $filePath = $request->file('file_bukti')->store('izin', 'local');
         }
 
         $plotting = PlottingBimbingan::where('peserta_id', $user->user_id)->first();
@@ -91,6 +90,58 @@ class IzinController extends Controller
             'message' => 'Pengajuan izin berhasil dibuat.',
             'data' => $izin
         ], 201);
+    }
+
+    public function downloadBukti(Request $request, $id)
+    {
+        $user = $request->user();
+        $izin = Izin::findOrFail($id);
+
+        if (! $izin->file_bukti) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Berkas bukti tidak ditemukan.'
+            ], 404);
+        }
+
+        // Cek hak akses
+        if ($user->role === 'peserta' && $izin->peserta_id != $user->user_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anda tidak berhak mengakses berkas bukti ini.'
+            ], 403);
+        }
+
+        if ($user->role === 'pembimbing') {
+            $isAssigned = $izin->pembimbing_id == $user->user_id ||
+                PlottingBimbingan::where('pembimbing_id', $user->user_id)
+                    ->where('peserta_id', $izin->peserta_id)
+                    ->exists();
+
+            if (! $isAssigned) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Anda tidak berhak mengakses berkas bukti peserta ini.'
+                ], 403);
+            }
+        }
+
+        $cleanPath = str_replace('storage/', '', $izin->file_bukti);
+
+        // 1. Cek di disk private (local)
+        if (Storage::disk('local')->exists($cleanPath)) {
+            return Storage::disk('local')->response($cleanPath);
+        }
+
+        // 2. Fallback jika berkas lama tersimpan di public
+        if (Storage::disk('public')->exists($cleanPath)) {
+            return Storage::disk('public')->response($cleanPath);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'File fisik tidak ditemukan pada server.'
+        ], 404);
     }
 
     public function verifikasi(Request $request, $id)

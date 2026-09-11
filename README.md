@@ -219,7 +219,54 @@ Ketentuan jam kerja presensi diatur di `app/Services/PresensiService.php`:
 
 ---
 
-## 9. Hak Cipta & Lisensi
+## 9. Panduan Keamanan Hosting & Go-Live (Production Hardening)
+
+Saat mengunggah sistem ke server hosting atau VPS instansi:
+
+### A. Konfigurasi Environment (`.env`)
+1. Pastikan mode debug dimatikan:
+   ```ini
+   APP_ENV=production
+   APP_DEBUG=false
+   ```
+   *Jika `APP_DEBUG=false`, error 500 tidak akan menampilkan kode sumber, query database, maupun kredensial server.*
+2. Jalankan perintah optimasi konfigurasi di server:
+   ```bash
+   php artisan config:cache
+   php artisan route:cache
+   php artisan view:cache
+   ```
+
+### B. Proteksi Berkas Sensitif (`.env`, `.git`, dsb.)
+1. **Untuk Server Apache / cPanel**:
+   - Sistem sudah dilengkapi dengan `.htaccess` di root proyek dan `public/.htaccess` yang secara otomatis **memblokir akses publik** ke `.env`, `.git`, `composer.json`, `storage/app/private/`, serta menonaktifkan *directory indexing* (`Options -Indexes`).
+2. **Untuk Server Nginx**:
+   - Pastikan *Document Root* Nginx diarahkan ke folder `public/`:
+     ```nginx
+     root /var/www/sistem-magang-polifurneka/public;
+     ```
+   - Tambahkan blok proteksi di konfigurasi Nginx:
+     ```nginx
+     location ~ /\.(env|git|ht) {
+         deny all;
+         return 404;
+     }
+
+     location ~ /(app|bootstrap|config|database|resources|routes|storage|tests|vendor) {
+         deny all;
+         return 404;
+     }
+     ```
+
+### C. Izin Akses Folder (Permissions)
+Pastikan web server memiliki izin tulis ke direktori cache dan storage:
+```bash
+chmod -R 775 storage bootstrap/cache
+```
+
+---
+
+## 10. Hak Cipta & Lisensi
 
 Hak Cipta © 2026 **Politeknik Industri Furnitur dan Pengolahan Kayu Kendal (Polifurneka)**.  
 Dikembangkan untuk mendukung kelancaran dan efisiensi pelaksanaan program magang industri mahasiswa.

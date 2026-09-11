@@ -1,0 +1,25 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. Blokir akses ke file sensitif dan direktori internal
+    RewriteRule ^(\.env|\.git|\.github|storage|bootstrap|app|routes|config|database|tests|vendor) - [F,L]
+    RewriteRule ^(composer\.(json|lock)|package\.(json|lock)|phpunit\.xml|README\.md) - [F,L]
+
+    # 2. Redirect semua request publik ke folder public/
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Blokir seluruh file tersembunyi (dotfiles)
+<FilesMatch "^\.">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Matikan browsing direktori (mencegah melihat daftar isi folder)
+Options -Indexes

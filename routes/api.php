@@ -12,8 +12,8 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\LaporanController;
 use App\Http\Controllers\Api\NotificationController;
 
-// Public Auth route
-Route::post('/login', [AuthController::class, 'login']);
+// Public Auth route with Rate Limiting (Anti Brute-Force)
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
 // Authenticated Routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Shared view routes
     Route::get('/izin', [IzinController::class, 'index']);
+    Route::get('/izin/{id}/bukti', [IzinController::class, 'downloadBukti']);
     Route::get('/logbook', [LogbookController::class, 'index']);
     Route::get('/tugas', [TugasController::class, 'index']);
     Route::get('/tugas/{id}', [TugasController::class, 'show']);

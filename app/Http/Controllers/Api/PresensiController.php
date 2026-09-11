@@ -55,37 +55,23 @@ class PresensiController extends Controller
         $request->validate([
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
-            'lokasi_tipe' => 'nullable|in:instansi,luar',
-            'keterangan_luar' => 'nullable|string',
         ]);
-
-        $lokasiTipe = $request->lokasi_tipe ?? 'instansi';
-        $keteranganLuar = trim($request->keterangan_luar ?? '');
-
-        if ($lokasiTipe === 'luar' && empty($keteranganLuar)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Keterangan kegiatan luar wajib diisi.'
-            ], 400);
-        }
 
         $lat = (float) $request->latitude;
         $lng = (float) $request->longitude;
 
-        if ($lokasiTipe === 'instansi') {
-            $polifurnekaLat = config('presensi.polifurneka_lat', -6.929428);
-            $polifurnekaLng = config('presensi.polifurneka_lng', 110.256226);
-            $allowedRadius = config('presensi.radius_meter', 500);
+        $polifurnekaLat = config('presensi.polifurneka_lat', -6.929428);
+        $polifurnekaLng = config('presensi.polifurneka_lng', 110.256226);
+        $allowedRadius = config('presensi.radius_meter', 500);
 
-            $distance = PresensiService::hitungJarakMeter($lat, $lng, $polifurnekaLat, $polifurnekaLng);
+        $distance = PresensiService::hitungJarakMeter($lat, $lng, $polifurnekaLat, $polifurnekaLng);
 
-            if ($distance > $allowedRadius) {
-                $distFmt = $distance >= 1000 ? round($distance / 1000, 2) . ' km' : round($distance) . ' meter';
-                return response()->json([
-                    'status' => 'error',
-                    'message' => "Anda berada di luar lokasi Polifurneka (Jarak Anda: {$distFmt}, Maksimal radius: {$allowedRadius} meter)."
-                ], 400);
-            }
+        if ($distance > $allowedRadius) {
+            $distFmt = $distance >= 1000 ? round($distance / 1000, 2) . ' km' : round($distance) . ' meter';
+            return response()->json([
+                'status' => 'error',
+                'message' => "Anda berada di luar lokasi Polifurneka (Jarak Anda: {$distFmt}, Maksimal radius: {$allowedRadius} meter)."
+            ], 400);
         }
 
         $now = Carbon::now();
@@ -112,8 +98,8 @@ class PresensiController extends Controller
                 'longitude_masuk' => $lng,
                 'alamat_masuk' => $alamatMasuk,
                 'status' => $status,
-                'lokasi_tipe' => $lokasiTipe,
-                'keterangan_luar' => $lokasiTipe === 'luar' ? $keteranganLuar : null,
+                'lokasi_tipe' => 'instansi',
+                'keterangan_luar' => null,
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
             return response()->json([
@@ -161,8 +147,6 @@ class PresensiController extends Controller
         $request->validate([
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
-            'lokasi_tipe' => 'nullable|in:instansi,luar',
-            'keterangan_luar' => 'nullable|string',
         ]);
 
         $presensi = Presensi::where('peserta_id', $user->user_id)
@@ -203,33 +187,21 @@ class PresensiController extends Controller
             ], 400);
         }
 
-        $lokasiTipe = $request->lokasi_tipe ?? $presensi->lokasi_tipe ?? 'instansi';
-        $keteranganLuar = trim($request->keterangan_luar ?? '');
-
-        if ($lokasiTipe === 'luar' && empty($keteranganLuar) && empty($presensi->keterangan_luar)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Keterangan kegiatan luar wajib diisi.'
-            ], 400);
-        }
-
         $lat = (float) $request->latitude;
         $lng = (float) $request->longitude;
 
-        if ($lokasiTipe === 'instansi') {
-            $polifurnekaLat = config('presensi.polifurneka_lat', -6.929428);
-            $polifurnekaLng = config('presensi.polifurneka_lng', 110.256226);
-            $allowedRadius = config('presensi.radius_meter', 500);
+        $polifurnekaLat = config('presensi.polifurneka_lat', -6.929428);
+        $polifurnekaLng = config('presensi.polifurneka_lng', 110.256226);
+        $allowedRadius = config('presensi.radius_meter', 500);
 
-            $distance = PresensiService::hitungJarakMeter($lat, $lng, $polifurnekaLat, $polifurnekaLng);
+        $distance = PresensiService::hitungJarakMeter($lat, $lng, $polifurnekaLat, $polifurnekaLng);
 
-            if ($distance > $allowedRadius) {
-                $distFmt = $distance >= 1000 ? round($distance / 1000, 2) . ' km' : round($distance) . ' meter';
-                return response()->json([
-                    'status' => 'error',
-                    'message' => "Anda berada di luar lokasi Polifurneka (Jarak Anda: {$distFmt}, Maksimal radius: {$allowedRadius} meter)."
-                ], 400);
-            }
+        if ($distance > $allowedRadius) {
+            $distFmt = $distance >= 1000 ? round($distance / 1000, 2) . ' km' : round($distance) . ' meter';
+            return response()->json([
+                'status' => 'error',
+                'message' => "Anda berada di luar lokasi Polifurneka (Jarak Anda: {$distFmt}, Maksimal radius: {$allowedRadius} meter)."
+            ], 400);
         }
 
         $jamPulang = $now->toTimeString();
@@ -243,12 +215,8 @@ class PresensiController extends Controller
             'longitude_pulang' => $lng,
             'alamat_pulang' => $alamatPulang,
             'status' => $status,
-            'lokasi_tipe' => $lokasiTipe,
+            'lokasi_tipe' => 'instansi',
         ];
-
-        if ($lokasiTipe === 'luar' && !empty($keteranganLuar)) {
-            $updateData['keterangan_luar'] = $keteranganLuar;
-        }
 
         $presensi->update($updateData);
 

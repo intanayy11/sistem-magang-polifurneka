@@ -99,10 +99,32 @@ class TugasController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        $user = $request->user();
         $tugas = Tugas::with(['peserta:user_id,nama,nim_nis', 'pembimbing:user_id,nama', 'pengumpulan'])
             ->findOrFail($id);
+
+        if ($user->role === 'peserta' && $tugas->peserta_id != $user->user_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anda tidak berhak melihat detail tugas ini.'
+            ], 403);
+        }
+
+        if ($user->role === 'pembimbing') {
+            $isAssigned = $tugas->pembimbing_id == $user->user_id ||
+                PlottingBimbingan::where('pembimbing_id', $user->user_id)
+                    ->where('peserta_id', $tugas->peserta_id)
+                    ->exists();
+
+            if (! $isAssigned) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Anda tidak berhak melihat detail tugas peserta ini.'
+                ], 403);
+            }
+        }
 
         return response()->json([
             'status' => 'success',
