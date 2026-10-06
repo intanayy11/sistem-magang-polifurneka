@@ -10,6 +10,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  AlertTriangle,
   X,
   UserPlus,
   Users
@@ -33,7 +34,6 @@ const KelolaUserPage = () => {
   const [alert, setAlert] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Modal Create/Edit User
   const [showUserModal, setShowUserModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -53,18 +53,25 @@ const KelolaUserPage = () => {
     tanggal_selesai_magang: '',
   });
 
-  // Sync roleFilter whenever URL param changes
   useEffect(() => {
     setRoleFilter(roleParam);
   }, [roleParam]);
 
-  // Modal Reset Password
   const [showResetModal, setShowResetModal] = useState(false);
   const [resetTargetUser, setResetTargetUser] = useState(null);
   const [newPassword, setNewPassword] = useState('');
 
-  // Lock body scroll when any modal is open
-  useScrollLock(showUserModal || showResetModal);
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    userTarget: null,
+    actionType: '',
+    actionButtonText: '',
+    isDanger: true,
+  });
+
+  useScrollLock(showUserModal || showResetModal || confirmDialog.isOpen);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -159,14 +166,41 @@ const KelolaUserPage = () => {
     }
   };
 
-  const handleToggleStatus = async (user) => {
-    try {
-      const res = await api.patch(`/admin/users/${user.user_id}/toggle-status`);
-      setAlert({ type: 'success', message: res.data.message });
-      fetchUsers();
-    } catch (err) {
-      setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal mengubah status user.' });
+  const handlePromptToggleStatus = (user) => {
+    if (currentUser?.user_id === user.user_id) {
+      setAlert({ type: 'error', message: 'Anda tidak dapat menonaktifkan akun Anda sendiri yang sedang digunakan login.' });
+      return;
     }
+
+    const willDeactivate = Boolean(user.status_aktif);
+    setConfirmDialog({
+      isOpen: true,
+      title: willDeactivate ? 'Konfirmasi Nonaktifkan' : 'Konfirmasi Aktifkan',
+      message: willDeactivate
+        ? `Apakah Anda yakin ingin menonaktifkan akun "${user.nama}"?`
+        : `Apakah Anda yakin ingin mengaktifkan akun "${user.nama}"?`,
+      userTarget: user,
+      actionType: 'toggle_status',
+      actionButtonText: willDeactivate ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
+      isDanger: willDeactivate,
+    });
+  };
+
+  const handlePromptDelete = (user) => {
+    if (currentUser?.user_id === user.user_id) {
+      setAlert({ type: 'error', message: 'Anda tidak dapat menghapus akun Anda sendiri yang sedang digunakan login.' });
+      return;
+    }
+
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Konfirmasi Hapus',
+      message: `Apakah Anda yakin ingin menghapus akun "${user.nama}"?`,
+      userTarget: user,
+      actionType: 'delete',
+      actionButtonText: 'Ya, Hapus',
+      isDanger: true,
+    });
   };
 
   const handleOpenReset = (user) => {
@@ -194,15 +228,27 @@ const KelolaUserPage = () => {
     }
   };
 
-  const handleDeleteUser = async (user) => {
-    if (!window.confirm(`Apakah Anda yakin ingin menghapus user ${user.nama}?`)) return;
+  const handleConfirmAction = async () => {
+    if (!confirmDialog.userTarget) return;
+    const target = confirmDialog.userTarget;
+    const type = confirmDialog.actionType;
+    setSubmitting(true);
+    setAlert(null);
 
     try {
-      const res = await api.delete(`/admin/users/${user.user_id}`);
-      setAlert({ type: 'success', message: res.data.message });
+      if (type === 'toggle_status') {
+        const res = await api.patch(`/admin/users/${target.user_id}/toggle-status`);
+        setAlert({ type: 'success', message: res.data.message });
+      } else if (type === 'delete') {
+        const res = await api.delete(`/admin/users/${target.user_id}`);
+        setAlert({ type: 'success', message: res.data.message });
+      }
+      setConfirmDialog((prev) => ({ ...prev, isOpen: false, userTarget: null }));
       fetchUsers();
     } catch (err) {
-      setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal menghapus user.' });
+      setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal memproses aksi.' });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -219,9 +265,8 @@ const KelolaUserPage = () => {
     <div className="space-y-4">
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
-      {/* Main Card Container */}
       <div className="card-clean overflow-hidden">
-        {/* Header: Judul + Button Tambah */}
+
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
@@ -237,9 +282,8 @@ const KelolaUserPage = () => {
             </button>
           </div>
 
-          {/* Interactive Role Filter Tabs & Search */}
           <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 pt-2 border-t border-slate-100">
-        {/* Role Filter Pills */}
+
         <div className="flex flex-wrap items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
           <button
             onClick={() => {
@@ -295,7 +339,6 @@ const KelolaUserPage = () => {
           </button>
         </div>
 
-        {/* Search Input Box */}
         <div className="relative w-full md:w-72">
           <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -324,7 +367,6 @@ const KelolaUserPage = () => {
           </div>
         </div>
 
-        {/* User Table Area */}
         <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
           <h3 className="font-bold text-slate-900 text-sm">
             {!roleFilter && 'Daftar Semua User Sistem'}
@@ -340,7 +382,7 @@ const KelolaUserPage = () => {
             <thead className="bg-slate-50 text-slate-700 font-semibold uppercase tracking-wider border-b border-slate-200">
               <tr>
                 <th className="px-4 py-3.5">Nama & NIM/NIP</th>
-                <th className="px-4 py-3.5">Instansi / Kampus</th>
+                <th className="px-4 py-3.5">Asal Sekolah / Universitas</th>
                 <th className="px-4 py-3.5">Jurusan</th>
                 <th className="px-4 py-3.5">Posisi / Jabatan</th>
                 <th className="px-4 py-3.5">Email & No HP</th>
@@ -368,7 +410,7 @@ const KelolaUserPage = () => {
                   .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
                   .map((u) => (
                   <tr key={u.user_id} className="hover:bg-slate-50/80 transition-colors">
-                    {/* Nama & NIM */}
+
                     <td className="px-4 py-3.5 whitespace-nowrap">
                       <div className="font-bold text-slate-900 flex items-center gap-1.5">
                         <span>{u.nama}</span>
@@ -381,7 +423,6 @@ const KelolaUserPage = () => {
                       <div className="text-[11px] text-slate-400 font-mono">{u.nim_nis || '-'}</div>
                     </td>
 
-                    {/* Instansi / Kampus */}
                     <td className="px-4 py-3.5">
                       {u.asal_instansi ? (
                         <span className="text-xs font-semibold text-slate-800">{u.asal_instansi}</span>
@@ -390,7 +431,6 @@ const KelolaUserPage = () => {
                       )}
                     </td>
 
-                    {/* Jurusan */}
                     <td className="px-4 py-3.5">
                       {u.jurusan ? (
                         <span className="text-xs font-medium text-slate-700">{u.jurusan}</span>
@@ -399,7 +439,6 @@ const KelolaUserPage = () => {
                       )}
                     </td>
 
-                    {/* Posisi / Jabatan */}
                     <td className="px-4 py-3.5">
                       {u.role === 'peserta' && u.posisi_magang ? (
                         <span className="text-xs font-medium text-slate-700">{u.posisi_magang}</span>
@@ -410,13 +449,11 @@ const KelolaUserPage = () => {
                       )}
                     </td>
 
-                    {/* Email & No HP */}
                     <td className="px-4 py-3.5 whitespace-nowrap">
                       <div className="text-slate-800 font-medium">{u.email}</div>
                       <div className="text-slate-400 text-[11px]">{u.no_hp || '-'}</div>
                     </td>
 
-                    {/* Role */}
                     <td className="px-4 py-3.5 whitespace-nowrap">
                       <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${
                         u.role === 'peserta' ? 'bg-amber-100 text-amber-900 border border-amber-200' :
@@ -428,42 +465,40 @@ const KelolaUserPage = () => {
                       </span>
                     </td>
 
-                    {/* Status Akun */}
                     <td className="px-4 py-3.5 whitespace-nowrap">
                       <button
-                        onClick={() => handleToggleStatus(u)}
-                        disabled={u.role === 'admin'}
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
-                          u.status_aktif ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'
+                        onClick={() => handlePromptToggleStatus(u)}
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border transition-colors cursor-pointer ${
+                          u.status_aktif
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300'
+                            : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100 hover:border-rose-300'
                         }`}
+                        title={u.status_aktif ? 'Klik untuk menonaktifkan user' : 'Klik untuk mengaktifkan user'}
                       >
                         {u.status_aktif ? <CheckCircle size={12} /> : <XCircle size={12} />}
                         <span>{u.status_aktif ? 'Aktif' : 'Nonaktif'}</span>
                       </button>
                     </td>
 
-                    {/* Aksi */}
                     <td className="px-4 py-3.5 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => handleOpenEdit(u)}
-                          disabled={u.role === 'admin'}
-                          className="p-1.5 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="p-1.5 text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-lg transition-colors cursor-pointer"
                           title="Edit User"
                         >
                           <Edit2 size={15} />
                         </button>
                         <button
                           onClick={() => handleOpenReset(u)}
-                          className="p-1.5 text-amber-700 hover:bg-amber-50 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="p-1.5 text-amber-700 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
                           title="Reset Password"
                         >
                           <KeyRound size={15} />
                         </button>
                         <button
-                          onClick={() => handleDeleteUser(u)}
-                          disabled={u.role === 'admin'}
-                          className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                          onClick={() => handlePromptDelete(u)}
+                          className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                           title="Hapus User"
                         >
                           <Trash2 size={15} />
@@ -477,7 +512,6 @@ const KelolaUserPage = () => {
           </table>
         </div>
 
-        {/* Footer Pagination */}
         <Pagination
           currentPage={currentPage}
           totalItems={users.length}
@@ -487,7 +521,6 @@ const KelolaUserPage = () => {
         />
       </div>
 
-      {/* Modal Add / Edit User */}
       {showUserModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[20px] max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-4 relative max-h-[90vh] overflow-y-auto">
@@ -530,7 +563,7 @@ const KelolaUserPage = () => {
                     <input
                       type="password"
                       required
-                      placeholder="Min. 6 karakter"
+                      placeholder="Minimal 6 karakter"
                       value={userForm.password}
                       onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
@@ -549,6 +582,7 @@ const KelolaUserPage = () => {
                   >
                     <option value="peserta">Peserta Magang</option>
                     <option value="pembimbing">Pembimbing Lapangan</option>
+                    <option value="admin">Administrator Sistem</option>
                   </select>
                 </div>
 
@@ -578,7 +612,7 @@ const KelolaUserPage = () => {
               {userForm.role === 'peserta' && (
                 <>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Asal Instansi / Kampus</label>
+                    <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Asal Sekolah / Universitas</label>
                     <input
                       type="text"
                       value={userForm.asal_instansi}
@@ -664,7 +698,6 @@ const KelolaUserPage = () => {
         </div>
       )}
 
-      {/* Modal Reset Password */}
       {showResetModal && resetTargetUser && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[20px] max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4 relative">
@@ -676,10 +709,30 @@ const KelolaUserPage = () => {
             </div>
 
             <form onSubmit={handleResetPasswordSubmit} className="space-y-4 text-xs">
-              <div className="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200/80 space-y-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900">User Target:</span>
-                <p className="font-extrabold text-slate-900 text-sm">{resetTargetUser.nama}</p>
-                <p className="text-slate-500 font-mono text-[11px]">{resetTargetUser.email}</p>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-2">Informasi User</label>
+                <div className="space-y-1.5 text-xs text-slate-600 pl-0.5">
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-medium text-slate-500 w-14 shrink-0">Nama</span>
+                    <span className="text-slate-400 shrink-0">:</span>
+                    <span className="font-bold text-slate-900 break-words">{resetTargetUser.nama}</span>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-medium text-slate-500 w-14 shrink-0">Email</span>
+                    <span className="text-slate-400 shrink-0">:</span>
+                    <span className="font-mono text-slate-700 break-all">{resetTargetUser.email}</span>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-medium text-slate-500 w-14 shrink-0">Role</span>
+                    <span className="text-slate-400 shrink-0">:</span>
+                    <span className="capitalize font-semibold text-amber-800">
+                      {resetTargetUser.role === 'admin' ? 'Administrator Sistem' :
+                       resetTargetUser.role === 'pembimbing' ? 'Pembimbing Lapangan' :
+                       resetTargetUser.role === 'peserta' ? 'Peserta Magang' :
+                       resetTargetUser.role}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -687,7 +740,7 @@ const KelolaUserPage = () => {
                 <input
                   type="password"
                   required
-                  placeholder="Min. 6 karakter"
+                  placeholder="Minimal 6 karakter"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
@@ -714,8 +767,51 @@ const KelolaUserPage = () => {
           </div>
         </div>
       )}
+
+      {confirmDialog.isOpen && confirmDialog.userTarget && (
+        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                confirmDialog.isDanger ? 'bg-rose-100 text-rose-600' : 'bg-amber-100 text-amber-600'
+              }`}>
+                <AlertTriangle size={18} />
+              </div>
+              <h3 className="font-bold text-slate-900 text-sm">{confirmDialog.title}</h3>
+            </div>
+
+            <p className="text-xs text-slate-700 leading-relaxed font-medium">
+              {confirmDialog.message}
+            </p>
+
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmDialog((prev) => ({ ...prev, isOpen: false, userTarget: null }))}
+                disabled={submitting}
+                className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmAction}
+                disabled={submitting}
+                className={`px-4 py-1.5 text-xs font-bold rounded-xl transition-colors text-white cursor-pointer ${
+                  confirmDialog.isDanger
+                    ? 'bg-rose-600 hover:bg-rose-700'
+                    : 'bg-amber-600 hover:bg-amber-700'
+                } disabled:opacity-50`}
+              >
+                {submitting ? 'Memproses...' : confirmDialog.actionButtonText}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default KelolaUserPage;
+

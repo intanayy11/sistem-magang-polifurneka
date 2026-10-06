@@ -53,3 +53,4 @@ const AlertBanner = ({ alert, onClose, duration = 5000 }) => {
 };
 
 export default AlertBanner;
+

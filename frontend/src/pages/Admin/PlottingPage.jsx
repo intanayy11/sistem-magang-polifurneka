@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/axios';
-import { Plus, Trash2, Pencil, X, GitBranch, Search } from 'lucide-react';
+import { Plus, Trash2, Pencil, X, GitBranch, Search, AlertTriangle } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
 import Pagination from '../../components/Pagination';
@@ -14,7 +14,6 @@ const PlottingPage = () => {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState(null);
 
-  // Tab State: 'semua' | 'aktif' | 'selesai'
   const [activeTab, setActiveTab] = useState('semua');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,7 +22,6 @@ const PlottingPage = () => {
     setCurrentPage(1);
   }, [activeTab, searchQuery]);
 
-  // Modal Create Plotting
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -31,12 +29,13 @@ const PlottingPage = () => {
     pembimbing_id: '',
   });
 
-  // Modal Edit Plotting
   const [editModal, setEditModal] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [editPembimbingId, setEditPembimbingId] = useState('');
 
-  useScrollLock(showModal || editModal);
+  const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, item: null });
+
+  useScrollLock(showModal || editModal || confirmDelete.isOpen);
 
   const fetchData = async () => {
     try {
@@ -119,19 +118,27 @@ const PlottingPage = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Apakah Anda yakin ingin menghapus plotting bimbingan ini?')) return;
+  const handleOpenDelete = (item) => {
+    setConfirmDelete({ isOpen: true, item });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDelete.item) return;
+    setSubmitting(true);
+    setAlert(null);
 
     try {
-      const res = await api.delete(`/admin/plotting/${id}`);
-      setAlert({ type: 'success', message: res.data.message });
+      const res = await api.delete(`/admin/plotting/${confirmDelete.item.plotting_id}`);
+      setAlert({ type: 'success', message: res.data.message || 'Plotting bimbingan berhasil dihapus.' });
+      setConfirmDelete({ isOpen: false, item: null });
       fetchData();
     } catch (err) {
       setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal menghapus plotting.' });
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // Filtering data berdasarkan tab
   const activeCount = plottingList.filter((i) => !i.peserta?.is_magang_selesai).length;
   const selesaiCount = plottingList.filter((i) => i.peserta?.is_magang_selesai).length;
 
@@ -148,21 +155,19 @@ const PlottingPage = () => {
     return true;
   });
 
-
   return (
     <div className="space-y-4">
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
-      {/* Plotting Table Card */}
       <div className="card-clean overflow-hidden">
-        {/* Toolbar: Judul + Search + Filter Tabs + Tambah */}
+
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3.5">
           <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
             <GitBranch size={22} className="text-[#E8A800]" />
             <span>Plotting Bimbingan Magang</span>
           </h2>
           <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            {/* Search */}
+
             <div className="relative flex-1">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
@@ -174,7 +179,6 @@ const PlottingPage = () => {
               />
             </div>
 
-            {/* Filter Tabs */}
             <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl shrink-0 border border-slate-200/60">
               <button
                 onClick={() => setActiveTab('semua')}
@@ -208,7 +212,6 @@ const PlottingPage = () => {
               </button>
             </div>
 
-            {/* Tambah Button */}
             <button
               onClick={() => setShowModal(true)}
               className="flex items-center justify-center gap-2 btn-poli-primary px-4 py-2 rounded-xl transition-all text-xs uppercase tracking-wider shrink-0 shadow-xs"
@@ -288,8 +291,8 @@ const PlottingPage = () => {
                             <Pencil size={15} />
                           </button>
                           <button
-                            onClick={() => handleDelete(item.plotting_id)}
-                            className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            onClick={() => handleOpenDelete(item)}
+                            className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                             title="Hapus Plotting"
                           >
                             <Trash2 size={15} />
@@ -303,7 +306,6 @@ const PlottingPage = () => {
           </table>
         </div>
 
-        {/* Footer Pagination */}
         <Pagination
           currentPage={currentPage}
           totalItems={displayList.length}
@@ -313,7 +315,6 @@ const PlottingPage = () => {
         />
       </div>
 
-      {/* Modal Add Plotting */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[20px] max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4 relative">
@@ -383,7 +384,6 @@ const PlottingPage = () => {
         </div>
       )}
 
-      {/* Modal Edit Plotting */}
       {editModal && editItem && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[20px] max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4 relative animate-in fade-in zoom-in-95 duration-200">
@@ -437,8 +437,50 @@ const PlottingPage = () => {
           </div>
         </div>
       )}
+
+      {confirmDelete.isOpen && confirmDelete.item && (
+        <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in duration-150">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-rose-100 text-rose-600">
+                <AlertTriangle size={20} />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm">Hapus Plotting Bimbingan</h3>
+                <p className="text-[11px] text-slate-500">Konfirmasi tindakan penghapusan</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed font-medium">
+              Apakah Anda yakin ingin menghapus plotting bimbingan antara peserta{' '}
+              <strong className="text-slate-900 font-bold">{confirmDelete.item.peserta?.nama || 'Peserta'}</strong> dan pembimbing{' '}
+              <strong className="text-slate-900 font-bold">{confirmDelete.item.pembimbing?.nama || 'Pembimbing'}</strong>?
+            </p>
+
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete({ isOpen: false, item: null })}
+                disabled={submitting}
+                className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={submitting}
+                className="px-4 py-1.5 text-xs font-bold rounded-xl transition-colors text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50 cursor-pointer"
+              >
+                {submitting ? 'Menghapus...' : 'Ya, Hapus'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default PlottingPage;
+

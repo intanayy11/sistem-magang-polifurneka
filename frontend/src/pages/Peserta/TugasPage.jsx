@@ -130,7 +130,6 @@ const TugasPage = () => {
     }
   };
 
-
   const filteredList = activeFilter === 'Semua'
     ? tugasList
     : tugasList.filter(t => t.status === activeFilter);
@@ -143,9 +142,8 @@ const TugasPage = () => {
     <div className="space-y-4">
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
-      {/* ── UNIFIED CARD WADAH UTAMA TUGAS MAGANG ── */}
       <div className="card-clean overflow-hidden">
-        {/* Table/Card Header: Judul + Filter Tabs */}
+
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3">
           <div>
             <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
@@ -154,7 +152,6 @@ const TugasPage = () => {
             </h2>
           </div>
 
-          {/* Filter Tabs */}
           <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-slate-100">
             {STATUS_FILTERS.map((f) => {
               const count = f.value === 'Semua'
@@ -183,7 +180,6 @@ const TugasPage = () => {
           </div>
         </div>
 
-        {/* Task Content Grid Inside Unified Card Container */}
         <div className="p-4 sm:p-5 bg-slate-50/40">
           {loading ? (
             <div className="py-12 px-4 text-center bg-white rounded-2xl border border-slate-200/80">
@@ -243,7 +239,6 @@ const TugasPage = () => {
           )}
         </div>
 
-        {/* Pagination Controls Footer */}
         <Pagination
           currentPage={currentPage}
           totalItems={filteredList.length}
@@ -253,7 +248,6 @@ const TugasPage = () => {
         />
       </div>
 
-      {/* Detail & Submission Modal */}
       {showDetailModal && selectedTugas && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-[20px] max-w-2xl w-full p-6 shadow-xl border border-slate-200 space-y-5 max-h-[90vh] overflow-y-auto">
@@ -295,7 +289,6 @@ const TugasPage = () => {
               )}
             </div>
 
-            {/* Riwayat Pengumpulan */}
             <div className="space-y-2">
               <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <History size={14} className="text-amber-600" />
@@ -332,7 +325,6 @@ const TugasPage = () => {
               )}
             </div>
 
-            {/* Form Submit / Pengumpulan Baru */}
             {selectedTugas.status !== 'Selesai' && (
               !isMagangSelesai(user) ? (
                 isTaskOverdue(selectedTugas.deadline, selectedTugas.status) && !dalamGracePeriodRevisi(selectedTugas) ? (
@@ -426,3 +418,4 @@ const TugasPage = () => {
 };
 
 export default TugasPage;
+

@@ -41,12 +41,11 @@ class LogbookController extends Controller
     {
         $user = $request->user();
 
-        // Guard: periode magang peserta sudah berakhir / nonaktif
         if (! PeriodeMagangService::apakahAktif($user)) {
             $tglSelesai = $user->tanggal_selesai_magang
                 ? Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y')
                 : null;
-            $pesan = $tglSelesai 
+            $pesan = $tglSelesai
                 ? "Periode magang Anda telah berakhir pada {$tglSelesai}."
                 : "Periode magang Anda telah berakhir.";
             return response()->json([
@@ -63,8 +62,6 @@ class LogbookController extends Controller
             'foto_bukti' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
         ]);
 
-
-        // Server-side: reject weekend dates regardless of how the request was sent
         $tanggal = \Carbon\Carbon::parse($request->tanggal);
         if ($tanggal->isWeekend()) {
             return response()->json([
@@ -132,3 +129,4 @@ class LogbookController extends Controller
         ]);
     }
 }
+

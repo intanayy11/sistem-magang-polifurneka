@@ -64,10 +64,9 @@ const PembimbingDashboard = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      
-      {/* ── BENTO CARD 1: HERO BANNER ── */}
+
       <div className="card-bento bg-gradient-to-r from-[#FFFBEB] via-white to-[#FEF9E7] border border-amber-200/70 text-slate-900 relative overflow-hidden flex flex-col justify-between min-h-[200px]">
-        {/* Subtle Amber Glow Blur */}
+
         <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-[#E8A800]/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 space-y-3">
@@ -87,14 +86,10 @@ const PembimbingDashboard = () => {
           </div>
         </div>
 
-
       </div>
 
-
-      {/* ── BENTO CARD 2: SUMMARY METRICS GRID (4 CARDS) ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        {/* Card 1: Total Peserta */}
+
         <div
           onClick={() => navigate('/pembimbing/monitor-presensi')}
           className="card-bento p-5 flex flex-col justify-between bg-gradient-to-br from-white to-blue-50/40 hover:border-blue-300 transition-all cursor-pointer group"
@@ -114,7 +109,6 @@ const PembimbingDashboard = () => {
           </div>
         </div>
 
-        {/* Card 2: Logbook Pending */}
         <div
           onClick={() => navigate('/pembimbing/review-logbook?status=Menunggu')}
           className="card-bento p-5 flex flex-col justify-between bg-gradient-to-br from-white to-amber-50/40 hover:border-amber-300 transition-all cursor-pointer group"
@@ -134,7 +128,6 @@ const PembimbingDashboard = () => {
           </div>
         </div>
 
-        {/* Card 3: Izin Pending */}
         <div
           onClick={() => navigate('/pembimbing/verifikasi-izin')}
           className="card-bento p-5 flex flex-col justify-between bg-gradient-to-br from-white to-purple-50/40 hover:border-purple-300 transition-all cursor-pointer group"
@@ -154,7 +147,6 @@ const PembimbingDashboard = () => {
           </div>
         </div>
 
-        {/* Card 4: Tugas Review */}
         <div
           onClick={() => navigate('/pembimbing/kelola-tugas')}
           className="card-bento p-5 flex flex-col justify-between bg-gradient-to-br from-white to-emerald-50/40 hover:border-emerald-300 transition-all cursor-pointer group"
@@ -176,7 +168,6 @@ const PembimbingDashboard = () => {
 
       </div>
 
-      {/* ── BENTO CARD 3: DAFTAR MAHASISWA BANTUAN BENTO TABLE ── */}
       <div className="card-bento overflow-hidden p-0">
         <div className="p-5 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -213,7 +204,7 @@ const PembimbingDashboard = () => {
                   const initial = p.nama ? p.nama.charAt(0).toUpperCase() : 'M';
                   return (
                     <tr key={p.user_id} className="hover:bg-amber-50/50 transition-colors group">
-                      {/* Column 1: Student Name & Avatar */}
+
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-amber-100 border border-amber-300 text-amber-900 font-extrabold flex items-center justify-center text-xs shrink-0 shadow-2xs">
@@ -233,16 +224,13 @@ const PembimbingDashboard = () => {
                         </div>
                       </td>
 
-                      {/* Column 2: NIM */}
                       <td className="px-5 py-4 font-mono font-semibold text-slate-700">{p.nim_nis || '-'}</td>
 
-                      {/* Column 3: Contact */}
                       <td className="px-5 py-4">
                         <div className="font-medium text-slate-800">{p.email}</div>
                         <div className="text-slate-400 text-[11px] font-mono">{p.no_hp || '-'}</div>
                       </td>
 
-                      {/* Column 4: Logbook Pending */}
                       <td className="px-5 py-4 text-center">
                         <button
                           onClick={() => navigate('/pembimbing/review-logbook')}
@@ -256,7 +244,6 @@ const PembimbingDashboard = () => {
                         </button>
                       </td>
 
-                      {/* Column 5: Izin Pending */}
                       <td className="px-5 py-4 text-center">
                         <button
                           onClick={() => navigate('/pembimbing/verifikasi-izin')}
@@ -270,7 +257,6 @@ const PembimbingDashboard = () => {
                         </button>
                       </td>
 
-                      {/* Column 6: Tugas Review */}
                       <td className="px-5 py-4 text-center">
                         <button
                           onClick={() => navigate('/pembimbing/kelola-tugas')}
@@ -284,7 +270,6 @@ const PembimbingDashboard = () => {
                         </button>
                       </td>
 
-                      {/* Column 7: Quick Link Action */}
                       <td className="px-5 py-4 text-right">
                         <button
                           onClick={() => navigate('/pembimbing/review-logbook')}
@@ -308,3 +293,4 @@ const PembimbingDashboard = () => {
 };
 
 export default PembimbingDashboard;
+

@@ -58,3 +58,4 @@ class LaporanProgramMagangExport implements FromCollection, WithHeadings, WithTi
         return 'Ringkasan Program Magang';
     }
 }
+

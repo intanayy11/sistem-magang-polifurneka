@@ -3,7 +3,6 @@ import React from 'react';
 const StatusBadge = ({ status }) => {
   const getStyle = (val) => {
     switch (val) {
-      // Presensi Status
       case 'Hadir':
         return 'text-emerald-700 font-bold';
       case 'Terlambat':
@@ -11,7 +10,6 @@ const StatusBadge = ({ status }) => {
       case 'Alpha':
         return 'text-rose-700 font-bold';
 
-      // Izin & Logbook Status
       case 'Menunggu':
         return 'text-amber-800 font-bold';
       case 'Disetujui':
@@ -24,7 +22,6 @@ const StatusBadge = ({ status }) => {
       case 'Perlu Revisi':
         return 'text-rose-600 font-bold';
 
-      // Tugas Status
       case 'Belum Dikerjakan':
         return 'text-slate-500 font-bold';
       case 'Menunggu Review':
@@ -48,3 +45,4 @@ const StatusBadge = ({ status }) => {
 };
 
 export default StatusBadge;
+

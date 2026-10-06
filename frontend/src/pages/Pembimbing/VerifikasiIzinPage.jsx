@@ -105,14 +105,12 @@ const VerifikasiIzinPage = () => {
     }
   };
 
-
   return (
     <div className="space-y-4">
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
-      {/* Permission List Table */}
       <div className="card-clean overflow-hidden">
-        {/* Header: Judul + Count */}
+
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3.5">
           <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
             <FileText size={22} className="text-[#E8A800]" />
@@ -201,7 +199,6 @@ const VerifikasiIzinPage = () => {
           </table>
         </div>
 
-        {/* Footer Pagination */}
         <Pagination
           currentPage={currentPage}
           totalItems={izinList.length}
@@ -211,7 +208,6 @@ const VerifikasiIzinPage = () => {
         />
       </div>
 
-      {/* Modal Verifikasi */}
       {showModal && selectedIzin && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[20px] max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-4 relative">
@@ -267,3 +263,4 @@ const VerifikasiIzinPage = () => {
 };
 
 export default VerifikasiIzinPage;
+

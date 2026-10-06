@@ -7,15 +7,6 @@ use Carbon\Carbon;
 
 class PeriodeMagangService
 {
-    /**
-     * Memeriksa apakah peserta berada dalam periode magang yang aktif pada tanggal tertentu.
-     * 
-     * Periode magang aktif: tanggal_mulai_magang <= tanggal <= tanggal_selesai_magang
-     * 
-     * @param User|int $peserta
-     * @param string|Carbon|null $tanggal
-     * @return bool
-     */
     public static function apakahAktif($peserta, $tanggal = null): bool
     {
         if (!($peserta instanceof User)) {
@@ -26,7 +17,6 @@ class PeriodeMagangService
             return false;
         }
 
-        // Jika akun dinonaktifkan secara manual oleh admin
         if ($peserta->status_aktif === false) {
             return false;
         }
@@ -50,14 +40,6 @@ class PeriodeMagangService
         return true;
     }
 
-    /**
-     * Memeriksa apakah peserta masih berada dalam masa grace period (3 hari kalender setelah tanggal_selesai_magang)
-     * khusus untuk mengunggah revisi tugas yang berstatus "Perlu Revisi".
-     * 
-     * @param User|int $peserta
-     * @param string|Carbon|null $tanggal
-     * @return bool
-     */
     public static function dalamGracePeriodRevisi($peserta, $tanggal = null): bool
     {
         if (!($peserta instanceof User)) {
@@ -72,7 +54,6 @@ class PeriodeMagangService
             return false;
         }
 
-        // Jika tidak ada tanggal selesai magang, anggap tidak terbatas
         if (!$peserta->tanggal_selesai_magang) {
             return true;
         }
@@ -83,3 +64,4 @@ class PeriodeMagangService
         return $targetDate->lte($gracePeriodEnd);
     }
 }
+

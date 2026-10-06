@@ -1,9 +1,5 @@
 import { useEffect } from 'react';
 
-/**
- * Locks body scroll when isLocked is true.
- * Automatically restores scroll on unmount.
- */
 const useScrollLock = (isLocked) => {
   useEffect(() => {
     if (isLocked) {
@@ -18,3 +14,4 @@ const useScrollLock = (isLocked) => {
 };
 
 export default useScrollLock;
+

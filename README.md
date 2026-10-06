@@ -53,7 +53,7 @@ Sistem ini mendukung 3 peran pengguna (*Role-Based Access Control / RBAC*):
 - **Verifikasi Pengajuan Izin / Sakit**:
   - Memeriksa dokumen bukti dan memberikan keputusan *Disetujui* atau *Ditolak*.
 - **Manajemen & Evaluasi Tugas**:
-  - Membuat tugas baru, menentukan batas tenggat (*deadline*), memeriksa hasil pengumpulan mahasiswa, serta memberikan penilaian/catatan revisi.
+  - Membuat tugas baru, menentukan batas tenggat (*deadline*), memeriksa hasil pengumpulan mahasiswa, serta memberikan status persetujuan (*Selesai*) atau catatan revisi.
 
 ---
 

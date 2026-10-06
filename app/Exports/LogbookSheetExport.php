@@ -57,3 +57,4 @@ class LogbookSheetExport implements FromCollection, WithHeadings, WithTitle, Wit
         return 'Logbook';
     }
 }
+

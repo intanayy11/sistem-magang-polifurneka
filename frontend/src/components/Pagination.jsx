@@ -14,7 +14,6 @@ const Pagination = ({
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
 
-  // Helper to generate visible page numbers (if totalPages > 7, smart ellipsis)
   const getPageNumbers = () => {
     if (totalPages <= 7) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -89,3 +88,4 @@ const Pagination = ({
 };
 
 export default Pagination;
+

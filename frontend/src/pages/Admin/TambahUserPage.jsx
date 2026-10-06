@@ -15,8 +15,8 @@ const TambahUserPage = () => {
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get('role') || '';
 
-  const initialRole = (roleParam === 'peserta' || roleParam === 'pembimbing' || roleParam === 'admin') 
-    ? roleParam 
+  const initialRole = (roleParam === 'peserta' || roleParam === 'pembimbing' || roleParam === 'admin')
+    ? roleParam
     : 'peserta';
 
   const [submitting, setSubmitting] = useState(false);
@@ -89,7 +89,6 @@ const TambahUserPage = () => {
   return (
     <div className="space-y-4 max-w-3xl mx-auto">
 
-      {/* Alert Banner */}
       {alert && (
         <div
           className={`p-4 rounded-2xl flex items-start gap-3 text-xs font-semibold border ${
@@ -113,9 +112,8 @@ const TambahUserPage = () => {
         </div>
       )}
 
-      {/* Form Card */}
       <div className="card-clean overflow-hidden">
-        {/* Header: Judul */}
+
         <div className="p-5 border-b border-slate-100 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
             <UserPlus size={22} className="text-[#E8A800]" />
@@ -133,7 +131,6 @@ const TambahUserPage = () => {
         <div className="p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
 
-          {/* ── Section 1: Informasi Akun ── */}
           <div>
             <h3 className="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
               <SectionBadge num="1" />
@@ -162,7 +159,7 @@ const TambahUserPage = () => {
                 <input
                   type="email"
                   required
-                  placeholder="nama@poltek-furnitur.ac.id"
+                  placeholder="nama@simonika.poltek-furnitur.ac.id"
                   value={form.email}
                   onChange={(e) => handleChange('email', e.target.value)}
                   className={inputClass}
@@ -190,7 +187,7 @@ const TambahUserPage = () => {
                 <input
                   type="password"
                   required
-                  placeholder="Min. 8 karakter"
+                  placeholder="Minimal 6 karakter"
                   value={form.password}
                   onChange={(e) => handleChange('password', e.target.value)}
                   className={inputClass}
@@ -201,7 +198,6 @@ const TambahUserPage = () => {
 
           <div className="border-t border-slate-100" />
 
-          {/* ── Section 2: Identitas & Kontak ── */}
           <div>
             <h3 className="text-sm font-extrabold text-slate-900 mb-4 flex items-center gap-2">
               <SectionBadge num="2" />
@@ -235,7 +231,6 @@ const TambahUserPage = () => {
             </div>
           </div>
 
-          {/* ── Section 3: Detail Peserta (Conditional) ── */}
           {form.role === 'peserta' && (
             <>
               <div className="border-t border-slate-100" />
@@ -247,7 +242,7 @@ const TambahUserPage = () => {
 
                 <div className="space-y-4">
                   <div>
-                    <label className={labelClass}>Asal Sekolah / Universitas / Instansi</label>
+                    <label className={labelClass}>Asal Sekolah / Universitas</label>
                     <input
                       type="text"
                       placeholder="Contoh: Politeknik Industri Furnitur dan Pengolahan Kayu"
@@ -305,7 +300,6 @@ const TambahUserPage = () => {
             </>
           )}
 
-          {/* ── Section 3: Detail Pembimbing (Conditional) ── */}
           {form.role === 'pembimbing' && (
             <>
               <div className="border-t border-slate-100" />
@@ -328,7 +322,6 @@ const TambahUserPage = () => {
             </>
           )}
 
-          {/* ── Action Buttons ── */}
           <div className="border-t border-slate-100 pt-5 flex flex-col sm:flex-row items-center justify-end gap-3">
             <button
               type="button"
@@ -363,3 +356,4 @@ const TambahUserPage = () => {
 };
 
 export default TambahUserPage;
+

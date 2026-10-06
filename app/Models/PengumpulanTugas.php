@@ -29,3 +29,4 @@ class PengumpulanTugas extends Model
         return $this->belongsTo(Tugas::class, 'tugas_id', 'tugas_id');
     }
 }
+

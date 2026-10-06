@@ -46,3 +46,4 @@ class Tugas extends Model
         return $this->hasOne(PengumpulanTugas::class, 'tugas_id', 'tugas_id')->latestOfMany('versi_ke');
     }
 }
+

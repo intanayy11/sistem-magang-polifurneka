@@ -91,7 +91,6 @@ const IzinPage = () => {
     }
   };
 
-
   const handleDownloadBukti = async (item) => {
     try {
       setDownloadingId(item.izin_id);
@@ -133,7 +132,6 @@ const IzinPage = () => {
     <div className="space-y-4">
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
-      {/* Banner Masa Magang Selesai */}
       {magangSelesai && (
         <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-3">
           <AlertTriangle size={17} className="text-amber-600 shrink-0 mt-0.5" />
@@ -144,7 +142,6 @@ const IzinPage = () => {
         </div>
       )}
 
-      {/* Permission Table */}
       <div className="card-clean overflow-hidden">
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -232,7 +229,6 @@ const IzinPage = () => {
           </table>
         </div>
 
-        {/* Footer Pagination */}
         <Pagination
           currentPage={currentPage}
           totalItems={izinList.length}
@@ -242,7 +238,6 @@ const IzinPage = () => {
         />
       </div>
 
-      {/* Modal Form Izin */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[20px] max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-4 relative">
@@ -338,3 +333,4 @@ const IzinPage = () => {
 };
 
 export default IzinPage;
+

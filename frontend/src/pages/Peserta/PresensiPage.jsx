@@ -20,7 +20,6 @@ const PresensiPage = () => {
   const [locationStatus, setLocationStatus] = useState('');
   const [liburInfo, setLiburInfo] = useState(null);
 
-  // Map Modal
   const [mapModal, setMapModal] = useState({ open: false, lat: null, lng: null, title: '', timestamp: '', alamat: '' });
 
   const fetchPresensi = async () => {
@@ -196,7 +195,6 @@ const PresensiPage = () => {
 
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
-      {/* Banner Masa Magang Selesai */}
       {magangSelesai && (
         <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-3">
           <AlertTriangle size={17} className="text-amber-600 shrink-0 mt-0.5" />
@@ -236,7 +234,7 @@ const PresensiPage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Presensi Masuk Instansi */}
+
             <div className="p-5 rounded-2xl bg-white border border-slate-200/90 flex flex-col justify-between gap-4 shadow-2xs">
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
@@ -284,7 +282,6 @@ const PresensiPage = () => {
               </button>
             </div>
 
-            {/* Presensi Pulang Instansi */}
             <div className="p-5 rounded-2xl bg-white border border-slate-200/90 flex flex-col justify-between gap-4 shadow-2xs">
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
@@ -361,3 +358,4 @@ const PresensiPage = () => {
 };
 
 export default PresensiPage;
+

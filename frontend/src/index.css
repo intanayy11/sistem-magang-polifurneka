@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand Tokens - Polifurneka Timber Walnut & Oak Amber */
+
   --walnut:            #1C120C;
   --walnut-surface:    #261A13;
   --walnut-muted:      #3D2A1F;
@@ -34,7 +34,6 @@ h1, h2, h3, h4, h5, h6 {
   color: #111827;
 }
 
-/* Custom Helper Classes */
 @layer utilities {
   .font-poppins {
     font-family: 'Poppins', 'Inter', sans-serif;
@@ -42,8 +41,7 @@ h1, h2, h3, h4, h5, h6 {
   .font-inter {
     font-family: 'Inter', sans-serif;
   }
-  
-  /* Buttons */
+
   .btn-poli-primary {
     background-color: #E8A800;
     color: #0F172A;
@@ -56,7 +54,6 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 4px 14px rgba(232, 168, 0, 0.35);
   }
 
-  /* Bento Cards */
   .card-bento {
     background-color: #FFFFFF;
     border: 1px solid #EFECE6;
@@ -81,7 +78,6 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Wood Grain Background Overlay */
 .bg-wood-grain {
   background-color: #1C120C;
   background-image: radial-gradient(rgba(232, 168, 0, 0.12) 1px, transparent 1px),
@@ -90,7 +86,6 @@ h1, h2, h3, h4, h5, h6 {
   background-position: 0 0, 10px 10px;
 }
 
-/* Smooth custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -106,7 +101,6 @@ h1, h2, h3, h4, h5, h6 {
   background: #94A3B8;
 }
 
-/* Daily Check-in Reminder Banner */
 .reminder-banner {
   background-color: #FFFBEB;
   border: 1px solid #FCD34D;
@@ -128,3 +122,4 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: space-between;
   }
 }
+

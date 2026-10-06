@@ -43,12 +43,11 @@ class IzinController extends Controller
     {
         $user = $request->user();
 
-        // Guard: periode magang peserta sudah berakhir / nonaktif
         if (! PeriodeMagangService::apakahAktif($user)) {
             $tglSelesai = $user->tanggal_selesai_magang
                 ? Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y')
                 : null;
-            $pesan = $tglSelesai 
+            $pesan = $tglSelesai
                 ? "Periode magang Anda telah berakhir pada {$tglSelesai}."
                 : "Periode magang Anda telah berakhir.";
             return response()->json([
@@ -64,7 +63,6 @@ class IzinController extends Controller
             'keterangan' => 'nullable|string',
             'file_bukti' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
-
 
         $filePath = null;
         if ($request->hasFile('file_bukti')) {
@@ -104,7 +102,6 @@ class IzinController extends Controller
             ], 404);
         }
 
-        // Cek hak akses
         if ($user->role === 'peserta' && $izin->peserta_id != $user->user_id) {
             return response()->json([
                 'status' => 'error',
@@ -128,12 +125,10 @@ class IzinController extends Controller
 
         $cleanPath = str_replace('storage/', '', $izin->file_bukti);
 
-        // 1. Cek di disk private (local)
         if (Storage::disk('local')->exists($cleanPath)) {
             return Storage::disk('local')->response($cleanPath);
         }
 
-        // 2. Fallback jika berkas lama tersimpan di public
         if (Storage::disk('public')->exists($cleanPath)) {
             return Storage::disk('public')->response($cleanPath);
         }
@@ -179,3 +174,4 @@ class IzinController extends Controller
         ]);
     }
 }
+

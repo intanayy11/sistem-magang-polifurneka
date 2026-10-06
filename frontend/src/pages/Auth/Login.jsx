@@ -26,7 +26,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [helpModal, setHelpModal] = useState(null); // 'bantuan' | 'panduan' | 'privasi' | null
+  const [helpModal, setHelpModal] = useState(null);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -53,24 +53,19 @@ const Login = () => {
 
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-slate-100 font-inter text-slate-800 relative overflow-hidden">
-      
-      {/* ── Left Panel: HERO BUILDING IMAGE & BRANDING (Desktop Only, 55% Width) ── */}
+
       <div className="hidden lg:flex w-full lg:w-[55%] min-h-screen relative flex-col justify-between p-10 lg:p-16 text-white overflow-hidden shrink-0">
-        
-        {/* Background Building Image */}
+
         <div
           className="absolute inset-0 bg-cover bg-[position:45%_center] transition-transform duration-700 hover:scale-105"
           style={{ backgroundImage: `url(${buildingImg})` }}
         />
 
-        {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#120B07]/90 via-slate-950/20 to-white/30 backdrop-blur-[0.5px]" />
 
-        {/* Subtle Decorative Lighting Accents */}
         <div className="absolute -top-10 -left-10 w-48 h-48 rounded-full bg-[#E8A800]/5 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-10 -right-10 w-48 h-48 rounded-full bg-amber-500/5 blur-3xl pointer-events-none" />
 
-        {/* Top Branding Header */}
         <div className="relative z-10 flex items-center gap-3.5">
           <img src={logoImg} alt="Logo Polifurneka" className="h-12 lg:h-14 w-auto object-contain shrink-0 drop-shadow-sm" />
           <div>
@@ -83,7 +78,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Bottom Hero Footer */}
         <div className="relative z-10 text-xs text-slate-300/90 space-y-0.5">
           <p className="text-[11px] text-slate-300 leading-tight">
             Jl. Wanamarta Raya No. 20 - Kawasan Industri Kendal, Kendal - Jawa Tengah 51371
@@ -97,10 +91,8 @@ const Login = () => {
 
       </div>
 
-      {/* ── Right Panel: FLOATING CARD CONTAINER FOR LOGIN FORM (100% on Mobile, 45% on Desktop) ── */}
       <div className="w-full lg:w-[45%] min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 lg:p-14 bg-slate-100 relative z-10 shrink-0 my-auto">
-        
-        {/* Mobile Header Branding (Visible ONLY on Mobile < lg) */}
+
         <div className="lg:hidden w-full max-w-md mb-4 flex items-center gap-3 justify-center text-left px-1">
           <img src={logoImg} alt="Logo Polifurneka" className="h-10 w-auto object-contain shrink-0 drop-shadow-xs" />
           <div>
@@ -113,10 +105,8 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Floating Card Container */}
         <div className="w-full max-w-md bg-white rounded-[24px] shadow-xl border border-slate-200/80 p-5 sm:p-9 space-y-5 sm:space-y-6">
 
-          {/* Form Header */}
           <div className="space-y-1">
             <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
               Selamat Datang di SIMONIKA
@@ -126,7 +116,6 @@ const Login = () => {
             </p>
           </div>
 
-          {/* Alert Error Box */}
           {error && (
             <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-2.5 text-rose-800 text-xs animate-in fade-in duration-200">
               <AlertCircle size={16} className="shrink-0 mt-0.5 text-rose-600" />
@@ -134,10 +123,8 @@ const Login = () => {
             </div>
           )}
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            
-            {/* Email Input */}
+
             <div>
               <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                 Email / Akun Instansi
@@ -149,13 +136,12 @@ const Login = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nama@poltek-furnitur.ac.id"
+                  placeholder="nama@simonika.poltek-furnitur.ac.id"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs md:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 transition-all font-medium"
                 />
               </div>
             </div>
 
-            {/* Password Input with Show/Hide Toggle */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider">
@@ -183,7 +169,6 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={submitting}
@@ -197,7 +182,6 @@ const Login = () => {
             </button>
           </form>
 
-          {/* Assistance Note */}
           <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px] text-slate-500 flex items-start gap-2.5">
             <Building2 size={16} className="text-amber-600 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
@@ -207,7 +191,6 @@ const Login = () => {
 
         </div>
 
-        {/* ── Footer Support Links (Bantuan Login, Panduan, Kebijakan Privasi) ── */}
         <div className="w-full max-w-md mt-6 text-center space-y-2.5 text-xs text-amber-900">
           <div>
             <button
@@ -243,7 +226,6 @@ const Login = () => {
 
       </div>
 
-      {/* ── MODAL HELP / SUPPORT / PRIVACY ── */}
       {helpModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
           <div className="bg-white rounded-[24px] max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 relative">
@@ -357,3 +339,4 @@ const Login = () => {
 };
 
 export default Login;
+

@@ -24,7 +24,6 @@ const KelolaTugasPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [alert, setAlert] = useState(null);
 
-  // Modal Create Task
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createSubmitting, setCreateSubmitting] = useState(false);
   const [createForm, setCreateForm] = useState({
@@ -35,7 +34,6 @@ const KelolaTugasPage = () => {
     file_lampiran: null,
   });
 
-  // Modal Review Submission
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [selectedTugas, setSelectedTugas] = useState(null);
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
@@ -144,14 +142,12 @@ const KelolaTugasPage = () => {
     }
   };
 
-
   return (
     <div className="space-y-4">
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
-      {/* Task List Table */}
       <div className="card-clean overflow-hidden">
-        {/* Header: Judul + Tombol Buat Tugas */}
+
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3.5">
           <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
             <ClipboardList size={22} className="text-[#E8A800]" />
@@ -238,7 +234,6 @@ const KelolaTugasPage = () => {
           </table>
         </div>
 
-        {/* Footer Pagination */}
         <Pagination
           currentPage={currentPage}
           totalItems={tugasList.length}
@@ -248,7 +243,6 @@ const KelolaTugasPage = () => {
         />
       </div>
 
-      {/* Modal Create Task */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[20px] max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-4 relative">
@@ -274,7 +268,7 @@ const KelolaTugasPage = () => {
                     </option>
                   ))}
                 </select>
-                {/* Warning jika peserta yang dipilih sudah selesai magang */}
+
                 {(() => {
                   const selected = pesertaOptions.find(p => String(p.user_id) === String(createForm.peserta_id));
                   return selected?.is_magang_selesai ? (
@@ -366,7 +360,6 @@ const KelolaTugasPage = () => {
         </div>
       )}
 
-      {/* Modal Review Submission */}
       {showReviewModal && selectedTugas && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white rounded-[20px] max-w-2xl w-full p-6 shadow-xl border border-slate-200 space-y-5 max-h-[90vh] overflow-y-auto">
@@ -383,7 +376,6 @@ const KelolaTugasPage = () => {
               </button>
             </div>
 
-            {/* Submission History */}
             <div className="space-y-3">
               <h4 className="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-2">
                 <History size={15} className="text-amber-600" />
@@ -432,7 +424,6 @@ const KelolaTugasPage = () => {
               )}
             </div>
 
-            {/* Review Form */}
             <form onSubmit={handleReviewSubmit} className="space-y-3.5 pt-4 border-t border-slate-100">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Keputusan Review Status Tugas</label>
@@ -482,3 +473,4 @@ const KelolaTugasPage = () => {
 };
 
 export default KelolaTugasPage;
+

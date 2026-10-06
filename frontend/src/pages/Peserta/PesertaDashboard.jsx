@@ -30,7 +30,6 @@ const PesertaDashboard = () => {
   const [alert, setAlert] = useState(null);
   const [locationStatus, setLocationStatus] = useState('');
 
-  // Map Modal State
   const [mapModal, setMapModal] = useState({ open: false, lat: null, lng: null, title: '', timestamp: '', alamat: '' });
 
   const fetchDashboard = async () => {
@@ -50,7 +49,6 @@ const PesertaDashboard = () => {
     fetchDashboard();
   }, []);
 
-  // Get GPS coordinates from browser
   const getCoordinates = () => {
     return new Promise((resolve) => {
       if (!navigator.geolocation) {
@@ -154,7 +152,6 @@ const PesertaDashboard = () => {
     navigate('/laporan');
   };
 
-  // Greeting helper based on time of day
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 11) return 'Selamat Pagi';
@@ -184,11 +181,9 @@ const PesertaDashboard = () => {
     tanggal_selesai_magang = null,
   } = data || {};
 
-  // Working day check (Monday=1 to Friday=5)
   const currentDay = new Date().getDay();
   const isWeekend = currentDay === 0 || currentDay === 6;
 
-  // Donut SVG circumference calculation
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (persentase_kehadiran / 100) * circumference;
@@ -196,7 +191,6 @@ const PesertaDashboard = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
 
-      {/* ── BANNER MASA MAGANG SELESAI ── */}
       {is_magang_selesai && (
         <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-3 shadow-xs">
           <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
@@ -214,7 +208,6 @@ const PesertaDashboard = () => {
         </div>
       )}
 
-      {/* Location Loading Status Banner */}
       {locationStatus && (
         <div className="p-3.5 rounded-2xl text-xs font-semibold flex items-center gap-2.5 bg-amber-50 text-amber-900 border border-amber-200">
           <Loader2 size={16} className="animate-spin text-amber-600 shrink-0" />
@@ -222,7 +215,6 @@ const PesertaDashboard = () => {
         </div>
       )}
 
-      {/* Alert Banner */}
       {alert && (
         <div className={`p-4 rounded-2xl text-xs font-semibold flex items-center justify-between shadow-xs ${
           alert.type === 'success' ? 'bg-emerald-50 text-emerald-900 border border-emerald-200' : 'bg-rose-50 text-rose-900 border border-rose-200'
@@ -234,10 +226,8 @@ const PesertaDashboard = () => {
         </div>
       )}
 
-      {/* ── SECTION 1: HERO & STATS METRICS (FULL TOP GRID) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        
-        {/* HERO CARD (Span 7) */}
+
         <div className="lg:col-span-7 card-bento bg-gradient-to-r from-[#FFFBEB] via-white to-[#FEF9E7] border border-amber-200/70 text-slate-900 relative overflow-hidden flex flex-col justify-between min-h-[220px]">
           <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-[#E8A800]/10 blur-3xl pointer-events-none" />
 
@@ -262,9 +252,8 @@ const PesertaDashboard = () => {
             </div>
           </div>
 
-          {/* PRESENSI BANNER WIDGET */}
           <div className="relative z-10 mt-5 pt-3.5 border-t border-amber-200/60">
-            {/* Jika masa magang sudah selesai, tampilkan pesan readonly */}
+
             {is_magang_selesai ? (
               <div className="flex items-center gap-2 text-xs text-amber-800 font-bold bg-amber-100/60 border border-amber-300 px-4 py-2.5 rounded-xl">
                 <AlertTriangle size={15} className="text-amber-600 shrink-0" />
@@ -324,7 +313,6 @@ const PesertaDashboard = () => {
           </div>
         </div>
 
-        {/* DONUT CHART (Span 5) */}
         <div className="lg:col-span-5 card-bento flex flex-col justify-between items-center text-center">
           <div className="w-full flex items-center justify-between">
             <div>
@@ -338,7 +326,6 @@ const PesertaDashboard = () => {
             </span>
           </div>
 
-          {/* Donut SVG Ring */}
           <div className="relative my-2 flex items-center justify-center">
             <svg width="105" height="105" className="transform -rotate-90">
               <circle cx="52.5" cy="52.5" r={radius} stroke="#F1EFEA" strokeWidth="9" fill="transparent" />
@@ -383,16 +370,13 @@ const PesertaDashboard = () => {
 
       </div>
 
-
-      {/* ── SECTION 2: SIDE-BY-SIDE WIDGETS (3 ITEMS MAX FOR TUGAS & LOGBOOK) ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
 
-        {/* WIDGET 1: DEADLINE TUGAS TERBARU (MAX 3 ITEMS) */}
         <div className="card-bento space-y-3.5">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
               <ListTodo size={16} className="text-[#E8A800]" />
-              <span>Tugas Terbaru & Deadline</span>
+              <span>Tugas Magang Terbaru</span>
             </h3>
             <a href="/peserta/tugas" className="text-xs font-bold text-[#E8A800] hover:underline flex items-center gap-0.5">
               <span>Semua</span>
@@ -434,7 +418,6 @@ const PesertaDashboard = () => {
           )}
         </div>
 
-        {/* WIDGET 2: AKTIVITAS LOGBOOK TERBARU (MAX 3 ITEMS) */}
         <div className="card-bento space-y-3.5">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
@@ -470,7 +453,6 @@ const PesertaDashboard = () => {
 
       </div>
 
-      {/* Map Modal */}
       <MapModal
         isOpen={mapModal.open}
         onClose={() => setMapModal({ ...mapModal, open: false })}
@@ -485,3 +467,4 @@ const PesertaDashboard = () => {
 };
 
 export default PesertaDashboard;
+

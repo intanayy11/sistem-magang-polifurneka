@@ -12,34 +12,28 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\LaporanController;
 use App\Http\Controllers\Api\NotificationController;
 
-// Public Auth route with Rate Limiting (Anti Brute-Force)
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
-// Authenticated Routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::get('/notifications', [NotificationController::class, 'index']);
 
-    // Profile Management (All roles)
     Route::get('/profile', [ProfileController::class, 'show']);
     Route::post('/profile', [ProfileController::class, 'update']);
     Route::put('/profile/password', [ProfileController::class, 'updatePassword']);
 
-    // Shared Laporan Routes (All roles)
     Route::get('/laporan/options', [LaporanController::class, 'getFilterOptions']);
     Route::get('/laporan/preview', [LaporanController::class, 'preview']);
     Route::get('/laporan/export', [LaporanController::class, 'exportPdf']);
     Route::get('/laporan/export-excel', [LaporanController::class, 'exportExcel']);
 
-    // Shared view routes
     Route::get('/izin', [IzinController::class, 'index']);
     Route::get('/izin/{id}/bukti', [IzinController::class, 'downloadBukti']);
     Route::get('/logbook', [LogbookController::class, 'index']);
     Route::get('/tugas', [TugasController::class, 'index']);
     Route::get('/tugas/{id}', [TugasController::class, 'show']);
 
-    // Role: Peserta
     Route::middleware('role:peserta')->group(function () {
         Route::post('/presensi/check-in', [PresensiController::class, 'checkIn']);
         Route::post('/presensi/check-out', [PresensiController::class, 'checkOut']);
@@ -50,7 +44,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard/peserta', [DashboardController::class, 'pesertaDashboard']);
     });
 
-    // Role: Pembimbing
     Route::middleware('role:pembimbing')->group(function () {
         Route::put('/izin/{id}/verifikasi', [IzinController::class, 'verifikasi']);
         Route::put('/logbook/{id}/review', [LogbookController::class, 'review']);
@@ -60,17 +53,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard/pembimbing', [DashboardController::class, 'pembimbingDashboard']);
     });
 
-    // Role: Pembimbing or Admin
     Route::middleware('role:pembimbing,admin')->group(function () {
         Route::get('/presensi/peserta/{peserta_id}', [PresensiController::class, 'presensiPeserta']);
     });
 
-    // Role: Admin (Single Sovereign)
     Route::middleware('role:admin')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
         Route::get('/dashboard/admin', [DashboardController::class, 'adminDashboard']);
-        
-        // Admin User CRUD
+
         Route::get('/admin/users', [AdminController::class, 'getUsers']);
         Route::post('/admin/users', [AdminController::class, 'createUser']);
         Route::put('/admin/users/{id}', [AdminController::class, 'updateUser']);
@@ -78,7 +68,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/admin/users/{id}/reset-password', [AdminController::class, 'resetPassword']);
         Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser']);
 
-        // Admin Plotting CRUD
         Route::get('/admin/options', [AdminController::class, 'getOptionsList']);
         Route::get('/admin/plotting', [AdminController::class, 'getPlotting']);
         Route::post('/admin/plotting', [AdminController::class, 'storePlotting']);
@@ -86,3 +75,4 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/admin/plotting/{id}', [AdminController::class, 'deletePlotting']);
     });
 });
+

@@ -86,7 +86,6 @@ const AdminDashboard = () => {
   const dayName = today.toLocaleDateString('id-ID', { weekday: 'long' });
   const dateStr = today.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  // Helper persentase aman
   const calcPercent = (val, total) => {
     if (!total || total === 0) return 0;
     return Math.round((val / total) * 100);
@@ -95,7 +94,6 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">
 
-      {/* ── HEADER DASHBOARD: GREETING & ACTIONS ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -103,7 +101,6 @@ const AdminDashboard = () => {
           </h1>
         </div>
 
-        {/* Akses Kanan: Tombol + Tambah User & Card Calendar Mini */}
         <div className="flex items-center gap-3 self-start sm:self-auto shrink-0">
           <button
             onClick={() => navigate('/admin/tambah-user')}
@@ -113,7 +110,6 @@ const AdminDashboard = () => {
             <span>Tambah User</span>
           </button>
 
-          {/* Card Calendar Mini Widget */}
           <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white border border-amber-200/80 shadow-2xs">
             <div className="p-2 rounded-lg bg-amber-50 text-amber-900">
               <CalendarIcon size={16} className="text-amber-600" />
@@ -126,13 +122,10 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* ── TOP SECTION: 2x2 SUMMARY METRICS (LEFT) & TINGKAT KEHADIRAN (RIGHT) ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        
-        {/* LEFT: 4 SUMMARY METRICS CARDS (2x2 GRID - COMPACT) */}
+
         <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          
-          {/* Card 1: Total Pengguna */}
+
           <div
             onClick={() => navigate('/admin/kelola-user')}
             className="bg-white p-4 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs hover:border-amber-300 hover:shadow-md transition-all cursor-pointer flex items-center gap-3.5 group"
@@ -150,7 +143,6 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Card 2: Peserta Magang */}
           <div
             onClick={() => navigate('/admin/kelola-user?role=peserta')}
             className="bg-white p-4 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs hover:border-emerald-300 hover:shadow-md transition-all cursor-pointer flex items-center gap-3.5 group"
@@ -168,7 +160,6 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Card 3: Pembimbing Lapangan */}
           <div
             onClick={() => navigate('/admin/kelola-user?role=pembimbing')}
             className="bg-white p-4 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs hover:border-sky-300 hover:shadow-md transition-all cursor-pointer flex items-center gap-3.5 group"
@@ -186,7 +177,6 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Card 4: Plotting Pasangan */}
           <div
             onClick={() => navigate('/admin/plotting')}
             className="bg-white p-4 sm:p-4.5 rounded-2xl border border-slate-200/80 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer flex items-center gap-3.5 group"
@@ -206,7 +196,6 @@ const AdminDashboard = () => {
 
         </div>
 
-        {/* RIGHT: TINGKAT KEHADIRAN & KEDISIPLINAN (EXPANDED TO LEFT) */}
         <div className="lg:col-span-7 card-clean p-5 sm:p-6 bg-white flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-4">
@@ -228,7 +217,6 @@ const AdminDashboard = () => {
               </span>
             </div>
 
-            {/* Visual Multi-Segment Bar */}
             <div className="space-y-1.5 mb-4">
               <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
                 <div
@@ -254,7 +242,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Grid 4 Kartu Status Presensi (2x2) */}
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100 text-left">
                 <div className="flex items-center gap-1.5 text-emerald-800 text-[11px] font-bold">
@@ -305,10 +292,8 @@ const AdminDashboard = () => {
 
       </div>
 
-      {/* ── 2. STATISTIK PROGRES AKTIVITAS (LOGBOOK & PENUGASAN) (2 EQUAL COLUMNS) ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        {/* Box A: Progres Logbook Kegiatan */}
+
         <div className="card-clean p-5 sm:p-6 bg-white space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5">
@@ -371,7 +356,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-        {/* Box B: Progres Penugasan Magang */}
         <div className="card-clean p-5 sm:p-6 bg-white space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2.5">
@@ -395,7 +379,7 @@ const AdminDashboard = () => {
           <div className="space-y-4 pt-1">
             <div>
               <div className="flex justify-between text-xs font-semibold mb-1.5">
-                <span className="text-slate-600">Selesai Dinilai</span>
+                <span className="text-slate-600">Selesai Direview</span>
                 <span className="text-emerald-700 font-bold">{tugas_stats.selesai} ({calcPercent(tugas_stats.selesai, tugas_stats.total)}%)</span>
               </div>
               <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
@@ -443,3 +427,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

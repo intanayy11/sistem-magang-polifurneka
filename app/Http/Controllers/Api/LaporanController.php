@@ -18,10 +18,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {
-    /**
-     * GET /api/laporan/options
-     * Mendapatkan opsi dropdown filter sesuai role yang login.
-     */
     public function getFilterOptions(Request $request)
     {
         $user = $request->user();
@@ -80,9 +76,6 @@ class LaporanController extends Controller
         ]);
     }
 
-    /**
-     * Helper privat untuk mengeksekusi query filter laporan berdasarkan kategori.
-     */
     private function getFilteredData(Request $request): array
     {
         $user = $request->user();
@@ -96,7 +89,6 @@ class LaporanController extends Controller
         $posisiMagang = $request->input('posisi_magang');
         $jabatan = $request->input('jabatan');
 
-        // Formatter Periode Teks
         $periodeTeks = 'Semua Periode';
         if ($tanggalMulai && $tanggalSelesai) {
             $periodeTeks = Carbon::parse($tanggalMulai)->translatedFormat('d F Y') . ' s/d ' . Carbon::parse($tanggalSelesai)->translatedFormat('d F Y');
@@ -106,11 +98,7 @@ class LaporanController extends Controller
             $periodeTeks = 'Sampai ' . Carbon::parse($tanggalSelesai)->translatedFormat('d F Y');
         }
 
-        // ═════════════════════════════════════════════════════════════════════
-        // KATEGORI 1: AKTIVITAS MAGANG (Presensi, Logbook, Tugas, Izin)
-        // ═════════════════════════════════════════════════════════════════════
         if ($kategoriLaporan === 'aktivitas_magang') {
-            // Determine scope peserta_ids
             if ($user->role === 'peserta') {
                 $pesertaIds = [$user->user_id];
             } elseif ($user->role === 'pembimbing') {
@@ -124,7 +112,6 @@ class LaporanController extends Controller
                     $pesertaIds = $allowedIds;
                 }
             } else {
-                // Admin
                 if ($pesertaId && $pesertaId !== 'semua') {
                     $pesertaIds = [(int)$pesertaId];
                 } else {
@@ -161,7 +148,6 @@ class LaporanController extends Controller
             $tugas = collect();
             $izin = collect();
 
-            // Filter Spesifik
             $statusPresensi = $request->input('status_presensi', 'semua');
             $statusLogbook  = $request->input('status_logbook', 'semua');
             $statusTugas    = $request->input('status_tugas', 'semua');
@@ -264,20 +250,16 @@ class LaporanController extends Controller
             ];
         }
 
-        // ═════════════════════════════════════════════════════════════════════
-        // KATEGORI 2: DATA PESERTA (Admin)
-        // ═════════════════════════════════════════════════════════════════════
         if ($kategoriLaporan === 'data_peserta') {
             $statusPeriode = $request->input('status_periode', 'semua');
-            $modeTampilan  = $request->input('mode_tampilan', 'daftar'); // daftar | rekap_kategori
-            $rekapBy       = $request->input('rekap_by', 'jurusan'); // jurusan | posisi_magang | pembimbing
+            $modeTampilan  = $request->input('mode_tampilan', 'daftar');
+            $rekapBy       = $request->input('rekap_by', 'jurusan');
 
             $query = User::where('role', 'peserta')
                 ->with(['plottingAsPeserta.pembimbing:user_id,nama']);
 
             if ($pesertaId && $pesertaId !== 'semua') $query->where('user_id', $pesertaId);
 
-            // Irisan tanggal periode magang peserta (bukan created_at)
             if ($tanggalMulai) {
                 $query->where(function ($q) use ($tanggalMulai) {
                     $q->whereNull('tanggal_selesai_magang')
@@ -301,7 +283,6 @@ class LaporanController extends Controller
 
             $rawPeserta = $query->orderBy('nama', 'asc')->get();
 
-            // Filter status_periode via PeriodeMagangService
             $pesertaList = $rawPeserta->filter(function ($u) use ($statusPeriode) {
                 $isAktif = PeriodeMagangService::apakahAktif($u);
                 if ($statusPeriode === 'aktif') return $isAktif;
@@ -313,7 +294,6 @@ class LaporanController extends Controller
                 return $u;
             })->values();
 
-            // Handle Mode Rekap per Kategori
             $rekapGrouped = [];
             if ($modeTampilan === 'rekap_kategori') {
                 $grouped = $pesertaList->groupBy(function ($item) use ($rekapBy) {
@@ -346,9 +326,6 @@ class LaporanController extends Controller
             ];
         }
 
-        // ═════════════════════════════════════════════════════════════════════
-        // KATEGORI 3: DATA PEMBIMBING (Admin)
-        // ═════════════════════════════════════════════════════════════════════
         if ($kategoriLaporan === 'data_pembimbing') {
             $query = User::where('role', 'pembimbing')
                 ->with(['plottingAsPembimbing.peserta:user_id,nama'])
@@ -382,11 +359,8 @@ class LaporanController extends Controller
             ];
         }
 
-        // ═════════════════════════════════════════════════════════════════════
-        // KATEGORI 4: REKAPITULASI KEHADIRAN (Admin)
-        // ═════════════════════════════════════════════════════════════════════
         if ($kategoriLaporan === 'rekapitulasi_kehadiran') {
-            $sortOrder = $request->input('sort_order', 'asc'); // asc (terendah ke tertinggi) | desc
+            $sortOrder = $request->input('sort_order', 'asc');
 
             $query = User::where('role', 'peserta');
             if ($jurusan && $jurusan !== 'semua') $query->where('jurusan', $jurusan);
@@ -426,7 +400,6 @@ class LaporanController extends Controller
                 ];
             });
 
-            // Sorting default: TERENDAH ke tertinggi (asc)
             if ($sortOrder === 'desc') {
                 $rekapKehadiran = $rekapKehadiran->sortByDesc('persentase_kehadiran')->values();
             } else {
@@ -445,9 +418,6 @@ class LaporanController extends Controller
             ];
         }
 
-        // ═════════════════════════════════════════════════════════════════════
-        // KATEGORI 5: LAPORAN PROGRAM MAGANG (Admin Ringkasan Lintas Domain)
-        // ═════════════════════════════════════════════════════════════════════
         if ($kategoriLaporan === 'laporan_program_magang') {
             $qPeserta = User::where('role', 'peserta');
             if ($tanggalMulai) $qPeserta->whereDate('created_at', '>=', $tanggalMulai);
@@ -462,7 +432,6 @@ class LaporanController extends Controller
             if ($tanggalSelesai) $qPembimbing->whereDate('created_at', '<=', $tanggalSelesai);
             $totalPembimbingAktif = $qPembimbing->count();
 
-            // Presensi stats dalam filter
             $qPresensi = Presensi::query();
             if ($tanggalMulai) $qPresensi->whereDate('tanggal', '>=', $tanggalMulai);
             if ($tanggalSelesai) $qPresensi->whereDate('tanggal', '<=', $tanggalSelesai);
@@ -470,7 +439,6 @@ class LaporanController extends Controller
             $hadirCount = (clone $qPresensi)->where('status', 'Hadir')->count();
             $rataKehadiran = $totalPresensi > 0 ? round(($hadirCount / $totalPresensi) * 100, 1) : 0;
 
-            // Tugas stats dalam filter
             $qTugas = Tugas::query();
             if ($tanggalMulai) $qTugas->whereDate('created_at', '>=', $tanggalMulai);
             if ($tanggalSelesai) $qTugas->whereDate('created_at', '<=', $tanggalSelesai);
@@ -483,7 +451,6 @@ class LaporanController extends Controller
                 'total' => (clone $qTugas)->count(),
             ];
 
-            // Logbook stats dalam filter
             $qLogbook = Logbook::query();
             if ($tanggalMulai) $qLogbook->whereDate('tanggal', '>=', $tanggalMulai);
             if ($tanggalSelesai) $qLogbook->whereDate('tanggal', '<=', $tanggalSelesai);
@@ -513,10 +480,6 @@ class LaporanController extends Controller
         return ['kategori_laporan' => $kategoriLaporan];
     }
 
-    /**
-     * GET /api/laporan/preview
-     * Mengembalikan data pratinjau tabel laporan.
-     */
     public function preview(Request $request)
     {
         $result = $this->getFilteredData($request);
@@ -527,10 +490,6 @@ class LaporanController extends Controller
         ]);
     }
 
-    /**
-     * GET /api/laporan/export
-     * Mengunduh PDF laporan resmi dengan Kop Surat Polifurneka.
-     */
     public function exportPdf(Request $request)
     {
         Carbon::setLocale('id');
@@ -544,7 +503,6 @@ class LaporanController extends Controller
             'generatedAt' => now()->translatedFormat('d F Y H:i:s'),
         ]));
 
-        // Khusus Laporan Data Peserta menggunakan A4 Landscape, laporan lainnya tetap A4 Portrait
         $orientation = ($result['kategori_laporan'] ?? '') === 'data_peserta' ? 'landscape' : 'portrait';
         $pdf->setPaper('A4', $orientation);
 
@@ -558,10 +516,6 @@ class LaporanController extends Controller
         ]);
     }
 
-    /**
-     * GET /api/laporan/export-excel
-     * Mengunduh file Excel (.xlsx) resmi laporan.
-     */
     public function exportExcel(Request $request)
     {
         Carbon::setLocale('id');

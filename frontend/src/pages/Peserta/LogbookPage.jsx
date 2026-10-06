@@ -83,7 +83,6 @@ const LogbookPage = () => {
     fetchLogbooks();
   }, []);
 
-  // Reset page when filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [activeFilter]);
@@ -92,7 +91,6 @@ const LogbookPage = () => {
     e.preventDefault();
     setAlert(null);
 
-    // Frontend guard: reject weekend dates before even calling API
     if (isWeekend(form.tanggal)) {
       setAlert({ type: 'error', message: 'Tidak ada aktivitas magang pada akhir pekan. Pilih tanggal hari kerja (Senin–Jumat).' });
       return;
@@ -135,7 +133,6 @@ const LogbookPage = () => {
     }
   };
 
-
   const filteredLogbooks = logbooks.filter((l) => {
     const matchesStatus =
       activeFilter === 'Semua' ||
@@ -161,7 +158,6 @@ const LogbookPage = () => {
     <div className="space-y-4">
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
-      {/* Banner Masa Magang Selesai */}
       {magangSelesai && (
         <div className="p-4 rounded-2xl bg-amber-50 border border-amber-300 flex items-start gap-3">
           <AlertTriangle size={17} className="text-amber-600 shrink-0 mt-0.5" />
@@ -172,11 +168,10 @@ const LogbookPage = () => {
         </div>
       )}
 
-      {/* Bento Table Card Container */}
       <div className="card-clean overflow-hidden">
-        {/* Table Top Header: Title (Logbook Kegiatan Harian diperbesar) + Sejajar: Search -> Filter -> Button Tambah */}
+
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3.5">
-          {/* Judul Utama Logbook Kegiatan Harian (Diperbesar) */}
+
           <div>
             <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
               <FileText size={22} className="text-[#E8A800]" />
@@ -184,12 +179,10 @@ const LogbookPage = () => {
             </h2>
           </div>
 
-          {/* Baris Kontrol Sejajar Horizontal: Search Box -> Filter Pills -> Button Tambah Logbook */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-2 border-t border-slate-100">
-            
-            {/* Sisi Kiri: Search Input Box + Filter Pills Sejajar */}
+
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1 min-w-0">
-              {/* 1. Search Input Box (Paling Kiri) */}
+
               <div className="relative w-full sm:w-60 shrink-0">
                 <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
@@ -210,7 +203,6 @@ const LogbookPage = () => {
                 )}
               </div>
 
-              {/* 2. Filter Pills (Samping Search) */}
               <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
                 {LOGBOOK_FILTERS.map((f) => {
                   const count = f.value === 'Semua'
@@ -239,7 +231,6 @@ const LogbookPage = () => {
               </div>
             </div>
 
-            {/* 3. Button Tambah Logbook Baru (Samping Kanan Filter) */}
             <button
               onClick={() => setShowModal(true)}
               disabled={magangSelesai}
@@ -251,7 +242,6 @@ const LogbookPage = () => {
           </div>
         </div>
 
-        {/* Table Body or Empty State */}
         {loading ? (
           <div className="p-12 text-center">
             <p className="text-slate-500 font-medium text-xs">Memuat data logbook...</p>
@@ -287,14 +277,13 @@ const LogbookPage = () => {
                       className="hover:bg-amber-50/50 cursor-pointer transition-colors group"
                       title="Klik untuk melihat detail logbook"
                     >
-                      {/* Column 1: Tanggal */}
+
                       <td className="px-5 py-4 align-top whitespace-nowrap">
                         <div className="font-mono font-bold text-slate-800">
                           {new Date(log.tanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                         </div>
                       </td>
 
-                      {/* Column 2: Judul & Deskripsi */}
                       <td className="px-5 py-4 align-top max-w-md">
                         <div className="font-bold text-slate-900 group-hover:text-amber-900 transition-colors text-xs mb-1">
                           {log.judul_kegiatan}
@@ -304,7 +293,6 @@ const LogbookPage = () => {
                         </div>
                       </td>
 
-                      {/* Column 3: Kendala & Catatan Pembimbing */}
                       <td className="px-5 py-4 align-top max-w-xs space-y-1.5">
                         {log.kendala ? (
                           <div className="text-slate-600 italic">
@@ -323,7 +311,6 @@ const LogbookPage = () => {
                         )}
                       </td>
 
-                      {/* Column 4: Foto Bukti */}
                       <td className="px-5 py-4 align-top whitespace-nowrap">
                         {log.foto_bukti ? (
                           <a
@@ -341,7 +328,6 @@ const LogbookPage = () => {
                         )}
                       </td>
 
-                      {/* Column 5: Status */}
                       <td className="px-5 py-4 align-top text-center whitespace-nowrap">
                         <StatusBadge status={log.status} />
                       </td>
@@ -351,7 +337,6 @@ const LogbookPage = () => {
               </table>
             </div>
 
-            {/* Pagination Controls Footer */}
             {filteredLogbooks.length > 0 && (
               <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50 text-xs">
                 <span className="text-slate-500 font-medium">
@@ -399,11 +384,10 @@ const LogbookPage = () => {
         )}
       </div>
 
-      {/* Modal Detail Logbook */}
       {selectedLogbook && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[24px] max-w-xl w-full p-6 shadow-xl border border-slate-200 space-y-5 relative max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
+
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <span className="text-xs font-mono font-bold text-slate-700 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200/80 flex items-center gap-1.5">
@@ -420,7 +404,6 @@ const LogbookPage = () => {
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="space-y-4 text-xs text-slate-700">
               <div>
                 <h3 className="font-extrabold text-slate-900 text-base leading-snug mb-2">
@@ -468,7 +451,6 @@ const LogbookPage = () => {
               )}
             </div>
 
-            {/* Modal Footer */}
             <div className="pt-3 border-t border-slate-100 flex justify-end">
               <button
                 onClick={() => setSelectedLogbook(null)}
@@ -481,7 +463,6 @@ const LogbookPage = () => {
         </div>
       )}
 
-      {/* Modal Form Logbook */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[20px] max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-4 relative">
@@ -591,3 +572,4 @@ const LogbookPage = () => {
 };
 
 export default LogbookPage;
+

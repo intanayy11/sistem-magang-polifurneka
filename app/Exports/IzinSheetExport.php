@@ -57,3 +57,4 @@ class IzinSheetExport implements FromCollection, WithHeadings, WithTitle, WithMa
         return 'Pengajuan Izin';
     }
 }
+

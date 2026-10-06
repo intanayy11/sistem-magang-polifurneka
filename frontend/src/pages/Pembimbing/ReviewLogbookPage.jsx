@@ -57,7 +57,6 @@ const ReviewLogbookPage = () => {
 
   const [alert, setAlert] = useState(null);
 
-  // Lock body scroll when modal open
   useScrollLock(showModal);
 
   const fetchLogbooks = async () => {
@@ -114,14 +113,12 @@ const ReviewLogbookPage = () => {
     return log.status === filterStatus;
   });
 
-
   return (
     <div className="space-y-4">
       <AlertBanner alert={alert} onClose={() => setAlert(null)} />
 
-      {/* Logbook List Table */}
       <div className="card-clean overflow-hidden">
-        {/* Header: Judul + Filter Status */}
+
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3.5">
           <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
             <BookOpen size={22} className="text-[#E8A800]" />
@@ -222,7 +219,6 @@ const ReviewLogbookPage = () => {
           </table>
         </div>
 
-        {/* Footer Pagination */}
         <Pagination
           currentPage={currentPage}
           totalItems={filteredLogbooks.length}
@@ -232,7 +228,6 @@ const ReviewLogbookPage = () => {
         />
       </div>
 
-      {/* Review Modal */}
       {showModal && selectedLogbook && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[20px] max-w-lg w-full p-6 shadow-xl border border-slate-200 space-y-4 relative">
@@ -300,3 +295,4 @@ const ReviewLogbookPage = () => {
 };
 
 export default ReviewLogbookPage;
+

@@ -32,13 +32,11 @@ const Profile = () => {
   const [profileData, setProfileData] = useState(user || null);
   const [loading, setLoading] = useState(!user);
 
-  // Form states
   const [noHp, setNoHp] = useState(user?.no_hp || '');
   const [submittingProfile, setSubmittingProfile] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [profileAlert, setProfileAlert] = useState(null);
 
-  // Password form states
   const [passwordForm, setPasswordForm] = useState({
     password_lama: '',
     password_baru: '',
@@ -65,7 +63,6 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
-  // Handle Photo Upload
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -97,7 +94,6 @@ const Profile = () => {
     }
   };
 
-  // Handle No. HP Update
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setSubmittingProfile(true);
@@ -120,7 +116,6 @@ const Profile = () => {
     }
   };
 
-  // Handle Password Update
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
     if (passwordForm.password_baru !== passwordForm.konfirmasi_password_baru) {
@@ -151,7 +146,6 @@ const Profile = () => {
     }
   };
 
-
   const getRoleLabel = (role) => {
     const roles = {
       peserta: 'Peserta Magang',
@@ -165,9 +159,8 @@ const Profile = () => {
     <div className="max-w-5xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
 
-        {/* ── KOLOM KIRI: Informasi Akun ── */}
         <div className="space-y-4">
-          {/* Informasi Akun Card */}
+
           <div className="card-clean p-6 space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
               <Shield size={18} className="text-amber-600" />
@@ -253,14 +246,12 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* ── KOLOM KANAN: Avatar/Profil + Kontak Saya + Ubah Kata Sandi ── */}
         <div className="space-y-4">
 
-          {/* Avatar Card (Kanan Atas) */}
           <div className="card-clean overflow-hidden">
             <div className="p-6 bg-gradient-to-r from-amber-50/60 to-white">
               <div className="flex items-center gap-5">
-                {/* Avatar with camera button */}
+
                 <div className="relative shrink-0">
                   <div className="h-20 w-20 rounded-full overflow-hidden border-4 border-amber-100 shadow-md bg-amber-50 flex items-center justify-center">
                     {profileData?.foto_profil ? (
@@ -296,7 +287,6 @@ const Profile = () => {
                   </label>
                 </div>
 
-                {/* Name, email, role */}
                 <div className="flex-1 min-w-0">
                   <h3 className="font-bold text-slate-900 text-base leading-tight truncate">{profileData?.nama}</h3>
                   <p className="text-xs text-slate-500 mt-0.5 truncate">{profileData?.email}</p>
@@ -322,7 +312,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Kontak Saya */}
           <div className="card-clean p-6 space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
               <Phone size={18} className="text-amber-600" />
@@ -363,7 +352,6 @@ const Profile = () => {
             </form>
           </div>
 
-          {/* Ubah Kata Sandi */}
           <div className="card-clean p-6 space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
               <Lock size={18} className="text-amber-600" />
@@ -448,3 +436,4 @@ const Profile = () => {
 };
 
 export default Profile;
+

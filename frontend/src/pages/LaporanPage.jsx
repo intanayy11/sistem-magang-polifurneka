@@ -36,11 +36,9 @@ const LaporanPage = () => {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Active Category State from URL query ?kategori=...
   const paramKategori = searchParams.get('kategori') || 'aktivitas_magang';
   const [kategoriLaporan, setKategoriLaporan] = useState(paramKategori);
 
-  // Sync category state and auto-reset form filters when searchParams changes
   useEffect(() => {
     const currentKat = searchParams.get('kategori') || 'aktivitas_magang';
     setKategoriLaporan(currentKat);
@@ -63,7 +61,6 @@ const LaporanPage = () => {
     setAlert(null);
   }, [searchParams]);
 
-  // Switch category handler (updates URL searchParams)
   const handleCategoryChange = (newCat) => {
     setSearchParams({ kategori: newCat });
     setKategoriLaporan(newCat);
@@ -71,8 +68,7 @@ const LaporanPage = () => {
     setAlert(null);
   };
 
-  // Filter States - Aktivitas Magang
-  const [jenisData, setJenisData] = useState(''); // '', 'semua', presensi, logbook, tugas, izin
+  const [jenisData, setJenisData] = useState('');
   const [tanggalMulai, setTanggalMulai] = useState('');
   const [tanggalSelesai, setTanggalSelesai] = useState('');
   const [pesertaId, setPesertaId] = useState('');
@@ -81,25 +77,20 @@ const LaporanPage = () => {
   const [posisiMagang, setPosisiMagang] = useState('');
   const [jabatan, setJabatan] = useState('');
 
-  // Filter Spesifik Per Jenis Data
   const [statusPresensi, setStatusPresensi] = useState('');
   const [statusLogbook, setStatusLogbook] = useState('');
   const [statusTugas, setStatusTugas] = useState('');
   const [jenisIzin, setJenisIzin] = useState('');
   const [statusIzin, setStatusIzin] = useState('');
 
-  // Filter Data Peserta (Admin)
-  const [statusPeriode, setStatusPeriode] = useState(''); // '', 'semua', aktif, selesai
-  const [modeTampilan, setModeTampilan] = useState('daftar'); // daftar | rekap_kategori
-  const [rekapBy, setRekapBy] = useState('jurusan'); // jurusan | posisi_magang | pembimbing
+  const [statusPeriode, setStatusPeriode] = useState('');
+  const [modeTampilan, setModeTampilan] = useState('daftar');
+  const [rekapBy, setRekapBy] = useState('jurusan');
 
-  // Filter Rekapitulasi Kehadiran (Admin)
-  const [sortOrder, setSortOrder] = useState('asc'); // asc | desc
+  const [sortOrder, setSortOrder] = useState('asc');
 
-  // Opsi Cetak PDF (Kop Surat)
   const [pakaiKop, setPakaiKop] = useState(true);
 
-  // Options List
   const [options, setOptions] = useState({
     peserta_list: [],
     pembimbing_list: [],
@@ -108,7 +99,6 @@ const LaporanPage = () => {
     jabatan_list: [],
   });
 
-  // Preview & Download States
   const [previewData, setPreviewData] = useState(null);
   const [loadingOptions, setLoadingOptions] = useState(true);
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -116,7 +106,6 @@ const LaporanPage = () => {
   const [downloadingExcel, setDownloadingExcel] = useState(false);
   const [alert, setAlert] = useState(null);
 
-  // Fetch filter options on mount
   useEffect(() => {
     const fetchOptions = async () => {
       try {
@@ -374,7 +363,7 @@ const LaporanPage = () => {
 
   return (
     <div className="space-y-4 pb-12">
-      {/* Alert Banner */}
+
       {alert && (
         <AlertBanner
           type={alert.type}
@@ -383,9 +372,8 @@ const LaporanPage = () => {
         />
       )}
 
-      {/* ── CARD FILTER DYNAMIC ── */}
       <div className="card-bento space-y-4">
-        {/* Header Utama Card: Judul Laporan Diperbesar + Reset Filter */}
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-100">
           <div className="space-y-1">
             <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
@@ -406,10 +394,9 @@ const LaporanPage = () => {
           </button>
         </div>
 
-        {/* ════════ FORM FILTER KATEGORI 1: AKTIVITAS MAGANG ════════ */}
         {kategoriLaporan === 'aktivitas_magang' && (
           <div className="space-y-5 text-xs">
-            {/* Section Terpisah Paling Atas: Jenis Laporan Dropdown */}
+
             <div className="pb-4 border-b border-slate-100">
               <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
                 <label className="sm:w-36 font-extrabold text-slate-900 shrink-0 uppercase tracking-wider text-[11px]">Pilih Jenis Laporan</label>
@@ -430,7 +417,6 @@ const LaporanPage = () => {
               </div>
             </div>
 
-            {/* Filter Universal */}
             <div className="space-y-3">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
@@ -457,7 +443,6 @@ const LaporanPage = () => {
                   </div>
                 </div>
 
-                {/* Role Pembimbing Filter Peserta */}
                 {user?.role === 'pembimbing' && (
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
                     <label className="sm:w-36 font-semibold text-slate-700 shrink-0">Nama Peserta</label>
@@ -479,7 +464,6 @@ const LaporanPage = () => {
                   </div>
                 )}
 
-                {/* Role Admin Filter Peserta & Jurusan & Posisi */}
                 {user?.role === 'admin' && (
                   <>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
@@ -539,7 +523,6 @@ const LaporanPage = () => {
               </div>
             </div>
 
-            {/* Filter Spesifik Jenis Data (HANYA MUNCUL JIKA jenisData BUKAN '' DAN BUKAN 'semua') */}
             {jenisData !== '' && jenisData !== 'semua' && (
               <div className="space-y-3 pt-3 border-t border-slate-100">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3">
@@ -644,7 +627,6 @@ const LaporanPage = () => {
           </div>
         )}
 
-        {/* ════════ FORM FILTER KATEGORI 2: DATA PESERTA (ADMIN) ════════ */}
         {kategoriLaporan === 'data_peserta' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3.5 text-xs">
             <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
@@ -759,7 +741,6 @@ const LaporanPage = () => {
           </div>
         )}
 
-        {/* ════════ FORM FILTER KATEGORI 3: DATA PEMBIMBING (ADMIN) ════════ */}
         {kategoriLaporan === 'data_pembimbing' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3.5 text-xs">
             <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
@@ -822,7 +803,6 @@ const LaporanPage = () => {
           </div>
         )}
 
-        {/* ════════ FORM FILTER KATEGORI 4: REKAPITULASI KEHADIRAN (ADMIN) ════════ */}
         {kategoriLaporan === 'rekapitulasi_kehadiran' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3.5 text-xs">
             <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
@@ -899,7 +879,6 @@ const LaporanPage = () => {
           </div>
         )}
 
-          {/* ── OPSI FORMAT CETAK PDF (KOP SURAT) ── */}
           <div className="pt-3 border-t border-slate-100">
           <label className="flex items-center gap-2.5 cursor-pointer select-none group w-fit">
             <input
@@ -914,7 +893,6 @@ const LaporanPage = () => {
           </label>
         </div>
 
-        {/* ── ACTION BUTTONS: TAMPILKAN, UNDUH PDF, UNDUH EXCEL ── */}
         <div className="flex flex-col sm:flex-row sm:justify-end items-center gap-3 pt-2">
           <button
             onClick={handlePreview}
@@ -957,7 +935,6 @@ const LaporanPage = () => {
         </div>
       </div>
 
-      {/* ── Empty State Preview ── */}
       {!previewData && !loadingPreview && (
         <div className="card-bento p-10 text-center space-y-2 border-dashed border-slate-200 bg-slate-50/50">
           <div className="w-12 h-12 rounded-full bg-amber-100/80 text-amber-800 flex items-center justify-center mx-auto">
@@ -970,11 +947,9 @@ const LaporanPage = () => {
         </div>
       )}
 
-      {/* ── Preview Content Tables ── */}
       {previewData && (
         <div className="space-y-6">
 
-          {/* TABEL PRESENSI */}
           {previewData.include_presensi && previewData.presensi && (
             <div className="card-bento space-y-3 overflow-hidden">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
@@ -1025,7 +1000,6 @@ const LaporanPage = () => {
             </div>
           )}
 
-          {/* TABEL LOGBOOK */}
           {previewData.include_logbook && previewData.logbook && (
             <div className="card-bento space-y-3 overflow-hidden">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
@@ -1092,7 +1066,6 @@ const LaporanPage = () => {
             </div>
           )}
 
-          {/* TABEL TUGAS */}
           {previewData.include_tugas && previewData.tugas && (
             <div className="card-bento space-y-3 overflow-hidden">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
@@ -1161,7 +1134,6 @@ const LaporanPage = () => {
             </div>
           )}
 
-          {/* TABEL PENGAJUAN IZIN */}
           {previewData.include_izin && previewData.izin && (
             <div className="card-bento space-y-3 overflow-hidden">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
@@ -1226,7 +1198,6 @@ const LaporanPage = () => {
             </div>
           )}
 
-          {/* TABEL DATA PESERTA */}
           {kategoriLaporan === 'data_peserta' && previewData.peserta_list && (
             <div className="card-bento space-y-3 overflow-hidden">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
@@ -1297,7 +1268,6 @@ const LaporanPage = () => {
             </div>
           )}
 
-          {/* TABEL DATA PEMBIMBING */}
           {kategoriLaporan === 'data_pembimbing' && previewData.pembimbing_list && (
             <div className="card-bento space-y-3 overflow-hidden">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
@@ -1350,7 +1320,6 @@ const LaporanPage = () => {
             </div>
           )}
 
-          {/* TABEL REKAPITULASI KEHADIRAN */}
           {kategoriLaporan === 'rekapitulasi_kehadiran' && previewData.rekap_kehadiran && (
             <div className="card-bento space-y-3 overflow-hidden">
               <div className="pb-2.5 border-b border-slate-100 flex items-center justify-between">
@@ -1415,7 +1384,6 @@ const LaporanPage = () => {
             </div>
           )}
 
-          {/* END PRATINJAU */}
         </div>
       )}
     </div>
@@ -1423,3 +1391,4 @@ const LaporanPage = () => {
 };
 
 export default LaporanPage;
+

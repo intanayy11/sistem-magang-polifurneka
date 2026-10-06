@@ -13,3 +13,4 @@ Route::get('/', function () {
 Route::get('/login', function () {
     return response()->json(['status' => 'error', 'message' => 'Unauthenticated.'], 401);
 })->name('login');
+

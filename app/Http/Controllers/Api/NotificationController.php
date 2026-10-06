@@ -13,16 +13,11 @@ use Carbon\Carbon;
 
 class NotificationController extends Controller
 {
-    /**
-     * GET /api/notifications
-     * Mengambil daftar notifikasi pengingat & event nyata berbasis role (Peserta & Pembimbing).
-     */
     public function index(Request $request)
     {
         $user = $request->user();
         $notifications = [];
 
-        // Role Admin -> Kosongkan (tidak ada notifikasi lonceng untuk Admin)
         if ($user->role === 'admin') {
             return response()->json([
                 'status' => 'success',
@@ -33,13 +28,9 @@ class NotificationController extends Controller
 
         Carbon::setLocale('id');
 
-        // ═════════════════════════════════════════════════════════════════════
-        // ROLE: PESERTA MAGANG
-        // ═════════════════════════════════════════════════════════════════════
         if ($user->role === 'peserta') {
             $today = Carbon::today()->toDateString();
 
-            // 1. Pengingat Presensi Masuk (Jika hari kerja & belum absen masuk)
             $presensiHariIni = Presensi::where('peserta_id', $user->user_id)
                 ->where('tanggal', $today)
                 ->first();
@@ -55,7 +46,6 @@ class NotificationController extends Controller
                     'link' => '/peserta/presensi'
                 ];
             } elseif ($presensiHariIni && !$presensiHariIni->jam_keluar && Carbon::now()->hour >= 16) {
-                // 2. Pengingat Presensi Pulang
                 $notifications[] = [
                     'id' => 'presensi_pulang_' . $today,
                     'title' => 'Pengingat Presensi Pulang',
@@ -67,7 +57,6 @@ class NotificationController extends Controller
                 ];
             }
 
-            // 3. Tugas Magang yang Memerlukan Revisi
             $tugasRevisi = Tugas::with('pembimbing:user_id,nama')
                 ->where('peserta_id', $user->user_id)
                 ->where('status', 'Perlu Revisi')
@@ -85,7 +74,6 @@ class NotificationController extends Controller
                 ];
             }
 
-            // 4. Tugas Magang Baru (Belum Dikerjakan)
             $tugasBaru = Tugas::with('pembimbing:user_id,nama')
                 ->where('peserta_id', $user->user_id)
                 ->where('status', 'Belum Dikerjakan')
@@ -105,7 +93,6 @@ class NotificationController extends Controller
                 ];
             }
 
-            // 5. Logbook yang Di-Revisi
             $logbookRevisi = Logbook::where('peserta_id', $user->user_id)
                 ->where('status', 'Revisi')
                 ->orderBy('tanggal', 'desc')
@@ -126,16 +113,11 @@ class NotificationController extends Controller
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════════
-        // ROLE: PEMBIMBING LAPANGAN
-        // ═════════════════════════════════════════════════════════════════════
         if ($user->role === 'pembimbing') {
-            // Ambil ID peserta bimbingan
             $pesertaIds = PlottingBimbingan::where('pembimbing_id', $user->user_id)
                 ->pluck('peserta_id')
                 ->toArray();
 
-            // 1. Logbook Baru Menunggu Approval
             $logbookPendingCount = Logbook::whereIn('peserta_id', $pesertaIds)
                 ->where('status', 'Menunggu')
                 ->count();
@@ -152,7 +134,6 @@ class NotificationController extends Controller
                 ];
             }
 
-            // 2. Tugas Magang Menunggu Review (Peserta telah mengumpulkan)
             $tugasPending = Tugas::with('peserta:user_id,nama')
                 ->whereIn('peserta_id', $pesertaIds)
                 ->where('status', 'Menunggu Review')
@@ -170,7 +151,6 @@ class NotificationController extends Controller
                 ];
             }
 
-            // 3. Pengajuan Izin Baru Menunggu Verifikasi
             $izinPendingCount = Izin::whereIn('peserta_id', $pesertaIds)
                 ->where('status', 'Menunggu')
                 ->count();
@@ -197,3 +177,4 @@ class NotificationController extends Controller
         ]);
     }
 }
+

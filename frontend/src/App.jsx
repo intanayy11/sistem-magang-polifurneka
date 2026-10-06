@@ -6,7 +6,6 @@ import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Auth/Login';
 
-// Peserta Pages
 import PesertaDashboard from './pages/Peserta/PesertaDashboard';
 import PresensiPage from './pages/Peserta/PresensiPage';
 import RiwayatPresensiPage from './pages/Peserta/RiwayatPresensiPage';
@@ -14,20 +13,17 @@ import LogbookPage from './pages/Peserta/LogbookPage';
 import IzinPage from './pages/Peserta/IzinPage';
 import TugasPage from './pages/Peserta/TugasPage';
 
-// Pembimbing Pages
 import PembimbingDashboard from './pages/Pembimbing/PembimbingDashboard';
 import ReviewLogbookPage from './pages/Pembimbing/ReviewLogbookPage';
 import VerifikasiIzinPage from './pages/Pembimbing/VerifikasiIzinPage';
 import KelolaTugasPage from './pages/Pembimbing/KelolaTugasPage';
 import MonitorPresensiPage from './pages/Pembimbing/MonitorPresensiPage';
 
-// Admin Pages
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import KelolaUserPage from './pages/Admin/KelolaUserPage';
 import TambahUserPage from './pages/Admin/TambahUserPage';
 import PlottingPage from './pages/Admin/PlottingPage';
 
-// Shared Pages
 import Profile from './pages/Profile';
 import LaporanPage from './pages/LaporanPage';
 
@@ -48,7 +44,6 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<RootRedirect />} />
 
-          {/* Role: Peserta Routes */}
           <Route element={<ProtectedRoute allowedRoles={['peserta']} />}>
             <Route element={<Layout />}>
               <Route path="/peserta/dashboard" element={<PesertaDashboard />} />
@@ -61,7 +56,6 @@ function App() {
             </Route>
           </Route>
 
-          {/* Role: Pembimbing Routes */}
           <Route element={<ProtectedRoute allowedRoles={['pembimbing']} />}>
             <Route element={<Layout />}>
               <Route path="/pembimbing/dashboard" element={<PembimbingDashboard />} />
@@ -73,7 +67,6 @@ function App() {
             </Route>
           </Route>
 
-          {/* Role: Admin Routes (Single Sovereign) */}
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route element={<Layout />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -84,14 +77,12 @@ function App() {
             </Route>
           </Route>
 
-          {/* Shared Profile Route (Khusus Peserta & Pembimbing) */}
           <Route element={<ProtectedRoute allowedRoles={['peserta', 'pembimbing']} />}>
             <Route element={<Layout />}>
               <Route path="/profil" element={<Profile />} />
             </Route>
           </Route>
 
-          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
@@ -100,3 +91,4 @@ function App() {
 }
 
 export default App;
+

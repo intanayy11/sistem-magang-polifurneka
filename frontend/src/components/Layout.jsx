@@ -11,9 +11,7 @@ import {
   CheckSquare,
   Users,
   UserCheck,
-  UserPlus,
   Link2,
-  Database,
   LogOut,
   Menu,
   X,
@@ -33,10 +31,9 @@ const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
-  const [dataMasterOpen, setDataMasterOpen] = useState(true);
   const [laporanCentralOpen, setLaporanCentralOpen] = useState(true);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [readNotifIds, setReadNotifIds] = useState(() => {
     try {
@@ -71,7 +68,6 @@ const Layout = () => {
     fetchNotifications();
   }, [user]);
 
-  // Auto-mark all as read when panel closes
   useEffect(() => {
     if (!notifOpen && notifications.some((n) => n.unread)) {
       const allIds = notifications.map((n) => n.id);
@@ -136,14 +132,9 @@ const Layout = () => {
     const closeMobile = isMobile ? () => setSidebarOpen(false) : () => {};
 
     if (user?.role === 'admin') {
-      const isDataMasterChildActive =
-        (location.pathname === '/admin/kelola-user' &&
-          (location.search.includes('role=peserta') || location.search.includes('role=pembimbing') || !location.search)) ||
-        location.pathname === '/admin/tambah-user';
-
       return (
         <div className="space-y-1.5">
-          {/* Dashboard */}
+
           <NavLink
             to="/admin/dashboard"
             onClick={closeMobile}
@@ -163,79 +154,31 @@ const Layout = () => {
             )}
           </NavLink>
 
-          {/* Collapsible Kelola User Group */}
-          <div>
-            <button
-              type="button"
-              onClick={() => setDataMasterOpen(!dataMasterOpen)}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 cursor-pointer ${
-                isDataMasterChildActive
-                  ? 'bg-slate-100/80 text-slate-900 font-bold'
+          <NavLink
+            to="/admin/kelola-user"
+            onClick={closeMobile}
+            className={() => {
+              const isUserMenuActive =
+                location.pathname === '/admin/kelola-user' || location.pathname === '/admin/tambah-user';
+              return `flex items-center gap-3 px-3.5 py-2.5 rounded-xl ${textClass} font-semibold transition-all duration-200 ${
+                isUserMenuActive
+                  ? 'bg-[#E8A800] text-slate-950 font-bold shadow-xs'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-              }`}
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <Database size={18} className={`shrink-0 ${isDataMasterChildActive ? 'text-[#E8A800]' : 'text-slate-400'}`} />
-                <span className="truncate">Kelola User</span>
-              </div>
-              <ChevronDown
-                size={14}
-                className={`text-slate-400 shrink-0 transition-transform duration-200 ${dataMasterOpen ? 'rotate-180' : ''}`}
-              />
-            </button>
+              }`;
+            }}
+          >
+            {() => {
+              const isUserMenuActive =
+                location.pathname === '/admin/kelola-user' || location.pathname === '/admin/tambah-user';
+              return (
+                <>
+                  <Users size={18} className={`shrink-0 ${isUserMenuActive ? 'text-slate-950' : 'text-slate-400'}`} />
+                  <span className="flex-1 truncate">Kelola Data User</span>
+                </>
+              );
+            }}
+          </NavLink>
 
-            {dataMasterOpen && (
-              <div className="ml-4 pl-3 pt-1.5 pb-1 space-y-1 border-l-2 border-slate-100">
-                {/* Sub-menu 1: Semua User */}
-                <NavLink
-                  to="/admin/kelola-user"
-                  onClick={closeMobile}
-                  className={() => {
-                    const isAllUserActive = location.pathname === '/admin/kelola-user';
-                    return `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
-                      isAllUserActive
-                        ? 'bg-[#E8A800] text-slate-950 font-bold shadow-xs'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                    }`;
-                  }}
-                  title="Daftar Semua User"
-                >
-                  {() => {
-                    const isAllUserActive = location.pathname === '/admin/kelola-user';
-                    return (
-                      <>
-                        <Users size={16} className={`shrink-0 ${isAllUserActive ? 'text-slate-950' : 'text-slate-400'}`} />
-                        <span className="flex-1 truncate">Daftar Semua User</span>
-                      </>
-                    );
-                  }}
-                </NavLink>
-
-                {/* Sub-menu 2: Tambah User */}
-                <NavLink
-                  to="/admin/tambah-user"
-                  onClick={closeMobile}
-                  className={({ isActive }) =>
-                    `flex items-center gap-2.5 px-3 py-2 rounded-xl ${textClass} font-semibold transition-all ${
-                      isActive
-                        ? 'bg-[#E8A800] text-slate-950 font-bold shadow-xs'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                    }`
-                  }
-                  title="Tambah User"
-                >
-                  {({ isActive }) => (
-                    <>
-                      <UserPlus size={16} className={`shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
-                      <span className="flex-1 truncate">Tambah User</span>
-                    </>
-                  )}
-                </NavLink>
-              </div>
-            )}
-          </div>
-
-          {/* Plotting Bimbingan */}
           <NavLink
             to="/admin/plotting"
             onClick={closeMobile}
@@ -255,7 +198,6 @@ const Layout = () => {
             )}
           </NavLink>
 
-          {/* Collapsible Rekapitulasi & Laporan Group */}
           <div>
             <button
               type="button"
@@ -382,7 +324,6 @@ const Layout = () => {
       );
     }
 
-    // Role Peserta & Pembimbing Nav Links
     return (
       <div className="space-y-1.5">
         {getNavLinks().map((link) => {
@@ -445,7 +386,6 @@ const Layout = () => {
   return (
     <div className="h-screen flex bg-[#F8F9FB] font-inter text-slate-800 overflow-hidden relative">
 
-      {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-slate-950/30 backdrop-blur-xs z-40 lg:hidden"
@@ -453,13 +393,12 @@ const Layout = () => {
         />
       )}
 
-      {/* ── 1. SIDEBAR (FULL HEIGHT LEFT PANEL - STICKY/FIXED) ── */}
       <aside
         className={`fixed top-0 bottom-0 left-0 w-72 h-screen bg-white text-slate-800 border-r border-slate-200 z-50 transform transition-transform duration-200 ease-in-out flex flex-col justify-between shrink-0 lg:sticky lg:top-0 lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         }`}
       >
-        {/* Top: Brand Header in Sidebar */}
+
         <div className="p-5 border-b border-slate-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -474,7 +413,6 @@ const Layout = () => {
               </div>
             </div>
 
-            {/* Mobile Close Button */}
             <button
               onClick={() => setSidebarOpen(false)}
               className="lg:hidden p-1.5 rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
@@ -484,14 +422,12 @@ const Layout = () => {
           </div>
         </div>
 
-        {/* Middle: Navigation Links */}
         <div className="p-4 flex-1 overflow-y-auto">
           <nav className="space-y-1.5">
             {renderSidebarNav(sidebarOpen)}
           </nav>
         </div>
 
-        {/* Bottom Section: Dedicated Logout Link in Sidebar */}
         <div className="p-4 border-t border-slate-100 bg-slate-50/60">
           <button
             onClick={handleLogout}
@@ -503,14 +439,11 @@ const Layout = () => {
         </div>
       </aside>
 
-      {/* ── 2. RIGHT CONTAINER (TOPBAR + MAIN CONTENT SCROLLABLE) ── */}
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
-        
-        {/* ── TOPBAR (STICKY AT TOP) ── */}
+
         <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs h-16 flex items-center px-4 sm:px-6 md:px-8 shrink-0">
           <div className="flex items-center justify-between w-full gap-4">
-            
-            {/* Left: Mobile Sidebar Toggle (Hidden on Desktop) */}
+
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -521,10 +454,8 @@ const Layout = () => {
               </button>
             </div>
 
-            {/* Right: Notifications + User Profile Widget */}
             <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-              
-              {/* Notification Bell (Peserta & Pembimbing) */}
+
               {user?.role !== 'admin' && (
                 <div className="relative">
                   <button
@@ -543,7 +474,6 @@ const Layout = () => {
                     )}
                   </button>
 
-                  {/* Notification Popover */}
                   {notifOpen && (
                     <>
                       <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
@@ -603,33 +533,29 @@ const Layout = () => {
                 </div>
               )}
 
-              {/* User Profile Widget in Topbar (Avatar + Name & Role) */}
               <div className="relative">
                 <button
                   onClick={() => {
                     setProfileOpen(!profileOpen);
                     setNotifOpen(false);
                   }}
-                  className="flex items-center gap-2.5 p-1 sm:p-1.5 rounded-2xl hover:bg-slate-100/80 transition-all cursor-pointer text-left"
+                  className="flex items-center gap-1.5 p-1 pr-1.5 rounded-full hover:bg-slate-100/80 transition-all cursor-pointer"
                   title={user?.nama || 'Profil Pengguna'}
                 >
                   {getAvatar(user, 'h-9 w-9 text-xs font-bold', 'rounded-full')}
-                  <div className="hidden sm:block text-left min-w-0">
-                    <p className="text-xs font-bold text-slate-900 truncate max-w-[140px] md:max-w-[180px]">
-                      {user?.nama?.split(' ')[0] || 'User'}
-                    </p>
-                    <p className="text-[10px] font-medium text-slate-400 truncate max-w-[140px] md:max-w-[180px]">
-                      {getRoleLabel(user?.role)}
-                    </p>
-                  </div>
+                  <ChevronDown
+                    size={15}
+                    className={`text-slate-500 transition-transform duration-200 ${
+                      profileOpen ? 'rotate-180' : ''
+                    }`}
+                  />
                 </button>
 
-                {/* Profile Dropdown Popover */}
                 {profileOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
                     <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl border border-slate-200 shadow-xl p-4 z-50 animate-in fade-in zoom-in duration-150">
-                      <div className="flex items-center gap-3 pb-3 border-b border-slate-100 mb-2">
+                      <div className={`flex items-center gap-3 ${user?.role !== 'admin' ? 'pb-3 border-b border-slate-100 mb-2' : ''}`}>
                         {getAvatar(user, 'h-10 w-10 text-base font-bold', 'rounded-full')}
                         <div className="overflow-hidden">
                           <p className="font-bold text-sm text-slate-900 truncate">{user?.nama}</p>
@@ -640,8 +566,8 @@ const Layout = () => {
                         </div>
                       </div>
 
-                      <div className="space-y-1 pt-1">
-                        {user?.role !== 'admin' && (
+                      {user?.role !== 'admin' && (
+                        <div className="space-y-1 pt-1">
                           <button
                             onClick={() => {
                               setProfileOpen(false);
@@ -652,16 +578,8 @@ const Layout = () => {
                             <User size={15} className="text-slate-400" />
                             <span>Profil Saya</span>
                           </button>
-                        )}
-
-                        <button
-                          onClick={handleLogout}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-all text-left cursor-pointer"
-                        >
-                          <LogOut size={15} className="text-rose-500" />
-                          <span>Keluar</span>
-                        </button>
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
@@ -672,7 +590,6 @@ const Layout = () => {
           </div>
         </header>
 
-        {/* ── MAIN CONTENT OUTLET ── */}
         <main className="flex-1 p-4 sm:p-6 md:p-8 min-w-0">
           <Outlet />
         </main>
@@ -684,3 +601,4 @@ const Layout = () => {
 };
 
 export default Layout;
+

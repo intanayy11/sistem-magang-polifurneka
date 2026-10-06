@@ -17,3 +17,4 @@ class HariLibur extends Model
         'keterangan',
     ];
 }
+

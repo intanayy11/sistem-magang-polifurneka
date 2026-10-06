@@ -9,7 +9,7 @@ const ITEMS_PER_PAGE = 10;
 
 const MonitorPresensiPage = () => {
   const [pesertaList, setPesertaList] = useState([]);
-  const [pesertaDataMap, setPesertaDataMap] = useState({}); // { [userId]: [riwayatItems] }
+  const [pesertaDataMap, setPesertaDataMap] = useState({});
   const [selectedPesertaId, setSelectedPesertaId] = useState('all');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,7 +22,6 @@ const MonitorPresensiPage = () => {
   const [selectedPresensi, setSelectedPresensi] = useState(null);
   const [mapModal, setMapModal] = useState({ open: false, lat: null, lng: null, title: '', timestamp: '' });
 
-  // Get current date string in WIB local format YYYY-MM-DD
   const getTodayDateString = () => {
     const d = new Date();
     const year = d.getFullYear();
@@ -41,7 +40,6 @@ const MonitorPresensiPage = () => {
         const list = resPeserta.data.data;
         setPesertaList(list);
 
-        // Fetch presensi history for all assigned interns concurrently
         const dataMap = {};
         await Promise.all(
           list.map(async (p) => {
@@ -68,7 +66,6 @@ const MonitorPresensiPage = () => {
     fetchAllData();
   }, []);
 
-  // Compute Today's Overview for All Interns
   const todayRecords = pesertaList.map((p) => {
     const history = pesertaDataMap[p.user_id] || [];
     const todayRecord = history.find(r => r.tanggal && r.tanggal.startsWith(todayStr));
@@ -82,10 +79,8 @@ const MonitorPresensiPage = () => {
   const totalSudahAbsen = todayRecords.filter(r => r.record && r.record.jam_masuk).length;
   const totalBelumAbsen = todayRecords.length - totalSudahAbsen;
 
-  // Filtered History List for Bottom Section
   const selectedPesertaObj = pesertaList.find(p => String(p.user_id) === String(selectedPesertaId));
 
-  // Flatten or selected history items
   let displayHistory = [];
   if (selectedPesertaId === 'all') {
     pesertaList.forEach(p => {
@@ -94,7 +89,6 @@ const MonitorPresensiPage = () => {
         displayHistory.push({ ...item, namaPeserta: p.nama, nimPeserta: p.nim_nis });
       });
     });
-    // Sort descending by date
     displayHistory.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
   } else {
     const items = pesertaDataMap[selectedPesertaId] || [];
@@ -105,7 +99,6 @@ const MonitorPresensiPage = () => {
     }));
   }
 
-  // Search filter
   if (searchQuery.trim()) {
     const q = searchQuery.toLowerCase();
     displayHistory = displayHistory.filter(item =>
@@ -117,7 +110,7 @@ const MonitorPresensiPage = () => {
 
   return (
     <div className="space-y-4">
-      {/* Page Title Card */}
+
       <div className="card-clean p-4 sm:p-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
@@ -141,9 +134,8 @@ const MonitorPresensiPage = () => {
         </div>
       </div>
 
-      {/* ── BAGIAN 1 (ATAS): MONITORING PRESENSI HARI INI (SELURUH ANAK BIMBINGAN) ── */}
       <div className="space-y-4">
-        {/* Metric Cards Summary */}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="card-bento flex items-center gap-4">
             <div className="p-3 rounded-2xl bg-amber-100 text-amber-800 shrink-0">
@@ -176,7 +168,6 @@ const MonitorPresensiPage = () => {
           </div>
         </div>
 
-        {/* Tabel Monitoring Presensi Hari Ini */}
         <div className="card-clean overflow-hidden">
           <div className="p-4 border-b border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -311,8 +302,6 @@ const MonitorPresensiPage = () => {
         </div>
       </div>
 
-
-      {/* ── BAGIAN 2 (BAWAH): RIWAYAT PRESENSI HISTORIS & FILTER PER PESERTA ── */}
       <div className="card-clean overflow-hidden space-y-0">
         <div className="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/50">
           <div>
@@ -321,7 +310,7 @@ const MonitorPresensiPage = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            {/* Search Input */}
+
             <div className="relative min-w-[180px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
               <input
@@ -333,7 +322,6 @@ const MonitorPresensiPage = () => {
               />
             </div>
 
-            {/* Filter Peserta Selector Dropdown */}
             <div className="flex items-center gap-2">
               <Filter size={14} className="text-slate-400 shrink-0" />
               <select
@@ -352,7 +340,6 @@ const MonitorPresensiPage = () => {
           </div>
         </div>
 
-        {/* Tabel Histori */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-600">
             <thead className="bg-slate-100/70 text-slate-700 font-semibold uppercase tracking-wider border-b border-slate-200">
@@ -475,7 +462,6 @@ const MonitorPresensiPage = () => {
           </table>
         </div>
 
-        {/* Footer Pagination */}
         <Pagination
           currentPage={currentPage}
           totalItems={displayHistory.length}
@@ -485,11 +471,10 @@ const MonitorPresensiPage = () => {
         />
       </div>
 
-      {/* ── DETAIL PRESENSI MODAL (SERUPA PESERTA) ── */}
       {selectedPresensi && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[24px] max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-5 relative animate-in fade-in zoom-in-95 duration-200">
-            {/* Modal Header */}
+
             <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
                 <span className="text-xs font-mono font-bold text-slate-800 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200/80 flex items-center gap-1.5">
@@ -505,9 +490,8 @@ const MonitorPresensiPage = () => {
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="space-y-4 text-xs">
-              {/* Peserta Info Header */}
+
               <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-0.5">
                 <div className="font-extrabold text-slate-900 text-sm">{selectedPresensi.namaPeserta}</div>
                 <div className="text-[11px] text-slate-500 font-mono">
@@ -515,9 +499,6 @@ const MonitorPresensiPage = () => {
                 </div>
               </div>
 
-              {/* Status Kehadiran */}
-
-              {/* Presensi Masuk Box */}
               <div className="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-extrabold uppercase tracking-wider text-amber-900 text-[10px]">Presensi Masuk</span>
@@ -559,7 +540,6 @@ const MonitorPresensiPage = () => {
                 )}
               </div>
 
-              {/* Presensi Pulang Box */}
               <div className="p-3.5 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="font-extrabold uppercase tracking-wider text-emerald-900 text-[10px]">Presensi Pulang</span>
@@ -605,7 +585,6 @@ const MonitorPresensiPage = () => {
         </div>
       )}
 
-      {/* Map Modal */}
       <MapModal
         isOpen={mapModal.open}
         onClose={() => setMapModal({ ...mapModal, open: false })}
@@ -620,3 +599,4 @@ const MonitorPresensiPage = () => {
 };
 
 export default MonitorPresensiPage;
+

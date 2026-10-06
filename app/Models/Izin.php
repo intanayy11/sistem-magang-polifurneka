@@ -33,3 +33,4 @@ class Izin extends Model
         return $this->belongsTo(User::class, 'pembimbing_id', 'user_id');
     }
 }
+

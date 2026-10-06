@@ -9,10 +9,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    /**
-     * GET /api/profile
-     * Fetch current user profile data
-     */
     public function show(Request $request)
     {
         $user = $request->user();
@@ -42,10 +38,6 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * POST /api/profile
-     * Update no_hp and/or upload foto_profil
-     */
     public function update(Request $request)
     {
         $user = $request->user();
@@ -60,12 +52,10 @@ class ProfileController extends Controller
         ]);
 
         if ($request->hasFile('foto_profil')) {
-            // Delete old photo if exists
             if ($user->foto_profil && Storage::disk('public')->exists($user->foto_profil)) {
                 Storage::disk('public')->delete($user->foto_profil);
             }
 
-            // Store new photo in storage/app/public/profil
             $path = $request->file('foto_profil')->store('profil', 'public');
             $user->foto_profil = $path;
         }
@@ -101,10 +91,6 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * PUT /api/profile/password
-     * Change password
-     */
     public function updatePassword(Request $request)
     {
         $user = $request->user();
@@ -136,3 +122,4 @@ class ProfileController extends Controller
         ]);
     }
 }
+

@@ -21,7 +21,6 @@ const ProtectedRoute = ({ allowedRoles = [] }) => {
   }
 
   if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-    // Redirect to proper role dashboard if trying to access unauthorized route
     if (user.role === 'peserta') return <Navigate to="/peserta/dashboard" replace />;
     if (user.role === 'pembimbing') return <Navigate to="/pembimbing/dashboard" replace />;
     if (user.role === 'admin') return <Navigate to="/admin/dashboard" replace />;
@@ -32,3 +31,4 @@ const ProtectedRoute = ({ allowedRoles = [] }) => {
 };
 
 export default ProtectedRoute;
+

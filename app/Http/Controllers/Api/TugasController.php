@@ -56,7 +56,6 @@ class TugasController extends Controller
             ? Carbon::parse($peserta->tanggal_selesai_magang)->translatedFormat('d F Y')
             : null;
 
-        // Guard: HANYA peserta yang aktif yang boleh diberi tugas baru
         if (! PeriodeMagangService::apakahAktif($peserta)) {
             return response()->json([
                 'status'  => 'error',
@@ -64,7 +63,6 @@ class TugasController extends Controller
             ], 403);
         }
 
-        // Validasi: deadline tidak boleh melebihi tanggal_selesai_magang milik peserta yang dipilih
         if ($peserta->tanggal_selesai_magang) {
             $deadlineDate = Carbon::parse($request->deadline)->startOfDay();
             $selesaiDate  = Carbon::parse($peserta->tanggal_selesai_magang)->startOfDay();
@@ -144,16 +142,14 @@ class TugasController extends Controller
             ], 403);
         }
 
-        // Guard Periode Magang & Grace Period Revisi Tugas
         if (! PeriodeMagangService::apakahAktif($user)) {
             $tglSelesai = $user->tanggal_selesai_magang
                 ? Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y')
                 : null;
-            $pesanDefault = $tglSelesai 
+            $pesanDefault = $tglSelesai
                 ? "Periode magang Anda telah berakhir pada {$tglSelesai}."
                 : "Periode magang Anda telah berakhir.";
 
-            // Pengecualian: Grace period 3 hari kalender khusus tugas berstatus "Perlu Revisi"
             if ($tugas->status === 'Perlu Revisi') {
                 if (! PeriodeMagangService::dalamGracePeriodRevisi($user)) {
                     return response()->json([
@@ -254,7 +250,6 @@ class TugasController extends Controller
     {
         $user = $request->user();
 
-        // HANYA tampilkan peserta yang periode magangnya masih aktif (apakahAktif() === true)
         $pesertaList = PlottingBimbingan::where('pembimbing_id', $user->user_id)
             ->with('peserta:user_id,nama,nim_nis,email,tanggal_mulai_magang,tanggal_selesai_magang,status_aktif')
             ->get()
@@ -270,5 +265,4 @@ class TugasController extends Controller
         ]);
     }
 }
-
 

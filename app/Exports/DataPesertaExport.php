@@ -65,3 +65,4 @@ class DataPesertaExport implements FromCollection, WithHeadings, WithTitle, With
         return 'Data Peserta Magang';
     }
 }
+

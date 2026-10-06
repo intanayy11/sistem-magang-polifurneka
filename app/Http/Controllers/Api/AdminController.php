@@ -130,11 +130,21 @@ class AdminController extends Controller
     {
         $user = User::findOrFail($id);
 
-        if ($user->role === 'admin') {
+        if ($request->user() && $request->user()->user_id == $user->user_id) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Akun Administrator Utama Sistem tidak dapat dinonaktifkan.'
+                'message' => 'Anda tidak dapat menonaktifkan akun Anda sendiri yang sedang digunakan login.'
             ], 403);
+        }
+
+        if ($user->role === 'admin' && $user->status_aktif) {
+            $activeAdminCount = User::where('role', 'admin')->where('status_aktif', true)->count();
+            if ($activeAdminCount <= 1) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Akun Administrator tidak dapat dinonaktifkan karena merupakan satu-satunya admin aktif sistem.'
+                ], 403);
+            }
         }
 
         $user->update([
@@ -172,24 +182,33 @@ class AdminController extends Controller
     {
         $user = User::findOrFail($id);
 
-        if ($user->role === 'admin') {
+        if ($request->user() && $request->user()->user_id == $user->user_id) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Akun Administrator Utama Sistem tidak dapat dihapus.'
+                'message' => 'Anda tidak dapat menghapus akun Anda sendiri yang sedang digunakan login.'
             ], 403);
+        }
+
+        if ($user->role === 'admin') {
+            $adminCount = User::where('role', 'admin')->count();
+            if ($adminCount <= 1) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Akun Administrator tidak dapat dihapus karena merupakan satu-satunya admin di sistem.'
+                ], 403);
+            }
         }
 
         $user->delete();
 
         return response()->json([
             'status' => 'success',
-            'message' => 'User berhasil dihapus.'
+            'message' => "User {$user->nama} berhasil dihapus."
         ]);
     }
 
     public function getOptionsList()
     {
-        // Hanya peserta aktif yang berada dalam periode magang aktif dan belum punya plotting
         $pesertaList = User::where('role', 'peserta')
             ->where('status_aktif', true)
             ->whereDoesntHave('plottingAsPeserta')
@@ -236,7 +255,6 @@ class AdminController extends Controller
             'pembimbing_id' => 'required|exists:users,user_id',
         ]);
 
-        // Check if existing active plotting for this peserta exists
         PlottingBimbingan::where('peserta_id', $request->peserta_id)->delete();
 
         $plotting = PlottingBimbingan::create([
@@ -280,3 +298,4 @@ class AdminController extends Controller
         ]);
     }
 }
+

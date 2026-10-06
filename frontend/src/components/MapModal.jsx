@@ -5,7 +5,6 @@ import 'leaflet/dist/leaflet.css';
 import { X, MapPin, Loader2 } from 'lucide-react';
 import useScrollLock from '../hooks/useScrollLock';
 
-// Fix Leaflet marker icon issue in React
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -42,7 +41,7 @@ const MapModal = ({ isOpen, onClose, latitude, longitude, title, timestamp, alam
   return (
     <div className="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-white rounded-[20px] max-w-lg w-full p-5 shadow-2xl border border-slate-200 space-y-4 relative overflow-hidden">
-        {/* Modal Header */}
+
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <MapPin size={18} className="text-amber-600 shrink-0" />
@@ -59,7 +58,6 @@ const MapModal = ({ isOpen, onClose, latitude, longitude, title, timestamp, alam
           </button>
         </div>
 
-        {/* Map Container */}
         <div className="h-64 w-full rounded-xl overflow-hidden border border-slate-200 relative">
           <MapContainer center={[lat, lng]} zoom={15} scrollWheelZoom={true} className="h-full w-full">
             <TileLayer
@@ -78,7 +76,6 @@ const MapModal = ({ isOpen, onClose, latitude, longitude, title, timestamp, alam
           </MapContainer>
         </div>
 
-        {/* Alamat Fisik Lengkap */}
         {fetchingAddress ? (
           <div className="bg-amber-50/80 p-3 rounded-xl border border-amber-200/80 text-xs text-amber-950 flex items-center gap-2">
             <Loader2 size={14} className="animate-spin text-amber-700 shrink-0" />
@@ -94,7 +91,6 @@ const MapModal = ({ isOpen, onClose, latitude, longitude, title, timestamp, alam
           </div>
         ) : null}
 
-        {/* Coordinate details */}
         <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex items-center justify-between text-xs font-mono text-slate-600">
           <span>Latitude: <strong>{lat.toFixed(6)}</strong></span>
           <span>Longitude: <strong>{lng.toFixed(6)}</strong></span>
@@ -105,3 +101,4 @@ const MapModal = ({ isOpen, onClose, latitude, longitude, title, timestamp, alam
 };
 
 export default MapModal;
+

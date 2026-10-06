@@ -43,10 +43,6 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Cek apakah masa magang peserta sudah selesai.
-     * Menggunakan PeriodeMagangService::apakahAktif().
-     */
     public function isMagangSelesai(): bool
     {
         return !\App\Services\PeriodeMagangService::apakahAktif($this);
@@ -87,3 +83,4 @@ class User extends Authenticatable
         return $this->hasMany(Tugas::class, 'pembimbing_id', 'user_id');
     }
 }
+

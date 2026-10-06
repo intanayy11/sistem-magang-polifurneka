@@ -29,7 +29,6 @@ const RiwayatPresensiPage = () => {
 
   useScrollLock(!!selectedPresensi);
 
-  // Map Modal
   const [mapModal, setMapModal] = useState({ open: false, lat: null, lng: null, title: '', timestamp: '', alamat: '' });
 
   const fetchRiwayat = async () => {
@@ -76,7 +75,7 @@ const RiwayatPresensiPage = () => {
 
   return (
     <div className="space-y-4">
-      {/* Tabel Riwayat */}
+
       <div className="card-bento overflow-hidden p-0">
         <div className="p-4 sm:p-5 border-b border-slate-100 bg-white space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -96,7 +95,7 @@ const RiwayatPresensiPage = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2.5 border-t border-slate-100">
-            {/* Search Box */}
+
             <div className="relative w-full sm:w-64 shrink-0">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
               <input
@@ -219,7 +218,6 @@ const RiwayatPresensiPage = () => {
           </table>
         </div>
 
-        {/* Footer Pagination */}
         <Pagination
           currentPage={currentPage}
           totalItems={filteredRiwayat.length}
@@ -229,7 +227,6 @@ const RiwayatPresensiPage = () => {
         />
       </div>
 
-      {/* Modal Detail Presensi */}
       {selectedPresensi && (
         <div className="fixed inset-0 z-50 bg-slate-950/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-[24px] max-w-md w-full p-6 shadow-xl border border-slate-200 space-y-5 relative">
@@ -341,7 +338,6 @@ const RiwayatPresensiPage = () => {
         </div>
       )}
 
-      {/* Map Modal */}
       <MapModal
         isOpen={mapModal.open}
         onClose={() => setMapModal({ ...mapModal, open: false })}
@@ -356,3 +352,4 @@ const RiwayatPresensiPage = () => {
 };
 
 export default RiwayatPresensiPage;
+

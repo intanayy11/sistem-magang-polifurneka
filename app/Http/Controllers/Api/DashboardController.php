@@ -18,17 +18,14 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        // 1. Kehadiran stats
         $totalPresensi = Presensi::where('peserta_id', $user->user_id)->count();
         $hadirCount = Presensi::where('peserta_id', $user->user_id)->whereIn('status', ['Hadir', 'Terlambat', 'Pulang Cepat'])->count();
         $persentaseKehadiran = $totalPresensi > 0 ? round(($hadirCount / $totalPresensi) * 100, 1) : 0;
 
-        // 2. Pending logbook count
         $logbookPendingCount = Logbook::where('peserta_id', $user->user_id)
             ->where('status', 'Menunggu')
             ->count();
 
-        // 3. Tugas count per status
         $tugasStats = [
             'belum_dikerjakan' => Tugas::where('peserta_id', $user->user_id)->where('status', 'Belum Dikerjakan')->count(),
             'menunggu_review' => Tugas::where('peserta_id', $user->user_id)->where('status', 'Menunggu Review')->count(),
@@ -36,14 +33,11 @@ class DashboardController extends Controller
             'selesai' => Tugas::where('peserta_id', $user->user_id)->where('status', 'Selesai')->count(),
         ];
 
-        // 4. Status presensi hari ini
-        // 4. Status presensi hari ini
         $today = Carbon::today()->toDateString();
         $todayPresensi = Presensi::where('peserta_id', $user->user_id)->where('tanggal', $today)->first();
         $sudahPresensiHariIni = $todayPresensi !== null;
         $jamSekarang = Carbon::now()->format('H:i');
 
-        // 5. Recent Logbooks & Recent Tugas for dashboard widgets
         $recentLogbooks = Logbook::where('peserta_id', $user->user_id)
             ->orderBy('tanggal', 'desc')
             ->take(5)
@@ -54,7 +48,6 @@ class DashboardController extends Controller
             ->take(5)
             ->get(['tugas_id', 'judul as judul_tugas', 'deadline', 'status']);
 
-        // 6. Data Pembimbing Lapangan (jika sudah di-plot)
         $plotting = PlottingBimbingan::where('peserta_id', $user->user_id)
             ->with('pembimbing:user_id,nama,email,no_hp,jabatan')
             ->first();
@@ -74,7 +67,6 @@ class DashboardController extends Controller
                 'recent_logbooks' => $recentLogbooks,
                 'recent_tugas' => $recentTugas,
                 'pembimbing' => $pembimbing,
-                // Status masa magang
                 'is_magang_selesai'      => $user->isMagangSelesai(),
                 'tanggal_selesai_magang' => $user->tanggal_selesai_magang,
             ]
@@ -126,7 +118,6 @@ class DashboardController extends Controller
     {
         $today = Carbon::today()->toDateString();
 
-        // 1. Ambil Aktivitas Terbaru (Presensi, Logbook, Izin, Tugas)
         $latestPresensi = Presensi::with('peserta:user_id,nama')
             ->latest('updated_at')
             ->take(4)
@@ -196,7 +187,6 @@ class DashboardController extends Controller
             ->values()
             ->take(4);
 
-        // 2. Statistik Kehadiran & Kedisiplinan
         $totalPresensi = Presensi::count();
         $hadirTepatWaktu = Presensi::where('status', 'Hadir')->count();
         $terlambat = Presensi::where('status', 'Terlambat')->count();
@@ -204,7 +194,6 @@ class DashboardController extends Controller
         $alpha = Presensi::where('status', 'Alpha')->count();
         $persentaseKehadiran = $totalPresensi > 0 ? round((($hadirTepatWaktu + $terlambat) / $totalPresensi) * 100, 1) : 0;
 
-        // 3. Statistik Progres Aktivitas Magang (Logbook & Tugas)
         $totalLogbook = Logbook::count();
         $logbookDisetujui = Logbook::where('status', 'Disetujui')->count();
         $logbookMenunggu = Logbook::where('status', 'Menunggu')->count();
@@ -216,12 +205,11 @@ class DashboardController extends Controller
         $tugasPerluRevisi = Tugas::where('status', 'Perlu Revisi')->count();
         $tugasBelumDikerjakan = Tugas::where('status', 'Belum Dikerjakan')->count();
 
-        // 4. Beban Bimbingan per Pembimbing (Mentor Workload)
         $totalPeserta = User::where('role', 'peserta')->count();
         $totalPembimbing = User::where('role', 'pembimbing')->count();
         $totalPlotting = PlottingBimbingan::count();
         $rataRataBimbingan = $totalPembimbing > 0 ? round($totalPlotting / $totalPembimbing, 1) : 0;
-        
+
         $plottedPesertaIds = PlottingBimbingan::pluck('peserta_id');
         $pesertaBelumPlotting = User::where('role', 'peserta')->whereNotIn('user_id', $plottedPesertaIds)->count();
 
@@ -245,8 +233,7 @@ class DashboardController extends Controller
                 'izin_pending' => Izin::where('status', 'Menunggu')->count(),
                 'tugas_aktif' => Tugas::whereIn('status', ['Belum Dikerjakan', 'Menunggu Review', 'Perlu Revisi'])->count(),
                 'recent_activities' => $recentActivities,
-                
-                // Statistik Tambahan 1: Kehadiran
+
                 'presensi_stats' => [
                     'total' => $totalPresensi,
                     'hadir_tepat_waktu' => $hadirTepatWaktu,
@@ -256,7 +243,6 @@ class DashboardController extends Controller
                     'persentase_kehadiran' => $persentaseKehadiran,
                 ],
 
-                // Statistik Tambahan 2: Logbook & Tugas
                 'logbook_stats' => [
                     'total' => $totalLogbook,
                     'disetujui' => $logbookDisetujui,
@@ -271,7 +257,6 @@ class DashboardController extends Controller
                     'belum_dikerjakan' => $tugasBelumDikerjakan,
                 ],
 
-                // Statistik Tambahan 3: Beban Bimbingan Pembimbing
                 'mentor_workload' => [
                     'rata_rata' => $rataRataBimbingan,
                     'peserta_belum_plotting' => $pesertaBelumPlotting,
@@ -281,3 +266,4 @@ class DashboardController extends Controller
         ]);
     }
 }
+

@@ -28,3 +28,4 @@ class Logbook extends Model
         return $this->belongsTo(User::class, 'peserta_id', 'user_id');
     }
 }
+
