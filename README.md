@@ -128,7 +128,7 @@ Ikuti langkah-langkah di bawah ini secara runtut untuk menginstall dan menjalank
 
 1. Buka terminal/command prompt di direktori utama projek:
    ```bash
-   cd c:\Users\LENOVO\Documents\KP\MAGANG\SISTEM_MAGANG\sistem-magang-polifurneka
+   cd sistem-magang-polifurneka
    ```
 
 2. Install dependency PHP menggunakan Composer:
