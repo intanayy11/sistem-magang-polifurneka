@@ -16,6 +16,7 @@ import {
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
+  Paperclip,
 } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
@@ -216,7 +217,16 @@ const TugasPage = () => {
                     </div>
 
                     <h3 className="font-bold text-slate-900 text-sm mb-1.5 line-clamp-1">{tugas.judul}</h3>
-                    <p className="text-slate-500 text-xs mb-3 line-clamp-2 leading-relaxed">{tugas.deskripsi || 'Tidak ada deskripsi.'}</p>
+                    <p className="text-slate-500 text-xs mb-2 line-clamp-2 leading-relaxed">{tugas.deskripsi || 'Tidak ada deskripsi.'}</p>
+
+                    {(tugas.file_lampiran || tugas.file_tugas) && (
+                      <div className="mb-2.5">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                          <Paperclip size={11} className="text-amber-600" />
+                          <span>Ada Lampiran Acuan</span>
+                        </span>
+                      </div>
+                    )}
 
                     <p className="text-[11px] text-slate-400">
                       Pembimbing: <span className="font-semibold text-slate-700">{tugas.pembimbing?.nama || '-'}</span>
@@ -274,16 +284,17 @@ const TugasPage = () => {
                 <span>Deadline: {new Date(selectedTugas.deadline).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}</span>
               </div>
               <p className="text-slate-600 whitespace-pre-line leading-relaxed">{selectedTugas.deskripsi || 'Tidak ada deskripsi detail.'}</p>
-              {selectedTugas.file_tugas && (
-                <div className="pt-2">
+              {(selectedTugas.file_lampiran || selectedTugas.file_tugas) && (
+                <div className="pt-2 border-t border-slate-200/80">
+                  <span className="text-[11px] font-bold text-slate-700 block mb-1">File / Gambar Acuan Pembimbing:</span>
                   <a
-                    href={getStorageUrl(selectedTugas.file_tugas)}
+                    href={getStorageUrl(selectedTugas.file_lampiran || selectedTugas.file_tugas)}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-900 hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-900 hover:text-amber-950 bg-amber-100/70 hover:bg-amber-200/80 px-3 py-1.5 rounded-lg border border-amber-300 transition-colors"
                   >
                     <ExternalLink size={13} />
-                    <span>Unduh Lampiran Berkas Tugas Pembimbing</span>
+                    <span>Buka / Unduh Lampiran Berkas Tugas Pembimbing</span>
                   </a>
                 </div>
               )}

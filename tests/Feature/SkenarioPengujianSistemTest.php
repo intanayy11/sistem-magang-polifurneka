@@ -20,7 +20,6 @@ class SkenarioPengujianSistemTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // Atur waktu testing ke hari Rabu (hari kerja) jam 07:25 WIB
         Carbon::setTestNow(Carbon::create(2026, 9, 2, 7, 25, 0, 'Asia/Jakarta'));
     }
 

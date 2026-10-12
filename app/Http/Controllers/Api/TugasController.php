@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\PeriodeMagangService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class TugasController extends Controller
 {
@@ -243,6 +244,95 @@ class TugasController extends Controller
             'status' => 'success',
             'message' => 'Review tugas berhasil diperbarui menjadi ' . $request->status,
             'data' => $tugas
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $user = $request->user();
+        $tugas = Tugas::with('peserta')->findOrFail($id);
+
+        if ($user->role === 'pembimbing' && $tugas->pembimbing_id != $user->user_id) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Anda tidak berhak mengedit tugas ini.'
+            ], 403);
+        }
+
+        $request->validate([
+            'judul'         => 'required|string|max:255',
+            'deskripsi'     => 'nullable|string',
+            'deadline'      => 'required|date',
+            'file_lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf,zip,rar,doc,docx|max:5120',
+        ]);
+
+        $peserta = $tugas->peserta;
+        if ($peserta && $peserta->tanggal_selesai_magang) {
+            $deadlineDate = Carbon::parse($request->deadline)->startOfDay();
+            $selesaiDate  = Carbon::parse($peserta->tanggal_selesai_magang)->startOfDay();
+            $tglSelesaiFmt = Carbon::parse($peserta->tanggal_selesai_magang)->translatedFormat('d F Y');
+            if ($deadlineDate->gt($selesaiDate)) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => "Deadline tidak boleh melebihi tanggal selesai magang peserta ({$tglSelesaiFmt}).",
+                ], 422);
+            }
+        }
+
+        $updateData = [
+            'judul'     => $request->judul,
+            'deskripsi' => $request->deskripsi,
+            'deadline'  => $request->deadline,
+        ];
+
+        if ($request->hasFile('file_lampiran')) {
+            if ($tugas->file_lampiran) {
+                $oldPath = str_replace('storage/', '', $tugas->file_lampiran);
+                Storage::disk('public')->delete($oldPath);
+            }
+            $path = $request->file('file_lampiran')->store('tugas_lampiran', 'public');
+            $updateData['file_lampiran'] = 'storage/' . $path;
+        }
+
+        $tugas->update($updateData);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Tugas berhasil diperbarui.',
+            'data'    => $tugas->fresh(['peserta:user_id,nama,nim_nis', 'pengumpulan'])
+        ]);
+    }
+
+    public function destroy(Request $request, $id)
+    {
+        $user = $request->user();
+        $tugas = Tugas::with('pengumpulan')->findOrFail($id);
+
+        if ($user->role === 'pembimbing' && $tugas->pembimbing_id != $user->user_id) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Anda tidak berhak menghapus tugas ini.'
+            ], 403);
+        }
+
+        if ($tugas->file_lampiran) {
+            $oldPath = str_replace('storage/', '', $tugas->file_lampiran);
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        foreach ($tugas->pengumpulan as $pengumpulan) {
+            if ($pengumpulan->file_hasil && str_starts_with($pengumpulan->file_hasil, 'storage/')) {
+                $subPath = str_replace('storage/', '', $pengumpulan->file_hasil);
+                Storage::disk('public')->delete($subPath);
+            }
+            $pengumpulan->delete();
+        }
+
+        $tugas->delete();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Tugas berhasil dihapus.'
         ]);
     }
 

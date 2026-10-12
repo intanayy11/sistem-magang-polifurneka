@@ -48,6 +48,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/izin/{id}/verifikasi', [IzinController::class, 'verifikasi']);
         Route::put('/logbook/{id}/review', [LogbookController::class, 'review']);
         Route::post('/tugas', [TugasController::class, 'store']);
+        Route::match(['put', 'post'], '/tugas/{id}', [TugasController::class, 'update']);
+        Route::delete('/tugas/{id}', [TugasController::class, 'destroy']);
         Route::put('/tugas/{id}/review', [TugasController::class, 'review']);
         Route::get('/pembimbing/peserta', [TugasController::class, 'pembimbingPesertaList']);
         Route::get('/dashboard/pembimbing', [DashboardController::class, 'pembimbingDashboard']);
