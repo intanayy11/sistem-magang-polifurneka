@@ -4,7 +4,7 @@ import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/StatusBadge';
 import DovetailDivider from '../../components/DovetailDivider';
-import { Plus, BookOpen, Image as ImageIcon, X, Calendar, FileText, ExternalLink, ChevronLeft, ChevronRight, AlertTriangle, Search } from 'lucide-react';
+import { Plus, BookOpen, Image as ImageIcon, X, Calendar, FileText, ExternalLink, ChevronLeft, ChevronRight, AlertTriangle, Search, Edit3 } from 'lucide-react';
 import useScrollLock from '../../hooks/useScrollLock';
 import AlertBanner from '../../components/AlertBanner';
 import { getStorageUrl } from '../../utils/url';
@@ -15,7 +15,6 @@ const LOGBOOK_FILTERS = [
   { label: 'Semua', value: 'Semua' },
   { label: 'Menunggu', value: 'Menunggu' },
   { label: 'Disetujui', value: 'Disetujui' },
-  { label: 'Perlu Revisi', value: 'Revisi' },
 ];
 
 const ITEMS_PER_PAGE = 5;
@@ -35,7 +34,6 @@ const LogbookPage = () => {
 
   const getInitialFilter = () => {
     if (urlStatus === 'Menunggu') return 'Menunggu';
-    if (urlStatus === 'Revisi' || urlStatus === 'Perlu Revisi') return 'Revisi';
     if (urlStatus === 'Disetujui' || urlStatus === 'Approve') return 'Disetujui';
     return 'Semua';
   };
@@ -47,7 +45,6 @@ const LogbookPage = () => {
   useEffect(() => {
     if (urlStatus) {
       if (urlStatus === 'Menunggu') setActiveFilter('Menunggu');
-      else if (urlStatus === 'Revisi' || urlStatus === 'Perlu Revisi') setActiveFilter('Revisi');
       else if (urlStatus === 'Disetujui' || urlStatus === 'Approve') setActiveFilter('Disetujui');
     }
   }, [urlStatus]);
@@ -454,7 +451,7 @@ const LogbookPage = () => {
             <div className="pt-3 border-t border-slate-100 flex justify-end">
               <button
                 onClick={() => setSelectedLogbook(null)}
-                className="btn-poli-primary px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider font-extrabold"
+                className="btn-poli-primary px-5 py-2.5 rounded-xl text-xs uppercase tracking-wider font-extrabold cursor-pointer"
               >
                 Tutup
               </button>

@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/presensi/riwayat', [PresensiController::class, 'riwayat']);
         Route::post('/izin', [IzinController::class, 'store']);
         Route::post('/logbook', [LogbookController::class, 'store']);
+        Route::match(['put', 'post'], '/logbook/{id}', [LogbookController::class, 'update']);
         Route::post('/tugas/{id}/kumpul', [TugasController::class, 'submit']);
         Route::get('/dashboard/peserta', [DashboardController::class, 'pesertaDashboard']);
     });

@@ -128,5 +128,55 @@ class LogbookController extends Controller
             'data' => $logbook
         ]);
     }
+
+    public function update(Request $request, $id)
+    {
+        $user = $request->user();
+
+        if (! PeriodeMagangService::apakahAktif($user)) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Periode magang Anda telah berakhir.',
+            ], 403);
+        }
+
+        $logbook = Logbook::where('logbook_id', $id)
+            ->where('peserta_id', $user->user_id)
+            ->firstOrFail();
+
+        if (! in_array($logbook->status, ['Menunggu', 'Revisi'])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Logbook yang sudah disetujui tidak dapat diedit.'
+            ], 403);
+        }
+
+        $request->validate([
+            'judul_kegiatan' => 'required|string|max:255',
+            'deskripsi'      => 'required|string',
+            'kendala'        => 'nullable|string',
+            'foto_bukti'     => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+        ]);
+
+        $fotoPath = $logbook->foto_bukti;
+        if ($request->hasFile('foto_bukti')) {
+            $path = $request->file('foto_bukti')->store('logbook', 'public');
+            $fotoPath = 'storage/' . $path;
+        }
+
+        $logbook->update([
+            'judul_kegiatan' => $request->judul_kegiatan,
+            'deskripsi'      => $request->deskripsi,
+            'kendala'        => $request->kendala,
+            'foto_bukti'     => $fotoPath,
+            'status'         => 'Menunggu', // Otomatis kembali ke Menunggu agar pembimbing mereviu ulang
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Logbook berhasil diperbaiki dan status kembali menjadi Menunggu untuk direview pembimbing.',
+            'data' => $logbook
+        ]);
+    }
 }
 

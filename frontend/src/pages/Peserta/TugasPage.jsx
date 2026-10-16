@@ -321,7 +321,7 @@ const TugasPage = () => {
                       <div className="text-slate-600">
                         {p.file_hasil ? (
                           <a href={getStorageUrl(p.file_hasil)} target="_blank" rel="noreferrer" className="text-amber-900 font-semibold hover:underline flex items-center gap-1">
-                            <ExternalLink size={12} /> Liha Berkas / Tautan Hasil Kerja
+                            <ExternalLink size={12} /> Lihat Berkas / Tautan Hasil Kerja
                           </a>
                         ) : '-'}
                       </div>

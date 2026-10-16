@@ -28,7 +28,6 @@ const ReviewLogbookPage = () => {
   const getInitialFilter = () => {
     if (urlStatus === 'Menunggu') return 'Menunggu';
     if (urlStatus === 'Disetujui' || urlStatus === 'Approve') return 'Disetujui';
-    if (urlStatus === 'Revisi' || urlStatus === 'Perlu Revisi') return 'Revisi';
     return 'Semua';
   };
 
@@ -42,7 +41,6 @@ const ReviewLogbookPage = () => {
     if (urlStatus) {
       if (urlStatus === 'Menunggu') setFilterStatus('Menunggu');
       else if (urlStatus === 'Disetujui' || urlStatus === 'Approve') setFilterStatus('Disetujui');
-      else if (urlStatus === 'Revisi' || urlStatus === 'Perlu Revisi') setFilterStatus('Revisi');
     }
   }, [urlStatus]);
 
@@ -126,7 +124,7 @@ const ReviewLogbookPage = () => {
           </h2>
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
             <div className="flex bg-slate-100/80 p-1 rounded-xl text-xs font-semibold border border-slate-200">
-              {['Semua', 'Menunggu', 'Disetujui', 'Revisi'].map((st) => (
+              {['Semua', 'Menunggu', 'Disetujui'].map((st) => (
                 <button
                   key={st}
                   onClick={() => setFilterStatus(st)}
@@ -249,24 +247,20 @@ const ReviewLogbookPage = () => {
             <form onSubmit={handleReviewSubmit} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Keputusan Review</label>
-                <select
-                  value={reviewData.status}
-                  onChange={(e) => setReviewData({ ...reviewData, status: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 font-medium"
-                >
-                  <option value="Disetujui">Disetujui</option>
-                  <option value="Revisi">Revisi (Perlu Perbaikan)</option>
-                </select>
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold px-3 py-2.5 rounded-xl flex items-center gap-2">
+                  <CheckCircle size={16} className="text-emerald-600 shrink-0" />
+                  <span>Setujui Logbook Kegiatan Harian</span>
+                </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Catatan Pembimbing (Opsional / Masukan)</label>
+                <label className="block text-xs font-semibold text-slate-700 uppercase mb-1">Catatan Pembimbing (Opsional / Masukan / Apresiasi)</label>
                 <textarea
                   rows="3"
-                  placeholder="Berikan masukan atau arahan revisi kepada peserta..."
+                  placeholder="Berikan masukan, evaluasi, atau apresiasi kepada peserta (opsional)..."
                   value={reviewData.catatan_pembimbing}
                   onChange={(e) => setReviewData({ ...reviewData, catatan_pembimbing: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#E8A800] focus:ring-2 focus:ring-amber-200 font-medium text-slate-800"
                 ></textarea>
               </div>
 
@@ -274,16 +268,16 @@ const ReviewLogbookPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="btn-poli-primary px-5 py-2 rounded-xl text-xs uppercase tracking-wider disabled:opacity-50"
+                  className="btn-poli-primary px-5 py-2 rounded-xl text-xs uppercase tracking-wider font-extrabold disabled:opacity-50 cursor-pointer"
                 >
-                  {submitting ? 'Menyimpan...' : 'Simpan Keputusan'}
+                  {submitting ? 'Menyimpan...' : 'Setujui Logbook'}
                 </button>
               </div>
             </form>

@@ -31,12 +31,12 @@ Sistem ini mendukung 3 peran pengguna (*Role-Based Access Control / RBAC*):
   - **Sistem Proteksi Jam Pulang**: Menolak presensi pulang sebelum jam kerja berakhir.
   - **Weekend Protection**: Blokir presensi pada hari Sabtu dan Minggu (hari libur).
 - **Logbook Kegiatan Harian**:
-  - Mengisi judul, deskripsi kegiatan harian, kendala yang dihadapi, dan mengunggah foto bukti kegiatan (maks 2MB).
-  - Melihat status peninjauan pembimbing (*Menunggu, Approve, Revisi*).
+  - Mengisi judul, deskripsi kegiatan harian, kendala yang dihadapi, dan mengunggah foto bukti kegiatan (maks 5MB).
+  - Melihat status peninjauan pembimbing (*Menunggu, Disetujui*).
 - **Pengajuan Ketidakhadiran (Izin / Sakit)**:
   - Mengajukan surat izin/sakit dengan melampirkan berkas bukti pendukung.
 - **Tugas Magang**:
-  - Menerima tugas dari pembimbing, mengumpulkan berkas/link hasil tugas, dan mengunggah versi revisi.
+  - Menerima tugas dari pembimbing, mengumpulkan berkas/link hasil tugas, dan mengunggah versi revisi bertingkat (*Versi 1, Versi 2*).
 - **Profil Saya**:
   - Mengubah foto profil, nomor kontak WhatsApp, dan kata sandi akun.
 
@@ -46,10 +46,10 @@ Sistem ini mendukung 3 peran pengguna (*Role-Based Access Control / RBAC*):
 - **Monitor Presensi & Lokasi GPS Interaktif (2-Tier Layout)**:
   - **Tier 1 (Atas)**: Ringkasan status presensi real-time hari ini untuk seluruh anak bimbingan (*Total, Sudah Absen, Belum Absen*).
   - **Tier 2 (Bawah)**: Filter dan tabel riwayat presensi historis per peserta magang.
-  - **Modal Peta GPS**: Menampilkan koordinat lokasi presensi masuk/pulang pada peta interaktif Leaflet / OpenStreetMap.
+  - **Modal Peta GPS & Geofencing**: Menampilkan koordinat lokasi presensi masuk/pulang pada peta interaktif Leaflet lengkap dengan lingkaran perimeter radius 500 meter Polifurneka Kendal.
   - **Klik Baris Interaktif**: Cukup menekan baris tabel mana saja untuk melihat detail presensi dan lokasi GPS.
 - **Review Logbook Kegiatan**:
-  - Memberikan persetujuan (*Approve*) atau catatan revisi pada laporan logbook harian mahasiswa bimbingan.
+  - Memeriksa dan memberikan persetujuan (*Disetujui*) serta catatan/evaluasi harian pada laporan logbook mahasiswa bimbingan.
 - **Verifikasi Pengajuan Izin / Sakit**:
   - Memeriksa dokumen bukti dan memberikan keputusan *Disetujui* atau *Ditolak*.
 - **Manajemen & Evaluasi Tugas**:
