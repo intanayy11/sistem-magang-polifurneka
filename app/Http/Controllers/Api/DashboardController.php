@@ -68,6 +68,7 @@ class DashboardController extends Controller
                 'recent_tugas' => $recentTugas,
                 'pembimbing' => $pembimbing,
                 'is_magang_selesai'      => $user->isMagangSelesai(),
+                'is_magang_belum_mulai'  => $user->isMagangBelumMulai(),
                 'tanggal_selesai_magang' => $user->tanggal_selesai_magang,
             ]
         ]);
@@ -94,7 +95,8 @@ class DashboardController extends Controller
             ])
             ->get()
             ->map(function ($p) {
-                $p->is_magang_selesai = ! \App\Services\PeriodeMagangService::apakahAktif($p);
+                $p->is_magang_selesai = \App\Services\PeriodeMagangService::apakahSelesai($p);
+                $p->is_magang_belum_mulai = \App\Services\PeriodeMagangService::apakahBelumMulai($p);
                 return $p;
             });
 

@@ -45,7 +45,12 @@ class User extends Authenticatable
 
     public function isMagangSelesai(): bool
     {
-        return !\App\Services\PeriodeMagangService::apakahAktif($this);
+        return \App\Services\PeriodeMagangService::apakahSelesai($this);
+    }
+
+    public function isMagangBelumMulai(): bool
+    {
+        return \App\Services\PeriodeMagangService::apakahBelumMulai($this);
     }
 
     public function plottingAsPeserta()

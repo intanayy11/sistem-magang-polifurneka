@@ -42,12 +42,7 @@ class LogbookController extends Controller
         $user = $request->user();
 
         if (! PeriodeMagangService::apakahAktif($user)) {
-            $tglSelesai = $user->tanggal_selesai_magang
-                ? Carbon::parse($user->tanggal_selesai_magang)->translatedFormat('d F Y')
-                : null;
-            $pesan = $tglSelesai
-                ? "Periode magang Anda telah berakhir pada {$tglSelesai}."
-                : "Periode magang Anda telah berakhir.";
+            $pesan = PeriodeMagangService::getPesanStatus($user) ?? "Periode magang Anda tidak aktif.";
             return response()->json([
                 'status'  => 'error',
                 'message' => $pesan,

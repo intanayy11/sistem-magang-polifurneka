@@ -29,7 +29,8 @@ class AdminController extends Controller
 
         $users = $query->orderBy('created_at', 'desc')->get()->map(function ($u) {
             if ($u->role === 'peserta') {
-                $u->is_magang_selesai = ! \App\Services\PeriodeMagangService::apakahAktif($u);
+                $u->is_magang_selesai = \App\Services\PeriodeMagangService::apakahSelesai($u);
+                $u->is_magang_belum_mulai = \App\Services\PeriodeMagangService::apakahBelumMulai($u);
             }
             return $u;
         });
@@ -237,7 +238,8 @@ class AdminController extends Controller
             ->get()
             ->map(function ($item) {
                 if ($item->peserta) {
-                    $item->peserta->is_magang_selesai = ! \App\Services\PeriodeMagangService::apakahAktif($item->peserta);
+                    $item->peserta->is_magang_selesai = \App\Services\PeriodeMagangService::apakahSelesai($item->peserta);
+                    $item->peserta->is_magang_belum_mulai = \App\Services\PeriodeMagangService::apakahBelumMulai($item->peserta);
                 }
                 return $item;
             });

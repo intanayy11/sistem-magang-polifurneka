@@ -285,11 +285,13 @@ class LaporanController extends Controller
 
             $pesertaList = $rawPeserta->filter(function ($u) use ($statusPeriode) {
                 $isAktif = PeriodeMagangService::apakahAktif($u);
+                $isSelesai = PeriodeMagangService::apakahSelesai($u);
                 if ($statusPeriode === 'aktif') return $isAktif;
-                if ($statusPeriode === 'selesai') return !$isAktif;
+                if ($statusPeriode === 'selesai') return $isSelesai;
                 return true;
             })->map(function ($u) {
-                $u->is_magang_selesai = !PeriodeMagangService::apakahAktif($u);
+                $u->is_magang_selesai = PeriodeMagangService::apakahSelesai($u);
+                $u->is_magang_belum_mulai = PeriodeMagangService::apakahBelumMulai($u);
                 $u->pembimbing_nama = $u->plottingAsPeserta?->pembimbing?->nama ?? 'Belum Diplotting';
                 return $u;
             })->values();

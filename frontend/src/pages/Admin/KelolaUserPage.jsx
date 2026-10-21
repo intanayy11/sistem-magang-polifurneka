@@ -419,6 +419,11 @@ const KelolaUserPage = () => {
                             Selesai Magang
                           </span>
                         )}
+                        {u.role === 'peserta' && u.is_magang_belum_mulai && (
+                          <span className="text-[9px] font-extrabold bg-blue-100 text-blue-800 border border-blue-300 px-1.5 py-0.5 rounded-md uppercase tracking-wide">
+                            Belum Mulai
+                          </span>
+                        )}
                       </div>
                       <div className="text-[11px] text-slate-400 font-mono">{u.nim_nis || '-'}</div>
                     </td>

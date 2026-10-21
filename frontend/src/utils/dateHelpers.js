@@ -48,6 +48,16 @@ export function isMagangSelesai(user) {
   return false;
 }
 
+export function isMagangBelumMulai(user) {
+  if (!user) return false;
+  if (user.status_aktif === false) return false;
+  if (user.tanggal_mulai_magang) {
+    const today = todayLocalISO();
+    return today < user.tanggal_mulai_magang;
+  }
+  return false;
+}
+
 export function dalamGracePeriodRevisi(user) {
   if (!user) return false;
   if (user.status_aktif === false) return false;

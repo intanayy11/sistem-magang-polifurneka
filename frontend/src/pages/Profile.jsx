@@ -15,7 +15,7 @@ import {
   Calendar,
   Info
 } from 'lucide-react';
-import { isMagangSelesai } from '../utils/dateHelpers';
+import { isMagangSelesai, isMagangBelumMulai } from '../utils/dateHelpers';
 
 const formatDateIndo = (dateStr) => {
   if (!dateStr) return '-';
@@ -295,6 +295,10 @@ const Profile = () => {
                       (profileData?.is_magang_selesai ?? isMagangSelesai(profileData)) ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold tracking-wide">
                           Selesai Magang
+                        </span>
+                      ) : (profileData?.is_magang_belum_mulai ?? isMagangBelumMulai(profileData)) ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-blue-50 border border-blue-300 text-blue-800 text-xs font-bold tracking-wide">
+                          Belum Mulai Magang
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs font-bold tracking-wide">
