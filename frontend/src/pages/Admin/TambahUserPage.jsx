@@ -54,24 +54,12 @@ const TambahUserPage = () => {
 
     try {
       const res = await api.post('/admin/users', form);
-      setAlert({ type: 'success', message: res.data.message || 'User berhasil ditambahkan.' });
-      setForm({
-        nama: '',
-        email: '',
-        password: '',
-        role: 'peserta',
-        nim_nis: '',
-        asal_instansi: '',
-        jurusan: '',
-        posisi_magang: '',
-        jabatan: '',
-        no_hp: '',
-        tanggal_mulai_magang: '',
-        tanggal_selesai_magang: '',
+      const roleTarget = form.role ? `?role=${form.role}` : '';
+      navigate(`/admin/kelola-user${roleTarget}`, {
+        state: { message: res.data.message || `User "${form.nama}" berhasil ditambahkan.` }
       });
     } catch (err) {
       setAlert({ type: 'error', message: err.response?.data?.message || 'Gagal menyimpan data user.' });
-    } finally {
       setSubmitting(false);
     }
   };

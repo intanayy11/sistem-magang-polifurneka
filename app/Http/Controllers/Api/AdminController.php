@@ -216,7 +216,7 @@ class AdminController extends Controller
             ->select('user_id', 'nama', 'nim_nis', 'email', 'tanggal_mulai_magang', 'tanggal_selesai_magang', 'status_aktif')
             ->get()
             ->filter(function ($peserta) {
-                return \App\Services\PeriodeMagangService::apakahAktif($peserta);
+                return ! \App\Services\PeriodeMagangService::apakahSelesai($peserta);
             })
             ->values();
 

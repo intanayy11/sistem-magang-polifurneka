@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import api from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -23,6 +23,7 @@ const ITEMS_PER_PAGE = 10;
 
 const KelolaUserPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user: currentUser } = useAuth();
   const [searchParams] = useSearchParams();
   const roleParam = searchParams.get('role') || '';
@@ -33,6 +34,13 @@ const KelolaUserPage = () => {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setAlert({ type: 'success', message: location.state.message });
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const [showUserModal, setShowUserModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
