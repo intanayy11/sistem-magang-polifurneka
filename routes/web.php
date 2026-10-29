@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
+    if (file_exists(public_path('index.html'))) {
+        return response()->file(public_path('index.html'));
+    }
     return response()->json([
         'name' => 'SIMONIKA API - Sistem Magang Polifurneka',
         'status' => 'online',
@@ -11,6 +14,9 @@ Route::get('/', function () {
 });
 
 Route::get('/login', function () {
+    if (file_exists(public_path('index.html'))) {
+        return response()->file(public_path('index.html'));
+    }
     return response()->json(['status' => 'error', 'message' => 'Unauthenticated.'], 401);
 })->name('login');
 
@@ -43,4 +49,12 @@ Route::get('/storage/{path}', function ($path) {
 
     return response()->file($realPath);
 })->where('path', '.*');
+
+// Catch-all route agar seluruh halaman React Router (dashboard, presensi, dll) bisa di-refresh langsung di browser
+Route::get('/{any}', function () {
+    if (file_exists(public_path('index.html'))) {
+        return response()->file(public_path('index.html'));
+    }
+    abort(404);
+})->where('any', '^(?!api|storage|artisan-storage-link).*$');
 
