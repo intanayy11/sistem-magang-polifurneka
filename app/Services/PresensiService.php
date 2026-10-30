@@ -83,6 +83,17 @@ class PresensiService
 
     public static function hitungStatusCheckOut(string $jamPulang, string $currentStatus, $date = null): string
     {
+        $today = $date instanceof \Carbon\Carbon ? $date->toDateString() : now()->toDateString();
+        $todayCarbon = \Carbon\Carbon::parse($today);
+        $standar = self::getJamStandar($todayCarbon);
+        $jamPulangStandar = \Carbon\Carbon::parse($today . ' ' . $standar['jam_pulang']);
+        $jamPulangCarbon = \Carbon\Carbon::parse($today . ' ' . $jamPulang);
+
+        // Jika pulang lebih awal dari jam standar, tandai sebagai "Lebih Awal"
+        if ($jamPulangCarbon->lessThan($jamPulangStandar)) {
+            return 'Lebih Awal';
+        }
+
         return $currentStatus;
     }
 

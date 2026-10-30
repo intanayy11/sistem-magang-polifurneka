@@ -69,6 +69,18 @@ class PresensiController extends Controller
         }
 
         $now = Carbon::now();
+
+        // Kode berikut dapat diaktifkan kembali jika kebijakan berubah:
+        //
+        // $standar = PresensiService::getJamStandar($todayCarbon);
+        // $batasJamMasuk = Carbon::parse($today . ' 09:00:00');
+        // if ($now->greaterThan($batasJamMasuk)) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'Batas waktu presensi masuk hari ini telah berakhir (maksimal pukul 09:00 WIB).'
+        //     ], 400);
+        // }
+
         $jamMasuk = $now->toTimeString();
         $status = PresensiService::hitungStatusCheckIn($jamMasuk, $now);
 
@@ -151,20 +163,28 @@ class PresensiController extends Controller
         $jamPulangStandar = Carbon::parse($today . ' ' . $standar['jam_pulang']);
         $maxJamPulang = Carbon::parse($today . ' 22:00:00');
 
-        if ($now->lessThan($jamPulangStandar)) {
-            $jamFmt = Carbon::parse($standar['jam_pulang'])->format('H:i');
-            return response()->json([
-                'status' => 'error',
-                'message' => "Belum waktunya presensi pulang. Presensi pulang dapat dilakukan mulai pukul {$jamFmt} WIB."
-            ], 400);
-        }
+        // Batas minimum jam pulang dinonaktifkan atas permintaan pembimbing lapangan (Pak Edo).
+        // Peserta dapat melakukan presensi pulang kapan saja; sistem akan menandai status
+        // "Lebih Awal" jika pulang sebelum jam standar (16:00/16:30 WIB).
+        // Kode berikut dapat diaktifkan kembali jika kebijakan berubah:
+        //
+        // if ($now->lessThan($jamPulangStandar)) {
+        //     $jamFmt = Carbon::parse($standar['jam_pulang'])->format('H:i');
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => "Belum waktunya presensi pulang. Presensi pulang dapat dilakukan mulai pukul {$jamFmt} WIB."
+        //     ], 400);
+        // }
 
-        if ($now->greaterThan($maxJamPulang)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Batas waktu presensi pulang hari ini telah berakhir (maksimal pukul 22:00 WIB).'
-            ], 400);
-        }
+        // Batas maksimal jam pulang (22:00) juga dinonaktifkan sesuai kebijakan yang sama.
+        // Kode berikut dapat diaktifkan kembali jika kebijakan berubah:
+        //
+        // if ($now->greaterThan($maxJamPulang)) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'Batas waktu presensi pulang hari ini telah berakhir (maksimal pukul 22:00 WIB).'
+        //     ], 400);
+        // }
 
         $lat = (float) $request->latitude;
         $lng = (float) $request->longitude;
